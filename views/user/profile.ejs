@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petaura</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        /* Header Styling */
+        .header {
+            background: linear-gradient(90deg, #ffa500, #ff7f50);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            width: 100%;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header .logo {
+            font-size: 26px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            position: fixed;
+            top: 70px; /* Start below the header */
+            left: 0;
+            width: 250px;
+            height: calc(100% - 70px);
+            background: linear-gradient(180deg, #ffa500, #ffd27f);
+            color: white;
+            padding-top: 10px;
+            box-shadow: 3px 0 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: black;
+            padding: 12px 20px;
+            margin: 5px 15px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .sidebar i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            padding-top: 100px; /* Push content down to not overlap with the fixed header */
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .section h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        /* Buttons */
+        button.btn {
+            background: linear-gradient(90deg, #000000, #474849);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }
+
+        button.btn:hover {
+            background: linear-gradient(90deg, #000000, #252f3a);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+
+            .content {
+                margin-left: 220px;
+            }
+
+            .header .logo {
+                font-size: 20px;
+            }
+        }
+        .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centers the row horizontally */
+    gap: 1.5rem; /* Adds space between items */
+    margin-left:20px  auto; /* Centers the row within its container */
+    width: 1500px; /* Adjusts the row's width, can be customized */
+    margin-right: calc(-.4* var(--bs-gutter-x));
+    margin-left: calc(-9.5* var(--bs-gutter-x));
+}
+
+.err-msg{
+    color: red;
+}
+svg {
+    color: #000000; /* Blue color */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    transition: color 0.3s;
+    width: 30px;
+  }
+
+  svg:hover {
+    color: #ffffff; /* Darker blue on hover */
+  }
+  
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="logo">Petaura</div>
+        <div class="d-flex end-0">
+            <a href="/user" class="home-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+                    <path d="M12 3l7 6v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9l7-6zm5 7.586V19h-3v-4H10v4H7v-8.414L12 5.414l5 5.172z" />
+                </svg>
+                
+            </a>
+        </div>
+            </div>
+
+            <div class="sidebar">
+                <a href="/user/profile"><i class="fas fa-user" class="active"></i> Account Details</a>
+                <a href="/user/orderHistory" ><i class="fas fa-clock"></i> Order History</a>
+                <a href="/user/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="/user/cart"><i class="fas fa-shopping-cart"></i> Shopping Cart</a>
+                <a href="/user/whishlist"><i class="fas fa-heart"></i> Wishlist</a>
+                <a href="/user/address"><i class="fas fa-map-marker-alt"></i> Address</a>
+                <a href="/user/referral"><i class="fas fa-user-friends"></i> Referral</a>
+                <a href="/user/logOut"><i class="fas fa-sign-out-alt"></i> Log-out</a>
+            </div>
+
+    <div class="content">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="section">
+                    <div class="profile-details">
+                        <div class="profile-item">
+                            <label class="fw-5 fs-5">Full Name:</label>
+                            <span><%= user.name %></span>
+                        </div>
+                        <div class="profile-item">
+                            <label class="fw-5 fs-5">Email:</label>
+                            <span><%= user.email %></span>
+                        </div>
+                        <div class="profile-item">
+                            <label class="fw-5 fs-5">Phone Number:</label>
+                            <span><%= user.phone %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="section">
+                    <h2 class="fw-5 fs-5">Edit User Details</h2>
+                    <form onsubmit=" return EditDetails(event)" id="UserDetailsForm" method="POST" novalidate>
+                        <div class="form-group">
+                            <label for="name">Full Name:</label>
+                            <input type="text" id="name" name="name" value="<%= user.name %>"  />
+                            <div class="err-msg" id="err1"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number:</label>
+                            <input type="text" id="phone" name="phone" value="<%= user.phone %>"  />
+                            <div class="err-msg" id="err3"></div>
+                        </div>
+                        <input type="hidden" value="<%=user._id%>" id="id" name="id">
+                        <button type="submit" class="btn">Save Changes</button>
+                    </form>
+                </div>
+                <!-- changePassword -->
+                 <div class="section">
+                    <h2 class="fw-5 fs-5">Change Password</h2>
+                    <form onsubmit=" return ChangePassword(event)" method="POST" novalidate>
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password:</label>
+                            <input type="password" maxlength="6" id="currentPassword" name="currentPassword"   />
+                            <div class="err-msg" id="error1"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">newPassword:</label>
+                            <input type="password" maxlength="6" id="newPassword" name="newPassword"   />
+                            <div class="err-msg" id="error2"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">confirmPassword:</label>
+                            <input type="password" maxlength="6" id="confirmPassword" name="confirmPassword"   />
+                            <div class="err-msg" id="error3"></div>
+                        </div>
+                        <input type="hidden" value="<%=user._id%>" id="id" name="id">
+                        <button type="submit" class="btn">Change Password</button>
+                    </form>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</body>
+
+<script>
+    
+    function EditDetails(event){
+         event.preventDefault();
+
+    const id = document.getElementById("id").value;
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+
+    const err1 = document.getElementById("err1");
+    const err3 = document.getElementById("err3");
+
+
+    const isValid = true ;
+
+    const namePattern = /^[a-zA-Z\s]+$/;
+             if(name.trim() ==""){
+                err1.style.display="block";
+                err1.innerHTML="Please Enter Your Name";
+                isValid=false;
+            }else if (!namePattern.test(name)){
+                err1.style.display="block";
+                err1.innerHTML="Invalid Name , Only Allowed Alphebets";
+                isValid=false;
+            }else{
+                err1.style.display="none";
+                err1.innerHTML="";
+                
+            }
+    
+
+    const phonePattern = /^[0-9]{10}$/;
+    if(phone.trim() ==""){
+                err3.style.display="block";
+                err3.innerHTML="Please Enter Your Number";
+                isValid=false;
+            }else if (!phonePattern.test(phone)){
+                err3.style.display="block";
+                err3.innerHTML="Invalid Number ";
+                isValid=false;
+            }else{
+                err3.style.display="none";
+                err3.innerHTML="";
+            }
+
+            if(!isValid){
+                return false;
+            }
+
+        fetch("/user/edit-user-details",{
+            method:"POST",
+            headers:{
+                'Content-Type':'application/json',
+            },
+            body:JSON.stringify({id,name,phone})
+        }).then((response)=> response.json())
+        .then((response)=>{
+            if(response.success){
+                Swal.fire({
+                    icon:"success",
+                    title:"Edit UserDetails Successfull !",
+                    text:response.message,
+                    showCancelButton:false,
+                    showConfirmButton:false,
+                    timer:1500,
+                }).then(()=>{
+                    window.location.href = "/user/profile";
+                })
+            }else{
+                Swal.fire({
+                    icon:"error",
+                    title:"Edit UserDetails SuccessFull !",
+                    text:response.message,
+                    showCancelButton:false,
+                    showConfirmButton:false,
+                    timer:1500,
+                });
+            }
+        })
+        .catch((err)=>{
+            Swal.fire({
+                icon:"error",
+                title:"ERROR In Edit UserDetails",
+                text:response.message,
+                showCancelButton:false,
+                showConfirmButton:false,
+                timer:1500,
+            });
+        });
+        return false;
+    }
+
+        
+    
+    function ChangePassword(event){
+        
+        event.preventDefault();
+
+        const currentPassword = document.getElementById("currentPassword").value;
+        const newPassword = document.getElementById("newPassword").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const id = document.getElementById("id").value;
+
+        const err1 = document.getElementById("error1");
+        const err2 = document.getElementById("error2");
+        const err3 = document.getElementById("error3");
+
+
+        const currentPassPattern = /^.{6,}$/;
+        if(currentPassword.trim()===""){
+            err1.style.display="block";
+            err1.innerHTML="Please Enter Your CurrentPassword";
+            isValid=false;
+        }else if(!currentPassPattern.test(currentPassword)){
+            err1.style.display="block";
+            err1.innerHTML="Invalid Password ";
+        }else{
+            err1.style.display="none";
+            err1.innerHTML="";
+        }
+
+        const newPassPattern = /^.{6,}$/;
+        if(newPassword.trim()==""){
+            err2.style.display="block";
+            err2.innerHTML="Please enter Newpasword";
+        }else if(!newPassPattern.test(newPassword) ){
+            err2.style.display="block";
+            err2.innerHTML="Please enter Valid Password";
+        }else if(newPassword !== confirmPassword){
+            err2.style.display="block";
+            err2.innerHTML="Both should Be Match"
+        }else{
+           err2.style.display="none";
+           err2.innerHTML="";
+        }
+
+        const confirmPassPattern = /^.{6,}$/;
+        if(confirmPassword.trim()==""){
+            err3.style.display="block";
+            err3.innerHTML="Please enter confirmPassword";
+        }else if(!confirmPassPattern.test(confirmPassword) ){
+            err3.style.display="block";
+            err3.innerHTML="Please enter Valid Password";
+        }else if(newPassword !== confirmPassword){
+            err3.style.display="block";
+            err3.innerHTML="Both should Be Match"
+        }else{
+           err3.style.display="none";
+           err3.innerHTML="";
+        }
+
+        
+        if(err1.innerHTML || err2.innerHTML || err3.innerHTML ){
+            return false;
+        }
+
+        fetch("/user/change-password",{
+            method:"POST",
+            headers:{
+                'Content-Type':'application/json',
+            },
+            body:JSON.stringify({confirmPassword,currentPassword,newPassword,id})
+        }).then((response)=> response.json())
+          .then((response)=>{
+            if(response.success){
+                Swal.fire({
+                    icon:"success",
+                    title:"Password Change Successfully",
+                    text:response.message,
+                    showCancelButton:false,
+                    showConfirmButton:false,
+                    timer:1500,
+                }).then(()=>{
+                    window.location.href = "/user/profile";
+                })
+            }else{
+                Swal.fire({
+                    icon:"error",
+                    title:"Password Change Faild",
+                    text:response.message,
+                    showCancelButton:false,
+                    showConfirmButton:false,
+                    timer:1500
+                })
+            }
+          })
+          .catch((err)=>{
+            Swal.fire({
+                icon:"error",
+                title:"Error in changePassword",
+                showCancelButton:false,
+                showConfirmButton:false,
+                timer:1500,
+            })
+          });
+    }
+
+
+</script>
+
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Petaura</title>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Local or other external CSS -->
+    <link rel="stylesheet" href="/style/Style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+</head>
+<body>
+<div class="container-fluid">
+    <!-- navbar start -->
+    <div class="container-fluid" style="height: 90px;">
+        <div class="row navrow">
+            <div class="col-2 name">Petaura</div>
+            <div class="col-6 searchbar">
+                <div class="container my-4">
+                    <form class="d-flex" role="search"
+                          style="border: 1px solid #ccc; border-radius: 25px; overflow: hidden; background-color: white;">
+                        <input class="form-control" type="search" placeholder="what are you looking ?"
+                               style="border: none; border-radius: 0; box-shadow: none; background-color: white;">
+                        <button type="button" class="btn btn-default btn-sm">
+                            Search
+                        </button>
+                    </form>
+                    <ul class="d-flex justify-content-center list-unstyled mt-3">
+                        <li class="service1 mx-3">
+                            <a href="/user" class="text-decoration-none text-dark">Home</a>
+                        </li>
+                        <li class="service2 mx-3">
+                            <a href="/user/cat-supplies" class="text-decoration-none text-dark">Cat Supplies</a>
+                        </li>
+                        <li class="service2 mx-3">
+                            <a href="/user/dog-supplies" class="text-decoration-none text-dark">Dog Supplies</a>
+                        </li>
+                        <li class="service2 mx-3">
+                            <a href="/user/petBird-supplies" class="text-decoration-none text-dark">Pet Bird</a>
+                        </li>
+                        <li class="service2 mx-3">
+                            <a href="/user/smallPets-supplies" class="text-decoration-none text-dark">Small Pets</a>
+                        </li>
+                        <li class="service2 mx-3">
+                            <a href="/user/fish-supplies" class="text-decoration-none text-dark">Fishes</a>
+                        </li>
+                    </ul>
+                    
+                </div>
+            </div>
+            <div class="col-2 d-flex justify-content-around align-items-center">
+                <!-- Heart Icon for Wishlist -->
+                <a href="/user/whishlist" style="text-decoration: none; color: black;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="feather feather-heart">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+                </svg></a>
+            
+               <!-- Cart Icon -->
+              <a href="/user/cart" style="text-decoration: none; color: black;"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="feather feather-cart">
+                <path d="M6 6H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2l-1-3H7L6 6zM4 8h16v12H4V8z"></path>
+            </svg>
+             </a>
+
+              <!-- Profile Icon -->
+              <div class="user-container">
+                <div class="user-info">
+                    <!-- User Icon -->
+                     <%if(!user){%>
+                    <div class="icon-container" onclick="toggleDropdown()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="feather feather-user">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM12 14c-4.41 0-8 2.24-8 5v2h16v-2c0-2.76-3.59-5-8-5z"></path>
+                        </svg>
+                    </div>
+                    <%}else{%>
+                        <div class="icon-container" onclick="toggleDropdown()">
+                           <a href="/user/profile" style="color: black;"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="feather feather-user">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM12 14c-4.41 0-8 2.24-8 5v2h16v-2c0-2.76-3.59-5-8-5z"></path>
+                        </svg></a>
+                        </div>
+                        <%}%>
+                
+                    <% if (user) { %>
+                        <p class="user-name"><%= user.name %></p>
+                    <% } else { %>
+                        <p class="user-name empty"></p>
+                    <% } %>
+                
+                    <!-- Dropdown Menu -->
+                    <div class="dropdown-container">
+                        <div class="dropdown-menu">
+                            
+                            <% if(!user){%>
+                                <a href="/user/login">Login</a>
+                                <a href="/user/Signup">Signup</a>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            
+                
+            </div>
+            
+            <!-- Add the following CSS -->
+            <style>
+    .user-container {
+    position: relative;
+    display: inline-block;
+}
+
+.user-info {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    width: 60px; /* Fixed width for consistent alignment */
+}
+
+.user-name {
+    font-size: 14px;
+    margin: 2px 0 0 0;
+    text-align: center;
+    min-height: 18px; /* Ensures space is reserved even when empty */
+    color: #333;
+}
+
+.icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.user-info {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon-container {
+  cursor: pointer;
+}
+
+.user-name {
+  margin-left: 10px;
+  font-size: 16px;
+}
+
+.user-name.empty {
+  display: none; /* Hide when no user */
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%; /* Align below the button */
+  right: 0; /* Align to the right */
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.dropdown-menu a {
+  padding: 8px 16px;
+  display: block;
+  text-decoration: none;
+  color: black;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f0f0f0;
+}
+
+.dropdown-container.active .dropdown-menu {
+  display: block; /* Show dropdown */
+}
+
+            </style>
+<script>
+     // Toggle Dropdown Functionality
+function toggleDropdown() {
+    const dropdownContainer = document.querySelector('.dropdown-container');
+    dropdownContainer.classList.toggle('active');
+}
+
+// Close dropdown if clicked outside
+document.addEventListener('click', (e) => {
+    const dropdownContainer = document.querySelector('.dropdown-container');
+    const iconContainer = document.querySelector('.icon-container');
+
+    // Close dropdown if the click is outside the dropdown or icon
+    if (!dropdownContainer.contains(e.target) && !iconContainer.contains(e.target)) {
+        dropdownContainer.classList.remove('active');
+    }
+});
+
+ </script>
+            
+        </div>
+    </div>
+    <!-- navbar end -->
+</div>

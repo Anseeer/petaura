@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petaura - Order History</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #ffa500, #ff7f50);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            width: 100%;
+            z-index: 10;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .header .logo {
+            font-size: 26px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            width: 250px;
+            height: calc(100% - 70px);
+            background: linear-gradient(180deg, #ffa500, #ffd27f);
+            color: white;
+            padding-top: 10px;
+            box-shadow: 3px 0 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: black;
+            padding: 12px 20px;
+            margin: 5px 15px;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            padding-top: 100px;
+        }
+
+        .product-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+
+        .btn-custom {
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #ffa500;
+            color: white;
+        }
+
+        .no-orders {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .no-orders img {
+            width: 200px;
+            margin-bottom: 20px;
+        }
+        
+
+        .no-orders a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            color: white;
+            background-color: #ffa500;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .no-orders a:hover {
+            background-color: #ff7f50;
+        }
+        svg {
+    color: #000000; /* Blue color */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    transition: color 0.3s;
+    width: 30px;
+  }
+
+  svg:hover {
+    color: #ffffff; /* Darker blue on hover */
+  }
+  /* Pagination container */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+/* Pagination buttons */
+.pagination a {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: #ffa500; /* Bootstrap's primary color */
+    border: 1px solid #ffa500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Active button styling */
+.pagination a.btn-secondary {
+    background-color: #ffa500;
+    color: #fff;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Hover effect for buttons */
+.pagination a:hover {
+    background-color: #ffa500; /* Darker shade of primary */
+    color: #fff;
+}
+
+/* Disabled button styling */
+.pagination a.disabled {
+    color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="logo">Petaura</div>
+        <div class="d-flex">
+            <a href="/user" class="home-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+                    <path d="M12 3l7 6v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9l7-6zm5 7.586V19h-3v-4H10v4H7v-8.414L12 5.414l5 5.172z" />
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <a href="/user/profile"><i class="fas fa-user"></i> Account Details</a>
+        <a href="/user/orderHistory" class=""><i class="fas fa-clock"></i> Order History</a>
+        <a href="/user/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+        <a href="/user/cart"><i class="fas fa-shopping-cart"></i> Shopping Cart</a>
+        <a href="/user/whishlist"><i class="fas fa-heart"></i> Wishlist</a>
+        <a href="/user/address"><i class="fas fa-map-marker-alt"></i> Address</a>
+        <a href="/user/referral"><i class="fas fa-user-friends"></i> Referral</a>
+        <a href="/user/logOut"><i class="fas fa-sign-out-alt"></i> Log-out</a>
+    </div>
+
+    <div class="content">
+        <div class="container mt-4 py-5">
+            <% if (orders && orders.length > 0) { %>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Coupon Discount</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                    <% order.orderedItems.forEach(item => { %>
+                    <tr >
+                        <td onclick="location.href='/user/order-details?productId=<%= item.product._id %>&orderId=<%= order.orderId %>&orderedItemsId=<%= item._id %>'  ">
+                            <img src="<%= item.product.Image[0] %>" alt="Product Image" class="product-image">
+                            <%= item.product.name %>
+                        </td>
+                        <td><%= item.coupenDiscount || 0 %></td>
+                        <td>₹<%= item.totalPrice %></td>
+                        <td><%= item.quantity %></td>
+                        <td><%= item.status %></td>
+                        <td>
+                            <% if(item.status == "delivered"){ %>
+                                <button class="btn btn-warning btn-sm  btn-custom" onclick="returnOrderRequest(event, '<%= order.orderId %>', '<%= order.userId %>', '<%= item.product._id %>','<%= item._id %>','<%= item.quantity %>','<%= item.totalPrice %>')">Return request</button>
+                                <%}else if(item.status == "returned"){ %>
+                                    <!-- <button class="btn btn-success btn-sm  btn-custom" > Returned</button> -->
+                                <%}else if(item.status == "canceled"){ %>
+                                    <!-- <button class="btn btn-secondary btn-sm  btn-custom" > canceled</button> -->
+                                <%}else if(item.status == "requested"){%>
+                                    <!-- <button class="btn btn-secondary btn-sm  btn-custom" > requested</button> -->
+                                <%}else if(item.status == "pending" ){%>
+                            <button class="btn btn-danger btn-sm  btn-custom" onclick="orderCancel(event, '<%= order.orderId %>', '<%= item.quantity %>', '<%= item._id %>','<%= item.product._id %>')">CancelOrder</button>
+                            <%}%>
+                        </td>
+                    </tr>
+                    <% }) %>
+                    <% }) %>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/user/orderHistory?page=<%= currentPage - 1 %>" class="btn">Previous</a>
+                <% } else { %>
+                    <a class="btn disabled">Previous</a>
+                <% } %>
+            
+                <% for (let i = 1; i <= totalPage; i++) { %>
+                    <a href="/user/orderHistory?page=<%= i %>" 
+                       class="btn <%= currentPage === i ? 'btn-secondary' : '' %>">
+                       <%= i %>
+                    </a>
+                <% } %>
+            
+                <% if (currentPage < totalPage) { %>
+                    <a href="/user/orderHistory?page=<%= currentPage + 1 %>" class="btn">Next</a>
+                <% } else { %>
+                    <a class="btn disabled">Next</a>
+                <% } %>
+            </div>
+            
+
+
+            <% } else { %>
+            <div class="no-orders">
+                <h3>Your order history is empty!</h3>
+                <p>It seems like you haven’t placed any orders yet.</p>
+                <a href="/user/">Start Shopping</a>
+            </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function orderCancel(event, orderId, productQyt, orderedItemId , productId) {
+    event.preventDefault(); // Prevent default form behavior
+
+    console.log(orderId, productQyt, orderedItemId , productId); 
+
+    Swal.fire({
+        icon: "warning",
+        title: "Are you sure?",
+        text: "You want to cancel this order?",
+        showCancelButton: true,
+        confirmButtonText: "Yes, cancel it",
+        cancelButtonText: "No",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("/user/order-cancel", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, productQyt, orderedItemId, productId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Order Canceled Successfully",
+                        text: data.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    location.reload(); // Reload page to refresh the order list
+                } else {
+                    throw new Error(data.message || "Something went wrong. Please try again.");
+                }
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Order Cancellation Failed",
+                    text: error.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            });
+        }
+    }).catch(error => {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong. Please try again!",
+            timer: 1500,
+            showConfirmButton: false
+        });
+    });
+}
+
+
+
+function returnOrderRequest(event, orderId, userId, productId, orderedItemId ,productQty , productPrice) {
+    event.preventDefault(); // Prevent default form behavior
+
+    Swal.fire({
+        icon: "warning",
+        title: "Are you sure?",
+        text: "You want to request a return for this order?",
+        showCancelButton: true,
+        confirmButtonText: "Yes, return it",
+        cancelButtonText: "No",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: 'Reason for Return',
+                input: 'text',
+                inputLabel: 'Please enter the reason for the return',
+                inputPlaceholder: 'Enter reason here...',
+                showCancelButton: true,
+                confirmButtonText: 'Submit',
+                preConfirm: (reason) => {
+                    return fetch("/user/order-return-request", {
+                        method: "POST",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId, userId, productId, orderedItemId,productQty , productPrice, reason })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            throw new Error(data.message || "Something went wrong. Please try again.");
+                        }
+                        Swal.fire({
+                            icon: "success",
+                            title: "Return request sent",
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        location.reload(); // Reload page to refresh the order list
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Order return failed",
+                            text: error.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    });
+                }
+            });
+        }
+    }).catch(error => {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong. Please try again!",
+            timer: 1500,
+            showConfirmButton: false
+        });
+    });
+}
+
+
+    </script>
+</body>
+
+</html>

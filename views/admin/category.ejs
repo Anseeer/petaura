@@ -1,0 +1,368 @@
+<%- include("../partials/admin/header.ejs") %> 
+<head>
+    <style>
+        .error-msg{
+            color: red; 
+        }
+    </style>
+</head>
+<section class="content-main">
+    <!-- Categories Section -->
+    <div class="content-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="content-title card-title">Categories</h2>
+        </div>
+        
+        <div>
+            <form action="/admin/Category" method="get">
+                <input type="text" placeholder="Search Categories" name="search" class="form-control bg-white">
+            </form>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <!-- Categories Table (Move header to top of the form) -->
+                <div class="col-md-12">
+                    <h2 class="content-title card-title">Categories</h2> <!-- Move the header here -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Parent</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (category && category.length > 0) { %>
+                                    <% for (let i = 0; i < category.length; i++) { %>
+                                    <tr>
+                                        <td><%= category[i]._id %></td>
+                                        <td><b><%= category[i].name %></b></td>
+                                        <td><%= category[i].description %></td>
+                                        <td>
+                                            <%= category[i].parent ? category[i].parent.name : "No Parent" %>
+                                        </td>
+                                        <td>
+                                            <% if (category[i].isListed) { %>
+                                                <p style="color: green;">LISTED</p>
+                                            <% } else { %>
+                                                <p style="color: red;">UNLISTED</p>
+                                            <% } %>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <a href="#" data-bs-toggle="dropdown" class="btn btn-primary rounded btn-sm font-sm">
+                                                    <i class="material-icons md-more_horiz"></i>
+                                                </a>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="/admin/editCategory?id=<%= category[i]._id %>">Edit</a>
+                                                    <a class="dropdown-item" href="/admin/ListCategory?id=<%= category[i]._id %>" style="color: green;">List</a>
+                                                    <a class="dropdown-item" href="/admin/unListCategory?id=<%= category[i]._id %>" style="color: red;">Unlist</a>
+                                                    <a class="dropdown-item text-danger" href="#" onclick="confirmDelete('<%= category[i]._id %>')">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="7" class="text-center">No categories found</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                            
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parent Categories Section -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h2 class="content-title card-title">Parent Categories</h2> <!-- Move the header here -->
+            <div class="row">
+                <!-- Parent Categories Table -->
+                <div class="col-md-12">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Parent Name</th>
+                                    <th>Description</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (parentCategory && parentCategory.length > 0) { %>
+                                    <% for (let i = 0; i < parentCategory.length; i++) { %>
+                                    <tr>
+                                        <td><%= parentCategory[i]._id %></td>
+                                        <td><b><%= parentCategory[i].name %></b></td>
+                                        <td><%= parentCategory[i].description %></td>
+                                        <td>
+                                            <% if (parentCategory[i].isListed) { %>
+                                                <p style="color: green;">LISTED</p>
+                                            <% } else { %>
+                                                <p style="color: red;">UNLISTED</p>
+                                            <% } %>
+                                        </td>
+                                        <td class="text-end">
+                                            <div class="dropdown">
+                                                <a href="#" data-bs-toggle="dropdown" class="btn btn-primary rounded btn-sm font-sm">
+                                                    <i class="material-icons md-more_horiz"></i>
+                                                </a>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item" href="/admin/editParentCategory?id=<%=parentCategory[i]._id%>">Edit</a>
+                                                    <a class="dropdown-item" href="/admin/ListParentCategory?id=<%=parentCategory[i]._id%>" style="color: green;">List</a>
+                                                    <a class="dropdown-item" href="/admin/unListParentCategory?id=<%=parentCategory[i]._id%>" style="color: red;">Unlist</a>
+                                                    <a class="dropdown-item text-danger" href="#" onclick="confirmDeleteParent('<%= parentCategory[i]._id %>')">Delete</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center">No parent categories found</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forms Section (Both Forms in Third Row) -->
+            <div class="row mt-4">
+                <!-- Add Category Form -->
+                <div class="col-md-6">
+                    <h2 class="content-title card-title">Create Category</h2>
+                    <form action="/admin/addCategory" id="addCategoryForm" method="post">
+                        <div class="mb-4">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" placeholder="Type here" class="form-control" name="name" id="name" />
+                            <div class="error-msg" id="error1"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label for="parent" class="form-label">Parent Category</label>
+                            <select name="parent" class="form-select" id="parent">
+                                <option value="">Select Parent Category</option>
+                                <% parentCategory.forEach((parent) => { %>
+                                    <option value="<%= parent._id %>" <%= category.parent == parent._id ? 'selected' : '' %>>
+                                        <%= parent.name %>
+                                    </option>                          
+                                <% }); %> 
+                            </select>
+                            <div class="error-msg" id="error2"></div>
+                        </div> 
+                        <div class="mb-4">
+                            <label class="form-label">Offer</label>
+                            <input placeholder="Category Offer%" name="offer" id="offer" class="form-control"></input>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Description</label>
+                            <textarea placeholder="Type here" name="description" id="description" class="form-control"></textarea>
+                            <div class="error-msg" id="error3"></div>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit">Create Category</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Add Parent Category Form -->
+                <div class="col-md-6">
+                    <h2 class="content-title card-title">Create Parent Category</h2>
+                    <form action="/admin/addParentCategory" id="addParentCategoryForm" method="post">
+                        <div class="mb-4">
+                            <label for="parent_name" class="form-label">Parent Name</label>
+                            <input type="text" placeholder="Type here" class="form-control" name="parent_name" id="parent_name" />
+                            <div class="error-msg" id="err1"></div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Parent Description</label>
+                            <textarea placeholder="Type here" name="parent_description" id="parent_description" class="form-control"></textarea>
+                            <div class="error-msg" id="err2"></div>
+                        </div>
+                        <div class="d-grid">
+                            <button class="btn btn-primary" type="submit">Create Parent Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this action!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, keep it',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the delete URL
+                window.location.href = '/admin/deleteCategory?id=' + id;
+            }
+        });
+    }
+    function confirmDeleteParent(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this action!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, keep it',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the delete URL
+                window.location.href = '/admin/deleteParentCategory?id=' + id;
+            }
+        });
+    }
+// fomr validation of the category 
+const name = document.getElementById("name");
+const parent = document.getElementById("parent");
+const description = document.getElementById("description");
+const err1 = document.getElementById("error1");
+const err2 = document.getElementById("error2");
+const err3 = document.getElementById("error3");
+const addCategoryForm = document.getElementById("addCategoryForm"); // Corrected form ID
+
+function nameValidation() {
+    const nameVal = name.value;
+    const namePattern = /^[a-zA-Z\s]+$/;
+
+    if (nameVal.trim() === "") {
+        err1.style.display = "block";
+        err1.innerHTML = "Please Enter Category Name";
+    } else if (!namePattern.test(nameVal)) {
+        err1.style.display = "block";
+        err1.innerHTML = "Name Only Allowed Alphabets";
+    } else {
+        err1.style.display = "none";
+        err1.innerHTML = "";
+    }
+}
+
+function parentValidation() {
+    const parentVal = parent.value;
+    const parentPattern = /^[a-zA-Z\s]+$/;
+
+    if (parentVal.trim() === "") {
+        err2.style.display = "block";
+        err2.innerHTML = "Please Enter Parent Category";
+    }  else {
+        err2.style.display = "none";
+        err2.innerHTML = "";
+    }
+}
+
+function descriptionValidation() {
+    const desVal = description.value;
+    const desPattern = /^[a-zA-Z\s]+$/;
+
+    if (desVal.trim() === "") {
+        err3.style.display = "block";
+        err3.innerHTML = "Please Enter Description";
+    } else if (!desPattern.test(desVal)) {
+        err3.style.display = "block";
+        err3.innerHTML = "Description Only Allowed Alphabets";
+    } else {
+        err3.style.display = "none";
+        err3.innerHTML = "";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    addCategoryForm.addEventListener("submit", function (e) {
+          nameValidation();
+           parentValidation();
+             descriptionValidation();
+
+        // Prevent form submission if any validation fails
+        if (err1.innerHTML || err2.innerHTML || err3.innerHTML) {
+            e.preventDefault(); // Prevent form submission
+            console.log("Form validation failed.");
+        } else {
+            console.log("Form validation passed.");
+        }
+    });
+});
+
+// form validation of the ParentCategory
+const Parent_name = document.getElementById("parent_name");
+const Parent_description = document.getElementById("parent_description"); 
+const addParentCategoryForm = document.getElementById("addParentCategoryForm");
+const err_1 = document.getElementById("err1")
+const err_2 = document.getElementById("err2")
+
+function Parent_nameValidation() {
+    const nameVal = Parent_name.value;
+    const namePattern = /^[a-zA-Z\s]+$/;
+
+    if (nameVal.trim() === "") {
+        err_1.style.display = "block";
+        err_1.innerHTML = "Please Enter Category Name";
+    } else if (!namePattern.test(nameVal)) {
+        err_1.style.display = "block";
+        err_1.innerHTML = "Name Only Allowed Alphabets";
+    } else {
+        err_1.style.display = "none";
+        err_1.innerHTML = "";
+    }
+}
+
+function Parent_descriptionValidation() {
+    const desVal = Parent_description.value;
+    const desPattern = /^[a-zA-Z\s]+$/;
+
+    if (desVal.trim() === "") {
+        err_2.style.display = "block";
+        err_2.innerHTML = "Please Enter Description";
+    } else if (!desPattern.test(desVal)) {
+        err_2.style.display = "block";
+        err_2.innerHTML = "Description Only Allowed Alphabets";
+    } else {
+        err_2.style.display = "none";
+        err_2.innerHTML = "";
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    addParentCategoryForm.addEventListener("submit", function (e) {
+          Parent_nameValidation();
+            Parent_descriptionValidation();
+
+        // Prevent form submission if any validation fails
+        if (err_1.innerHTML || err_2.innerHTML ) {
+            e.preventDefault(); // Prevent form submission
+            console.log("Form validation failed.");
+        } else {
+            console.log("Form validation passed.");
+        }
+    });
+});
+
+
+
+</script>           
+
+<%- include("../partials/admin/footer.ejs") %> 

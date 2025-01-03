@@ -1,0 +1,104 @@
+
+<%- include("../partials/admin/header.ejs") %> 
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Customers</h2>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row gx-3">
+                <!-- Search bar on the left side -->
+                <div class="col-lg-4 col-md-6 me-auto">
+                    <form action="/admin/list-customer" method="get">
+                        <div class="input-group">
+                            <input type="text" name="search" placeholder="Search..." class="form-control">
+                            <button type="submit" class="btn btn-secondary">Search</button>
+                        </div>
+                    </form>
+                </div>
+                
+
+                <!-- Add new button moved further right -->
+                <div class="col-lg-2 col-md-6 ms-auto" style="text-align: right;">
+                    <button class="btn btn-sm btn-secondary">
+                        <a href="/admin/addCustomer" style="color: white; text-decoration: none;">Add new</a>
+                    </button>
+                </div>
+            </div>
+        </header> <!-- card-header end// -->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Customers</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Action</th>
+                            <th>Registered</th>
+                            <th class="text-end">Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for(let i = 0; i < customer.length; i++) { %>
+                        <tr>
+                            <td><%= customer[i].name %></td>
+                            <td><%= customer[i].email %></td>
+                            <td><%= customer[i].phone %></td>
+                            <td>
+                                <% if (customer[i].isBlocked === false) { %>
+                                    <button class="btn btn-sm btn-danger">
+                                        <a href="/admin/blockCustomer?id=<%= customer[i]._id %>" style="color: white; text-decoration: none;">Block</a>
+                                    </button>
+                                <% } else { %>
+                                    <button class="btn btn-sm btn-success">
+                                        <a href="/admin/unblockCustomer?id=<%= customer[i]._id %>" style="color: white; text-decoration: none;">UnBlocked</a>
+                                    </button>
+                                <% } %>
+                            </td>
+                            <td><%= new Date(customer[i].createdAt).toLocaleDateString('en-GB') %></td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-danger" onclick="return confirmDeletion(event)">
+                                    <a href="/admin/deleteCustomer?id=<%= customer[i]._id %>" style="color: white; text-decoration: none;">Delete</a>
+                                </button>
+                            </td>
+                        </tr>
+                        <% } %>
+                    </tbody>
+                </table> <!-- table-responsive.// -->
+            </div>
+        </div> <!-- card-body end// -->
+    </div> <!-- card end// -->
+</section>
+
+<script>
+    // Colorful and custom confirmation alert
+    function confirmDeletion(event) {
+        event.preventDefault(); // Prevents the default link action (so we can show the alert)
+        
+        const deleteLink = event.target.closest('a'); // Find the link that triggered the event
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will permanently delete the customer!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, cancel!',
+            reverseButtons: true,
+            background: '#f8f9fa',  // Light background
+            confirmButtonColor: '#d33', // Red color for confirmation button
+            cancelButtonColor: '#3085d6', // Blue color for cancel button
+            preConfirm: () => {
+                // If confirmed, follow the link to delete the customer
+                window.location.href = deleteLink.href;
+            }
+        });
+    }
+</script>
+
+
+<%- include("../partials/admin/footer.ejs") %>

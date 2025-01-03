@@ -1,0 +1,181 @@
+<%- include("../partials/admin/header.ejs") %>
+<style>
+    .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+/* Pagination buttons */
+.pagination a {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: #ffa500; /* Bootstrap's primary color */
+    border: 1px solid #ffa500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Active button styling */
+.pagination a.btn-secondary {
+    background-color: #ffa500;
+    color: #fff;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Hover effect for buttons */
+.pagination a:hover {
+    background-color: #ffa500; /* Darker shade of primary */
+    color: #fff;
+}
+
+/* Disabled button styling */
+.pagination a.disabled {
+    color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Products List</h2>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row align-items-center">
+                <!-- Search bar (category filter) on the left side -->
+               <form action="/admin/loadProducts" method="get"   class="col-md-4 col-12 me-auto mb-md-0 mb-3"> 
+                    <input type="text" name="Search" class="form-control" placeholder="Search category..." aria-label="Search category">
+                </form>
+                <!-- Add Product button on the right side -->
+                <div class="col-md-4 col-12 text-end">
+                    <button class="btn btn-primary"><a href="/admin/addProducts" style="text-decoration: none; color: white;">Add Product</a></button>
+                </div>
+            </div>
+        </header> <!-- card-header end// -->
+
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Brand</th>
+                        <th>Sale Price</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Offer</th>
+                        <th>Quantity</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% for (let i = 0; i < product.length; i++) { %>
+                        <tr>
+                            <td>
+                                <div class="itemside">
+                                    <div class="left">
+                                        <img src="<%=product[i].Image[0] %>" style="width: 50px;" class="product-img-thumbanail" alt="Product Image">
+                                    </div>
+                                    <div class="info">
+                                        <h6 class="mb-0"><%= product[i].name %></h6>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <td>Brand</td>
+                            <td>
+                                <span class="badge rounded-pill" style="color: black;"><%= product[i].salePrice %></span>
+                            </td>
+                            <td><%= product[i].Status %></td>
+                            <td><%= product[i].createdAt.toLocaleDateString("en-GB", {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "numeric",
+                            }) %></td>
+                            <td><%= product[i].Offer %></td>
+                            <td><%= product[i].quantity %></td>
+                            <td><%= product[i].categoryDetails.name %></td>
+                            <td>
+                                <%if(product[i].isBlocked == "false"){%>
+                                <button class=" btn btn-sm btn-rounded btn-secondary"><a href="/admin/blockProduct?id=<%=product[i]._id%>" style="text-decoration: none; color: white;">Block</a></button>
+                                <%}else{%>
+                                <button class=" btn btn-sm btn-rounded btn-secondary" ><a href="/admin/unblockProduct?id=<%=product[i]._id%>" style="text-decoration: none; color: white;">unBlock</a></button>
+                                <%}%>
+                            </td>
+                            <td class="text-end">
+                                <a href="/admin/editProduct?id=<%=product[i]._id%>" class="btn btn-sm font-sm btn-secondary rounded">
+                                    <i class="material-icons md-delete_forever"></i> Edit
+                                </a>
+                                <a href=""  onclick="confirmDelete(event, '<%=product[i]._id%>')" class="btn btn-sm font-sm btn-dark rounded">
+                                    <i class="material-icons md-delete_forever"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/admin/loadproducts?page=<%= currentPage - 1 %>" class="btn">Previous</a>
+                <% } else { %>
+                    <a class="btn disabled">Previous</a>
+                <% } %>
+            
+                <% for (let i = 1; i <= totalPage; i++) { %>
+                    <a href="/admin/loadproducts?page=<%= i %>" 
+                       class="btn <%= currentPage === i ? 'btn-secondary' : '' %>">
+                       <%= i %>
+                    </a>
+                <% } %>
+            
+                <% if (currentPage < totalPage) { %>
+                    <a href="/admin/loadproducts?page=<%= currentPage + 1 %>" class="btn">Next</a>
+                <% } else { %>
+                    <a class="btn disabled">Next</a>
+                <% } %>
+            </div>
+
+        </div> <!-- card-body end// -->
+    </div> <!-- card end// -->
+</section>
+<script>
+    function confirmDelete(event, productId) {
+        // Prevent default behavior (e.g., navigation)
+        event.preventDefault();
+
+        // SweetAlert confirmation dialog
+        Swal.fire({
+            icon: "warning",
+            title: "Are you sure?",
+            text: "Do you want to delete this product?",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+        }).then((res) => {
+            if (res.isConfirmed) {
+                // Redirect to the delete URL
+                window.location.href = `/admin/deleteProduct?id=${productId}`;
+            } else {
+                // Optional: Add a feedback message
+                Swal.fire("Cancelled", "Your product is safe!", "info");
+            }
+        });
+    }
+</script>
+
+<%- include("../partials/admin/footer.ejs") %>
+

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Page</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+   body {
+    background-color: #FFA500; /* Orange background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+}
+
+.signup-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensure even spacing */
+    max-width: 800px;
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.form-card {
+    background-color: #fff;
+    padding: 2rem;
+    max-width: 50%; /* Ensure equal width for form and image */
+    width: 100%;
+    box-shadow: none;
+    height: auto;
+}
+
+.logo-container {
+    max-width: 50%; /* Ensure equal width for form and image */
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.logo-container img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 0 10px 10px 0;
+}
+
+        .form-card input {
+            border-radius: 20px ;
+        }
+        .google-btn {
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .logo-container img {
+            max-width:100%;
+            height: 89.5vh;
+            display: flex;
+            justify-content:center;
+            text-align: center;
+            border-top-right-radius:10px ;
+            border-bottom-right-radius:10px ;
+        }
+        .error-message{
+            color: red;
+            font-size: 0.75rem;
+            display: none;;
+        }
+        .message{
+            color: red;
+            font-family: sans-serif;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="signup-container">
+        <div class="form-card">
+            <h2 class="text-center mb-4">Signup</h2>
+            <% if (typeof message !== "undefined" && message) { %>
+                <p class="message"><%= message %></p>
+            <% } %>
+            
+            <form id="signform" novalidate method="post" action="/user/signup">
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Name" required>
+                    <!-- <div class="invalid-feedback">Please enter your name.</div> -->
+                     <div id="error1" class="error-message"></div>
+                </div>
+                <div class="mb-3">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                    <!-- <div class="invalid-feedback">Please enter a valid email address.</div> -->
+                    <div id="error2" class="error-message"></div>
+                </div>
+                <div class="mb-3">
+                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="Phone" required pattern="\d{10}">
+                    <!-- <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div> -->
+                    <div id="error3" class="error-message"></div>
+                </div>
+                <div class="mb-3">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required minlength="6">
+                    <!-- <div class="invalid-feedback">Password must be at least 6 characters.</div> -->
+                    <div id="error4" class="error-message"></div>
+                </div>
+                <div>
+                    <input type="hidden" name="refCode" id="refCode">
+                </div>
+                <div class="text-center mb-3">
+                    <button type="submit" class="btn btn-primary w-100">Signup</button>
+                </div>
+                <p class="text-center">or</p>
+                <div class="text-center mb-3">
+                    <a href="/user/auth/google" class="btn btn-light google-btn w-100">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 28" fill="none">
+                            <g clip-path="url(#clip0_87_585)">
+                                <path d="M16.0322 11.5723V16.6951H24.4021C24.0345 18.3426 22.9316 19.7376 21.2775 20.6755L26.3248 24.0066C29.2656 21.6978 30.9622 18.3066 30.9622 14.2781C30.9622 13.3402 30.8632 12.4382 30.6794 11.5724L16.0322 11.5723Z" fill="#4285F4"/>
+                                <path d="M7.31628 16.4951L6.17791 17.2363L2.14844 19.9059C4.70746 24.223 9.95237 27.2053 16.0318 27.2053C20.2307 27.2053 23.7511 26.0268 26.3243 24.0066L21.277 20.6755C19.8915 21.4692 18.1242 21.9503 16.0318 21.9503C11.9883 21.9503 8.55275 19.6294 7.32264 16.5028L7.31628 16.4951Z" fill="#34A853"/>
+                                <path d="M2.14866 8.04883C1.08835 9.82852 0.480469 11.8368 0.480469 13.9773C0.480469 16.1178 1.08835 18.126 2.14866 19.9057C2.14866 19.9177 7.32336 16.4905 7.32336 16.4905C7.01232 15.6968 6.82847 14.8551 6.82847 13.9771C6.82847 13.0992 7.01232 12.2574 7.32336 11.4638L2.14866 8.04883Z" fill="#FBBC05"/>
+                                <path d="M16.0321 6.01664C18.3225 6.01664 20.3584 6.69004 21.9843 7.9888L26.4378 4.20085C23.7374 2.06036 20.2312 0.749512 16.0321 0.749512C9.95269 0.749512 4.70746 3.71978 2.14844 8.04894L7.32297 11.4642C8.55293 8.33752 11.9886 6.01664 16.0321 6.01664Z" fill="#EA4335"/>
+                            </g>
+                            <defs>
+                                <clipPath id="clip0_87_585">
+                                    <rect width="31.1042" height="26.4559" fill="white" transform="translate(0.480469 0.749512)"/>
+                                </clipPath>
+                            </defs>
+                        </svg>
+                        Sign up with Google
+                    </a>
+                    
+                </div>
+                <p class="text-center">Already have an account? <a href="/user/login">Login</a></p>
+            </form>        
+        </div>
+        <div class="logo-container ">
+            <img src="../../style/img/dogs.png" alt="Pet Supplies Logo">
+        </div>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    //    form validation  
+        const nameId = document.getElementById("name");
+const emailId = document.getElementById("email");
+const phoneId = document.getElementById("phone");
+const passwordId = document.getElementById("password");
+const error1 = document.getElementById("error1");
+const error2 = document.getElementById("error2");
+const error3 = document.getElementById("error3");
+const error4 = document.getElementById("error4");
+const signform = document.getElementById("signform");
+
+function nameValidation() {
+    const nameval = nameId.value.trim();
+    const namePattern = /^[a-zA-Z\s]+$/;
+
+    if (!nameval) {
+        error1.style.display = "block";
+        error1.innerHTML = "Please enter a valid name";
+    } else if (!namePattern.test(nameval)) {
+        error1.style.display = "block";
+        error1.innerHTML = "Name can only contain alphabets";
+    } else {
+        error1.style.display = "none";
+        error1.innerHTML = "";
+    }
+}
+
+function emailValidation() {
+    const emailval = emailId.value.trim();
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+    if (!emailval) {
+        error2.style.display = "block";
+        error2.innerHTML = "Please enter a valid email";
+    } else if (!emailPattern.test(emailval)) {
+        error2.style.display = "block";
+        error2.innerHTML = "Enter a valid email";
+    } else {
+        error2.style.display = "none";
+        error2.innerHTML = "";
+    }
+}
+
+function phoneValidation() {
+    const phoneval = phoneId.value.trim();
+    const phonePattern = /^[0-9]{10}$/;
+
+    if (!phoneval) {
+        error3.style.display = "block";
+        error3.innerHTML = "Please enter a number";
+    } else if (!phonePattern.test(phoneval)) {
+        error3.style.display = "block";
+        error3.innerHTML = "Enter a valid 10-digit number";
+    } else {
+        error3.style.display = "none";
+        error3.innerHTML = "";
+    }
+}
+
+function passwordValidation() {
+    const passval = passwordId.value.trim();
+    const passPattern = /^.{6,}$/;
+
+    if (!passval) {
+        error4.style.display = "block";
+        error4.innerHTML = "Please enter a password";
+    } else if (!passPattern.test(passval)) {
+        error4.style.display = "block";
+        error4.innerHTML = "Password must be at least 6 characters";
+    } else {
+        error4.style.display = "none";
+        error4.innerHTML = "";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    signform.addEventListener("submit", function (e) {
+        nameValidation();
+        emailValidation();
+        phoneValidation();
+        passwordValidation();
+
+        if (
+            error1.innerHTML ||
+            error2.innerHTML ||
+            error3.innerHTML ||
+            error4.innerHTML
+        ) {
+            e.preventDefault();
+        }
+    });
+});
+
+const queryParams = new URLSearchParams(window.location.search);
+const referralCode = queryParams.get('ref');
+
+document.addEventListener('DOMContentLoaded', () => {
+  const referralInput = document.getElementById('refCode');
+  if (referralCode) {
+    referralInput.value = referralCode; 
+  }
+});
+
+
+
+    </script>
+</body>
+</html>
+   

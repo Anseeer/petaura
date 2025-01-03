@@ -1,0 +1,111 @@
+<div class="floating-container">
+    <div class="floating-card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0 justify-content-between d-flex align-items-center">Edit Address</h5>
+        <button class="close-btn" onclick="closeEditAddress()">&times;</button>
+      </div>
+      <div class="card-body">
+        <form action="/user/edit-addressInCheckout" method="POST">
+          <input type="hidden" name="id" value="<%= address._id %>">
+  
+          <div class="form-group">
+            <label for="addressType">Address Type</label>
+            <input type="text" class="form-control" id="addressType" name="addressType" value="<%= address.addressType %>" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="<%= address.name %>" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="country">Country</label>
+            <input type="text" class="form-control" id="country" name="country" value="<%= address.country %>" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="state">State</label>
+            <input type="text" class="form-control" id="state" name="state" value="<%= address.state %>" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="pincode">Pincode</label>
+            <input type="text" class="form-control" id="pincode" name="pincode" value="<%= address.pincode %>" required>
+          </div>
+  
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="text" class="form-control" id="phone" name="phone" value="<%= address.phone %>" required>
+          </div>
+  
+          <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary">Update Address</button>
+            <button type="button" class="btn btn-secondary ml-2" onclick="closeEditAddress()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    .floating-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+  
+    .floating-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 90%;
+      max-width: 500px;
+      overflow: hidden;
+    }
+  
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+    }
+  
+    .close-btn {
+      border: none;
+      background: transparent;
+      font-size: 1.5rem;
+      color: white;
+      cursor: pointer;
+    }
+  
+    .card-body {
+      padding: 1rem;
+    }
+  
+    .form-group {
+      margin-bottom: 1rem;
+    }
+  
+    .btn {
+      padding: 0.5rem 1rem;
+    }
+  
+    .btn-secondary {
+      background-color: #6c757d;
+      border: none;
+    }
+  </style>
+  
+  <script>
+    function closeEditAddress() {
+      window.history.back(); // Go back to the previous page
+    }
+  </script>
+  

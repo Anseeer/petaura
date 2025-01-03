@@ -1,0 +1,99 @@
+
+    <style>
+        .container { padding-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        img { width: 50px; }
+    </style>
+<%- include("../partials/admin/header.ejs") %>
+
+<div class="container">
+    <h2>Return Requests</h2>
+    
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Ordered Date</th>
+                    <th>Reason</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (requestedItem && requestedItem.length > 0) { %>
+                    <% for (let i = 0; i < requestedItem.length; i++) { %>
+                        <tr>
+                            <td>
+                                <img src="<%= requestedItem[i].productId.Image[0] %>" alt="Product Image" width="50">
+                                <%= requestedItem[i].productId.name %>
+                            </td>
+                            <td><%= new Date(requestedItem[i].createdAt).toLocaleDateString('en-GB') %></td>
+                            <td>Damaged Item</td>
+                            <td>
+                            <select  
+                                name="status" class="form-select" onchange="updateStatus('<%= requestedItem[i]._id %>', '<%= requestedItem[i].productId._id %>', '<%= requestedItem[i].orderId %>', '<%= requestedItem[i].quantity %>','<%= requestedItem[i].price %>' , this.value)">
+                                <option value="requested" <%= requestedItem[i].status === "requested" ? "selected='selected'" : "" %>>Requested</option>
+                                <option value="approved" <%= requestedItem[i].status === "approved" ? "selected='selected'" : "" %>>Aproved</option>
+                                <option value="rejected"<%= requestedItem[i].status === "rejected" ? "selected='selected'" : "" %>>Rejected</option>
+                            </select>
+                            </td>
+                            
+                            
+                        </tr>
+                    <% } %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="4" class="text-center">Request Empty</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+        
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function updateStatus( requestedItemId, productId, orderId, productQty , productPrice, status){
+        console.log("requestedItem:",requestedItemId,"productId", productId,"orderID", orderId,"productQutyti", productQty , "productPrice",productPrice, status)
+        console.log("status:",status);
+        fetch("/admin/update-returnRequest-status",{
+            method:"POST",
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify({requestedItemId, productId, orderId, productQty , productPrice, status})
+        })
+        .then((res)=> res.json())
+        .then((res)=>{
+            if(res.success){
+                Swal.fire({
+                icon:"success",
+                title:`${status}`,
+                showConfirmButton:false,
+                showCancelButton:false,
+                timer:1500
+            })
+            location.reload()
+            }else{
+                Swal.fire({
+                icon:"Error",
+                title:`${status}`,
+                showConfirmButton:false,
+                showCancelButton:false,
+                timer:1500
+            })
+            }
+        })
+        .catch((err)=>{
+            Swal.fire({
+                icon:"error",
+                title:"Erorr in update Status",
+                timer:1500,
+                showCancelButton:false,
+                showConfirmButton:false,
+            })
+        })
+    }
+</script>
+<%- include("../partials/admin/footer.ejs") %>

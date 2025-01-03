@@ -1,0 +1,250 @@
+<%- include("../partials/admin/header.ejs") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+    .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px; /* Optional: add some top margin for spacing */
+    }
+    
+    h2 {
+        margin: 0; /* Remove top and bottom margin for the heading */
+    }
+
+    button {
+        margin-top: 10px; /* Optional: add some top margin to the button */
+    }
+    /* Pagination container */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+/* Pagination buttons */
+.pagination a {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 14px;
+    text-decoration: none;
+    border-radius: 5px;
+    color: #f0b639; /* Bootstrap's primary color */
+    border: 1px solid #f0b639;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Active button styling */
+.pagination a.btn-secondary {
+    background-color: #f0b639;
+    color: #fff;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* Hover effect for buttons */
+.pagination a:hover {
+    background-color: #f0b639; /* Darker shade of primary */
+    color: #fff;
+}
+
+/* Disabled button styling */
+.pagination a.disabled {
+    color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+</style>
+
+<!-- Main Content Start -->
+<div class="container">
+    <h2 class="mt-4 Start-0">Order History</h2>
+    <a href="/admin/load-return-request"><button class="mt-4 end-0">Return Request</button></a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-border-top">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Date</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (orders && orders.length > 0) { %>
+                <% for (let i = 0; i < orders.length; i++) { %>
+                    <% for (let j = 0; j < orders[i].orderedItems.length; j++) { %>
+                        <tr >
+                            <td onclick="location.href='/admin/order-details?productId=<%= orders[i].orderedItems[j].product._id %>&orderId=<%= orders[i].orderId %>&orderedItemId=<%=  orders[i].orderedItems[j]._id %>'">
+                                <img src="<%= orders[i].orderedItems[j].product.Image[0] %>" alt="Product Image" class="img-fluid" width="50">
+                                <%= orders[i].orderedItems[j].product.name %>
+                            </td>
+                            <td>
+                                <%= new Date(orders[i].createdAT).toLocaleDateString('en-GB', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric'
+                                }) %>
+                            </td>
+                            <td><%= orders[i].orderedItems[j].price %></td>
+                            <td><%= orders[i].orderedItems[j].quantity %></td>
+                            <td>
+                                <select 
+                                    name="status" 
+                                    class="form-select" 
+                                    onchange="updateStatus('<%= orders[i].orderId %>','<%= orders[i].userId %>', '<%= orders[i].orderedItems[j]._id %>', '<%= orders[i].orderedItems[j].product ? orders[i].orderedItems[j].product._id : null %>', '<%= orders[i].orderedItems[j].quantity %>', this.value)">
+                                    <option value="pending" <%= orders[i].orderedItems[j].status === "pending" ? "selected='selected'" : "" %>>Pending</option>
+                                    <option value="processing" <%= orders[i].orderedItems[j].status === "processing" ? "selected='selected'" : "" %>>Processing</option>
+                                    <option value="shipped" <%= orders[i].orderedItems[j].status === "shipped" ? "selected='selected'" : "" %>>Shipped</option>
+                                    <option value="delivered" <%= orders[i].orderedItems[j].status === "delivered" ? "selected='selected'" : "" %>>Delivered</option>
+                                    <option value="canceled" <%= orders[i].orderedItems[j].status === "canceled" ? "selected='selected'" : "" %>>Canceled</option>
+                                    <option value="" <%= orders[i].orderedItems[j].status === "requested" ? "selected='selected'" : "" %>>Requested</option>
+                                    <option value="" <%= orders[i].orderedItems[j].status === "return" ? "selected='selected'" : "" %>>Return</option>
+                                    <option value="" <%= orders[i].orderedItems[j].status === "approved" ? "selected='selected'" : "" %>>Approved</option>
+                                    <option value="" <%= orders[i].orderedItems[j].status === "rejected" ? "selected='selected'" : "" %>>Rejected</option>
+                                </select>
+                            </td>
+                        </tr>
+                    <% } %>
+                <% } %>
+                
+            <% } else { %>
+                <tr>
+                    <td colspan="6" class="text-center">No orders found.</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <% if (currentPage > 1) { %>
+            <a href="/admin/order?page=<%= currentPage - 1 %>" class="btn">Previous</a>
+        <% } else { %>
+            <a class="btn disabled">Previous</a>
+        <% } %>
+    
+        <% for (let i = 1; i <= totalPage; i++) { %>
+            <a href="/admin/order?page=<%= i %>" 
+               class="btn <%= currentPage === i ? 'btn-secondary' : '' %>">
+               <%= i %>
+            </a>
+        <% } %>
+    
+        <% if (currentPage < totalPage) { %>
+            <a href="/admin/order?page=<%= currentPage + 1 %>" class="btn">Next</a>
+        <% } else { %>
+            <a class="btn disabled">Next</a>
+        <% } %>
+    </div>
+
+</div>
+
+<%- include("../partials/admin/footer.ejs") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+function updateStatus(orderId, userId, orderedItemsId , productId , productQty,status){
+    fetch("/admin/edit-order-status",{
+        method:"POST",
+        headers:{
+            'Content-Type':'application/json',
+        },
+        body:JSON.stringify({orderId, userId, orderedItemsId , productId ,productQty, status})
+    })
+    .then((response)=> response.json())
+    .then((response)=>{
+        if(response.success){
+            Swal.fire({
+                icon:"success",
+                title:"UpdateStatus SuccessFully",
+                text:response.message,
+                timer:1500,
+                showCancelButton:false,
+                showConfirmButton:false
+            }).then(()=>{
+                location.reload();
+            });
+        }else{
+            Swal.fire({
+                icon:"error",
+                title:"UpdateStatus Faild",
+                text:response.message,
+                timer:1500,
+                showCancelButton:false,
+                showConfirmButton:false
+            });
+        }
+    })
+    .catch(()=>{
+        Swal.fire({
+                icon:"error",
+                title:"Error In UpdateStatus ",
+                timer:1500,
+                showCancelButton:false,
+                showConfirmButton:false
+            });
+    });
+}
+
+function orderCancel(ordersId,itemsId) {
+    Swal.fire({
+        icon: "warning",
+        title: "Are you sure?",
+        text: "Do you want to cancel this order?",
+        showCancelButton: true,
+        showConfirmButton: true,
+        confirmButtonText: "Yes",
+        cancelButtonText: "No"
+    })
+    .then((result) => {
+        if (result.isConfirmed) {
+            fetch("/admin/order-cancel", {
+                method: "POST",
+                headers: {
+                    'Content-Type': "application/json"
+                },
+                body: JSON.stringify({ ordersId,itemsId })
+            })
+            .then((response) => response.json())
+            .then((response) => {
+                if (response.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Order Cancelled",
+                        timer: 1500,
+                        showCancelButton: false,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Order Cancellation Failed",
+                        timer: 1500,
+                        showCancelButton: false,
+                        showConfirmButton: false
+                    });
+                }
+            });
+        }
+    })
+    .catch(() => {
+        Swal.fire({
+            icon: "error",
+            title: "Error in cancelOrder",
+            timer: 1500,
+            showCancelButton: false,
+            showConfirmButton: false
+        });
+    });
+}
+
+</script>

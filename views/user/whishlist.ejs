@@ -1,0 +1,198 @@
+<%- include("../partials/user/header.ejs") %>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        display: block;
+        height: 100vh;
+    }
+
+    .wishlist-item {
+        border: 1px solid #ff960d;
+        border-radius: 10px;
+        background-color: #fff0c0;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .wishlist-item img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+    }
+
+    .remove-btn {
+        background-color: #f00;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        font-size: 16px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 10;
+    }
+
+    .wishlist-item h5 {
+        margin: 0;
+        font-weight: bold;
+    }
+
+    .wishlist-item .price {
+        font-weight: bold;
+    }
+
+    .cart-icon {
+        font-size: 24px;
+        color: #000;
+        cursor: pointer;
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        transition: color 0.3s ease;
+    }
+
+    .cart-icon:hover {
+        color: #ffffff;
+    }
+
+    .whishlist-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 30px 0;
+    }
+
+    .empty {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 380px;
+    }
+</style>
+
+<body>
+    <div class="text-center whishlist-title">Wishlist <i class="fas fa-heart"></i></div>
+
+    <% if (whishlist.length > 0) { %>
+        <% whishlist.forEach(item => { %>
+            <div class="container mt-4">
+                <div class="wishlist-item">
+                    <button onclick="event.stopPropagation(); deleteFromWishlist(event, '<%= item.productId._id %>')" class="remove-btn">&times;</button>
+                    <img src="<%= item.productId.Image[0] %>" alt="<%= item.productId.name %>" class="product-img img-thumbnail">
+                    <div class="ms-3">
+                        <h5 class="fw-bold"><%= item.productId.name %></h5>
+                        <% if(item.productId.Offer > 0){ %>
+                        <p class="price text-dark mb-1">
+                            <span style="color: rgb(247, 183, 10);">₹<%= whishlist.finalPrice %></span> 
+                            <strike>₹<%= item.productId.regularPrice %></strike>
+                        </p>
+                        <%}else{%>
+                            <p class="price text-dark mb-1">
+                                <span style="color: rgb(247, 183, 10);">₹<%= item.productId.salePrice %></span> 
+                                <strike>₹<%= item.productId.regularPrice %></strike>
+                            </p>
+                            <%}%>
+                        <p>Status: <%= item.productId.Status %></p>
+                        <a href="/user/ProuctDetails?product=<%= item.productId._id %>" class="text-primary text-decoration-none">View More Details</a>
+                    </div>
+                    <% if( item.productId.Status !== "Out of Stock"){ %>
+                    <a href="/user/add-to-cart?productId=<%= item.productId._id %>"><i class="fas fa-cart-plus cart-icon"></i></a>
+                    <%}%>
+                </div>
+            </div>
+        <% }); %>
+    <% } else { %>
+        <p class="empty">Your wishlist is empty. <a href="/user/">Shop now</a> to add items.</p>
+    <% } %>
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function deleteFromWishlist(e, id) {
+        e.preventDefault();
+
+        Swal.fire({
+            icon: "success",
+            title: "Are You Sure?",
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+            showConfirmButton: true,
+            showCancelButton: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("/user/delete-from-whishlist", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ id })
+                })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Removed",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => window.location.href = "/user/whishlist");
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed To Remove",
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                })
+                .catch(() => {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                });
+            }
+        });
+
+        return false;
+    }
+</script>
+
+<script>
+    function addToCart(itemId) {
+        fetch(`/user/add-to-cart/${itemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Item added to cart successfully!');
+            } else {
+                alert('Failed to add item to cart. Please try again.');
+            }
+        })
+        .catch(err => console.error(err));
+
+        return false;
+    }
+</script>
+
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<%- include("../partials/user/footer.ejs") %>

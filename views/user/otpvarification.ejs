@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <style>
+        body {
+            background-color: #fda500;
+            margin: 0;
+            padding: 0;
+        }
+        .otp-container {
+            max-width: 75%;
+            height: auto;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .key-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .otp-input {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .otp-input input {
+            padding-left: 40px;
+        }
+        .timer {
+            color: #fda500;
+        }
+        @media (max-width: 991px) {
+            .otp-container {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="otp-container text-center">
+            <h3 class="mb-4">OTP Verification</h3>
+            <% if(typeof message !== "undefined"){ %>
+                <p style="color: blue; "> <%= message %></p>
+                <% } %>
+            <p>Enter the 6-digit code you received in your registered email.</p>
+            <div class="otp-input">
+                <span class="key-icon">🔑</span>
+                <form method="post" onsubmit=" return validateOTPform()">
+                    <input type="text" id="otp" name="otp" class="form-control" maxlength="6" placeholder="Enter OTP">
+                </div>
+            <div class="d-flex justify-content-between align-items-center mt-3">
+                <span>Valid for: <span id="timer" class="timer">01:00</span></span>
+                <button type="submit" class="btn btn-dark mt-4"  >Validate OTP</button>        
+            </form>
+            </div>
+            <button id="resendOtpBtn" class="btn btn-link d-flex  p-0 text-decoration-none" onclick=" return resendOTP()" type="button">Resend OTP</button>
+        </div>
+
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        console.log("hey");
+        // Timer functionality
+        let timeLeft = 60;
+        const timerElement = document.getElementById('timer');
+        // const otpInput = document.getElementById("otp");
+
+        let countdown;
+
+(function startTimer() {
+    clearInterval(countdown); 
+    countdown = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            timerElement.textContent = '00:00';
+        } else {
+            let minutes = Math.floor(timeLeft / 60);
+            let seconds = timeLeft % 60;
+            timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            timeLeft--;
+        }
+    }, 1000);
+})
+();
+
+
+ // Validate OTP form logic
+ function validateOTPform() {
+    const otpInput = document.getElementById("otp").value;
+
+    // Check if the OTP time has expired
+    if (timeLeft <= 0) {
+        Swal.fire({
+            icon: "error",
+            title: "Time Expired",
+            text: "Please click Resend OTP to get a new code.",
+            showCancelButton:false,
+        });
+        return false; // Stop the function
+    }
+
+    fetch("/user/verify-Otp", {
+    method: "POST",
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ otp: otpInput })
+})
+.then(response => {
+    console.log("Response received:", response);
+    return response.json(); // Make sure response is parsed into JSON
+})
+.then(response => {
+    console.log("Parsed response:", response);
+    if (response.success) {
+        Swal.fire({
+            icon: "success",
+            title: "Verified OTP",
+            showCancelButton: false,
+            timer: 1500
+        }).then(() => {
+            window.location.href = "/user";
+        });
+    } else{
+        console.log("Invalid otp");
+        Swal.fire({
+        icon: "error",
+        title: "Invalid OTP",
+        showCancelButton: false,
+        text:response.message,
+        timer: 1500
+    });
+    }
+})
+.catch(error => {
+    console.log("Error in verification of the otp");
+        Swal.fire({
+        icon: "error",
+        title: "ERROR",
+        text: error.message,
+        timer: 1500
+    });
+   
+});
+
+    return false; // Prevent form submission
+}
+
+
+function resendOTP() {
+    console.log("hellooop")
+    clearInterval(countdown); // Clear any existing timer
+    timeLeft = 60; // Reset the timer
+    startTimer(); // Start a new timer
+
+   fetch("/user/resend-Otp",{
+    method:"POST",
+    headers:{
+        "Content-Type":"application/json",
+    }
+   })
+   .then(response => response.json())
+   .then(response =>{
+    if(response.success){
+        Swal.fire({
+            icon:"success",
+            title:"OTP Resend ",
+            showCancelButton: false,
+            text:response.message,
+            timer:1500
+        })
+    }
+   })
+   .catch(error =>{
+    Swal.fire({
+        icon:"error",
+        title:"Faild To Resend OTP",
+        text:response.message,
+        showCancelButton: false,
+        timer:1500
+    })
+   })
+}  
+
+
+    </script>
+</body>
+</html>

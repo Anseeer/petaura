@@ -1,0 +1,149 @@
+<%- include("../partials/admin/header.ejs") %>
+
+<div class="container mt-4">
+  <!-- Row 1: Forms for Adding Offers -->
+  <div class="row">
+    <!-- Column 1: Product Offer Form -->
+    <div class="col-md-6">
+      <h4>Add Product Offer</h4>
+      <form onsubmit=" return addProductOffer(event)" method="POST">
+        <div class="form-group mb-3">
+          <select id="product" name="productId" class="form-control" >
+            <option value="" disabled selected>Select a product</option>
+            <% products.forEach(product => { %>
+              <option value="<%= product._id %>"><%= product.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group mb-3">
+          <input type="number" id="offer" name="offer" class="form-control" placeholder="Enter offer percentage" required>
+        </div>
+       
+        <button type="submit" class="btn btn-secondary btn-sm">Add Product Offer</button>
+      </form>
+    </div>
+
+    <!-- Column 2: Category Offer Form -->
+    <div class="col-md-6">
+      <h4>Add Category Offer</h4>
+      <form action="/admin/add-category-offer" method="POST">
+        <div class="form-group mb-3">
+          <select id="category" name="categoryId" class="form-control" required>
+            <option value="" disabled selected>Select a category</option>
+            <% categories.forEach(category => { %>
+              <option value="<%= category._id %>"><%= category.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group mb-3">
+          <input type="number" id="offer" name="offer" class="form-control" placeholder="Enter offer percentage" required>
+        </div>
+        
+        <button type="submit" class="btn btn-secondary btn-sm">Add Category Offer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Row 2: List of Offers -->
+  <div class="row mt-5">
+    <!-- Column 1: Product Offers -->
+    <div class="col-md-6">
+      <!-- <h4>Product Offers</h4> -->
+
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Offer (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(offers && offers.length > 0){ %>
+            <% offers.forEach(offer => { %>
+              <tr>
+                <td><%= offer.name %></td>
+                <td><%= offer.Offer %>%</td>
+              </tr>
+            <% }) %>
+            <%}else{%>
+              <tr>
+                <td>No Offers For Product</td>
+              </tr>
+              <%}%>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Column 2: Category Offers -->
+    <div class="col-md-6">
+      <!-- <h4>Category Offers</h4> -->
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Offer (%)</th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr>
+              <td>name</td>
+              <td>5%</td>
+            </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+function addProductOffer(event){
+    event.preventDefault();
+    const productId = document.getElementById("product").value;
+    const productOff = document.getElementById("offer").value;
+
+    console.log(productId,offer)
+
+    fetch("/admin/add-product-offer",{
+        method:"POST",
+        headers:{
+            'Content-Type':'application/json'
+        },
+        body:JSON.stringify({productId,productOff})
+    })
+    .then((response)=> response.json())
+    .then((response)=>{
+        if(response.success){
+            Swal.fire({
+                icon:"success",
+                title:"Successfully Add Product Offer",
+                text:response.message,
+                showConfirmButton:false,
+                showCancelButton:false,
+                timer:1500
+            })
+        }else{
+            Swal.fire({
+                icon:"error",
+                title:"Faild To Add Product Offer",
+                text:response.message,
+                showConfirmButton:false,
+                showCancelButton:false,
+                timer:1500
+            })
+        }
+    })
+    .catch((err)=>{
+        Swal.fire({
+                icon:"error",
+                title:"Error In Add Product Offer",
+                text:response.message,
+                showConfirmButton:false,
+                showCancelButton:false,
+                timer:1500
+            })
+    })
+}
+
+</script>
+<%- include("../partials/admin/footer.ejs") %>

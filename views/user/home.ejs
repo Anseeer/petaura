@@ -1,0 +1,105 @@
+<%- include("../partials/user/header.ejs") %>
+<!-- Check if user is available here -->
+
+
+<div aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <% breadcrumbs.forEach((crumb, index) => { %>
+        <% if (index === breadcrumbs.length - 1) { %>
+          <!-- Last breadcrumb -->
+          <li class="breadcrumb-item active" aria-current="page"><%= crumb.text %></li>
+        <% } else { %>
+          <!-- Other breadcrumbs -->
+          <li class="breadcrumb-item">
+            <a href="<%= crumb.url %>"><%= crumb.text %></a>
+          </li>
+        <% } %>
+      <% }); %>
+    </ol>
+  </div>
+     <!-- banner start -->
+     <div class="container-fluid Ubanner py-2">
+         <div class="row">
+            <!-- Left text column -->
+            <div class="col-6 Ubanner_text">
+                <p>Explore premium pet supplies that ensure your pets live their happiest, healthiest lives. From toys to treats, we’ve got everything they love at Petaura!</p>
+            </div>
+            
+            <!-- Right image column -->
+            <div class="col-6 Uimage-container" style="padding: 0px;">
+                <img src="../../style/img/orangeCat.png" alt="Orange Cat">
+            </div> 
+        </div>
+    </div>
+    
+    <!-- category start -->
+    <div class="Ucategory container-fluid py-3">
+        <h3>Who are you shopping for today?</h3>
+        <div class="container justify-content-around py-3 d-flex align-items-center text-center">
+            <a href="/user/cat-supplies" class="Ucategories Ucategories1">
+                <div class="Utext-container">
+                    <h5 class="UcategoryName">Cat Supplies</h5>
+                </div>
+            </a>
+            <a href="/user/dog-supplies" class="Ucategories Ucategories2">
+                <div class="Utext-container">
+                    <h5 class="UcategoryName">Dog Supplies</h5>
+                </div>
+            </a>
+            <a href="/user/smallpets-supplies" class="Ucategories Ucategories3">
+                <div class="Utext-container">
+                    <h5 class="UcategoryName">Small Pets Supplies</h5>
+                </div>
+            </a>
+            <a href="/user/petbird-supplies" class="Ucategories Ucategories4">
+                <div class="Utext-container">
+                    <h5 class="UcategoryName">Pet Bird Supplies</h5>
+                </div>
+            </a>
+            <a href="/user/fish-supplies" class="Ucategories Ucategories5">
+                <div class="Utext-container">
+                    <h5 class="UcategoryName">Fish Supplies</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <!-- category end  -->
+     <!-- buy-categories start  -->
+
+      <div class="container-fluid justify-content-center py-2">
+        <div class="row  ">
+            <div class="col-6">
+                <div class="Ubuy-categories_accessories">
+                    <h1>Turn heads with accessories <br>
+                        made to impress</h1>
+                       <a href="/user/accessories"><button class="btn ordernow btn-dark btn-outline-light d-flex ">Shop now</button></a>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="Ubuy-categories_treat">
+                    <h1>Reward Their Loyalty 
+                        With Irresistible Flavors</h1>
+                       <a href="/user/treat"><button class="btn ordernow btn-light btn-outline-warning d-flex ">Shop now</button></a>
+                </div>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-6">
+                <div class="Ubuy-categories_toys ">
+                    <h1 class="py-5">The Perfect Toy For Endless
+                        Fun And Game</h1>
+                        <a href="/user/toys"> <button class="btn ordernow btn-light btn-outline-warning d-flex ">Shop now</button></a>
+                    </div>
+            </div>
+            <div class="col-6">
+                <div class="Ubuy-categories_food">
+                    <h1>A Bundle Of Balanced Nutrition 
+                        For Your Best Friend</h1>
+                       <a href="/user/food"><button class="btn ordernow btn-dark btn-outline-light d-flex ">Shop now</button></a>
+                </div>
+            </div>
+        </div>
+      </div>
+      <!-- buy_category end  -->
+                   <%- include("../partials/user/footer.ejs") %>
