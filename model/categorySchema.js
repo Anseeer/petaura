@@ -28,7 +28,10 @@ const categoryShema = new Schema({
         type:Date,
         default:Date.now
     },
-
+    saleCount:{
+        type:Number,
+        default:0
+    },
 });
 
 const Category = mongoose.model("Category",categoryShema);

@@ -38,20 +38,22 @@ const addCategory = async (req, res) => {
   
       // Validate required fields
       if (!name || !description || !parent ,!offer) {
-        return res.status(400).json({ response: "error", message: "Name and description are required" });
+        return res.status(400).json({ success:false, message: "Name and description are required" });
       }
       console.log(parent)
   
       // Check if category already exists
-      const existingCategory = await Category.findOne({ name });
+      const existingCategory = await Category.findOne(
+        {name:{$regex:name,$options:"i"}},
+      );
       if (existingCategory) {
-        return res.status(400).json({ response: "error", message: "Category already exists" });
+        return res.status(400).json({ success:false, message: "Category already exists" });
       }
   
     //   Check if parent category exists
     const parentCategory = await ParentCategory.findById(parent);
       if (!parentCategory) {
-        return res.status(500).json({ response: "error", message: "Parent category does not exist" });
+        return res.status(500).json({ success:false, message: "Parent category does not exist" });
       }
    
       // Create and save the new category
@@ -63,12 +65,10 @@ const addCategory = async (req, res) => {
       });
   
       await newCategory.save();
-  
-      // Send success response
-      return res.redirect("/admin/Category");
+      res.status(200).json({success:true,message:"Added"})
     } catch (error) {
       console.error("ERROR occurred in addCategory:", error);
-      return res.status(500).json({ response: "error", message: "Internal Server Error" });
+      return res.status(500).json({ success:false, message: "Internal Server Error" });
     }
   };
 
@@ -158,12 +158,14 @@ const ListCategory = async(req,res)=>{
 }  
 const addParentCategory = async (req, res) => {
     try {
-      const { parent_name, parent_description } = req.body;
+      const { name, description } = req.body;
   
       // Check if parent category already exists
-      const existingParent = await ParentCategory.findOne({ parent_name });
+      const existingParent = await ParentCategory.findOne(
+        {name:{$regex:name,$options:"i"}},
+      );
       if (existingParent) {
-        return res.status(400).send("THE PARENT IS ALREADY EXISTING, PLEASE TRY ANOTHER");
+        return res.status(400).json({success:false,message:"the Parent Category Is already exisiting"});
       }
   
       // Create and save new parent category
@@ -177,14 +179,11 @@ const addParentCategory = async (req, res) => {
       console.log("New Parent Category added successfully");
   
       // Redirect after successful save
-      return res.redirect("/admin/category");
-  
+      res.status(200).json({success:true,message:"Added"});
     } catch (error) {
-      // Log the error for debugging
       console.error("Error occurred in addParentCategory:", error);
-  
       // Send response with the error message
-      return res.status(500).send("An error occurred while adding the parent category");
+      return res.status(500).json({success:false,message:"error in the add parent category"})
     }
   };
 
@@ -236,6 +235,9 @@ const editParentCategory = async (req, res) => {
 
 const loadCatSupplies = async (req, res) => {
   try {
+      let page = parseInt(req.query.page) || 1;
+      let limit = 9;
+      let skip = (page - 1) * limit;
       let sorted;
       let sort = req.query.sort;
       console.log("Sort value:", sort);
@@ -263,11 +265,17 @@ const loadCatSupplies = async (req, res) => {
 
       // Find products only in these categories
       let products;
+      let totalProduct = await Product.countDocuments({category: { $in: categoryIds }});
+
           products = await Product.find({
               isBlocked: false,
               category: { $in: categoryIds },
               quantity: { $gte: 0 },
-          }).sort(sorted).sort({ createdAt: -1 });
+          })
+          .skip(skip)
+          .limit(limit)
+          .sort(sorted)
+          .sort({ createdAt: -1 });
       
 
       console.log("Products:", products);
@@ -276,6 +284,8 @@ const loadCatSupplies = async (req, res) => {
           user: userData,
           category: categoreiesWithId,
           product: products,
+          currentPage:page,
+          totalPage: Math.ceil(totalProduct/limit),
           breadcrumbs: [
               { text: "Home", url: "/user/" },
               { text: "CatSupplies", url: "/user/cat-supplies" },
@@ -291,6 +301,9 @@ const loadCatSupplies = async (req, res) => {
 
 const fillterCategoryOfCat = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1;
+      let limit = 9;
+      let skip = (page - 1) * limit;
       const user = req.session.user;
       const category = req.query.category;
   
@@ -307,7 +320,8 @@ const fillterCategoryOfCat = async (req, res) => {
       }
   
       // Fetch and sort products
-      const findProducts = await Product.find(query).lean();
+      let totalProducts = await Product.countDocuments(query);
+      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
       findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
   
       const currentProducts = findProducts
@@ -334,6 +348,8 @@ const fillterCategoryOfCat = async (req, res) => {
         product: currentProducts,
         category: cat,
         user: userData,
+        totalPage:page,
+        currentPage:Math.ceil(totalProducts/limit),
         breadcrumbs:[
             {text:"Home",url:"/user/"},
             {text:"CatSupplies",url:"/user/cat-supplies"}
@@ -393,6 +409,9 @@ const fillterCategoryOfCat = async (req, res) => {
 
 const loadDogSupplies = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1 ;
+      let limit = 9;
+      let skip = (page - 1) * limit ;
       let sorted ;
         let sort= req.query.sort;
         const user = req.session.user;
@@ -418,16 +437,22 @@ const loadDogSupplies = async (req, res) => {
         const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
         
         // Find products only in these categories
+        let totalPage = await Product.countDocuments({category: { $in: categoryIds }});
         const products = await Product.find({
             isBlocked: false,
             category: { $in: categoryIds },
             quantity: { $gte: 0 }
-        }).sort(sorted);
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort(sorted);
 
         res.render("dogSupplies", {
             user: userData,
             category: categoreiesWithId,
             product: products,
+            currentPage:page,
+            totalPage:Math.ceil(totalPage/limit),
             breadcrumbs: [
                 { text: "Home", url: "/user/" },
                 { text: "DogSupplies", url: "/user/dog-supplies" }
@@ -443,6 +468,9 @@ const loadDogSupplies = async (req, res) => {
 
 const fillterCategoryOfDog = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1 ;
+      let limit = 9;
+      let skip = (page - 1) * limit ;
       const user = req.session.user;
       const category = req.query.category;
   
@@ -459,9 +487,9 @@ const fillterCategoryOfDog = async (req, res) => {
       }
   
       // Fetch and sort products
-      const findProducts = await Product.find(query).lean();
+      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
       findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-  
+      let totalProducts = await Product.countDocuments(query);
       const currentProducts = findProducts
   
       // Fetch user data if logged in
@@ -486,6 +514,8 @@ const fillterCategoryOfDog = async (req, res) => {
         product: currentProducts,
         category: cat,
         user: userData,
+        totalPage:Math.ceil(totalProducts/limit),
+        currentPage:page,
         breadcrumbs:[
             {text:"Home",url:"/user/"},
             {text:"DogSupplies",url:"/user/dog-supplies"}
@@ -539,6 +569,9 @@ const fillterCategoryOfDog = async (req, res) => {
 
 const loadSmallPetsSupplies = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1 ;
+      let limit = 9 ;
+      let skip = (page-1)*limit;
         let sorted ;
         let sort= req.query.sort;
         const user = req.session.user;
@@ -563,16 +596,22 @@ const loadSmallPetsSupplies = async (req, res) => {
         const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
         
         // Find products only in these categories
+        let totalProducts = await Product.countDocuments({category: { $in: categoryIds }});
         const products = await Product.find({
             isBlocked: false,
             category: { $in: categoryIds },
             quantity: { $gte: 0 }
-        }).sort(sorted);
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort(sorted);
 
         res.render("smallPetsSupplies", {
             user: userData,
             category: categoreiesWithId,
             product: products,
+            totalPage:Math.ceil(totalProducts/limit),
+            currentPage:page,
             breadcrumbs: [
                 { text: "Home", url: "/user/" },
                 { text: "SmallPetsSupplies", url: "/user/smallpets-supplies" }
@@ -588,6 +627,9 @@ const loadSmallPetsSupplies = async (req, res) => {
 
 const fillterCategoryOfSmallPets = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1 ;
+      let limit = 9 ;
+      let skip = (page-1)*limit;
       const user = req.session.user;
       const category = req.query.category;
   
@@ -604,9 +646,9 @@ const fillterCategoryOfSmallPets = async (req, res) => {
       }
   
       // Fetch and sort products
-      const findProducts = await Product.find(query).lean();
+      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
       findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-  
+      let totalProducts = await Product.countDocuments(query);
       const currentProducts = findProducts
   
       // Fetch user data if logged in
@@ -631,6 +673,8 @@ const fillterCategoryOfSmallPets = async (req, res) => {
         product: currentProducts,
         category: cat,
         user: userData,
+        currentPage:page,
+        totalPage:Math.ceil(totalProducts/limit),
         breadcrumbs:[
             {text:"Home",url:"/user/"},
             {text:"SmallPetsSupplies",url:"/user/smallpets-supplies"}
@@ -684,6 +728,9 @@ const fillterCategoryOfSmallPets = async (req, res) => {
 
 const loadPetBirdSupplies = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1;
+      let limit = 9;
+      let skip = (page -1)*limit;
       let sorted ;
       let sort= req.query.sort;
         const user = req.session.user;
@@ -708,16 +755,22 @@ const loadPetBirdSupplies = async (req, res) => {
         const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
         
         // Find products only in these categories
+        let totalProducts = await Product.countDocuments({ category: { $in: categoryIds }});
         const products = await Product.find({
             isBlocked: false,
             category: { $in: categoryIds },
             quantity: { $gte: 0 }
-        }).sort(sorted);
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort(sorted);
 
         res.render("petBirdsSupplies", {
             user: userData,
             category: categoreiesWithId,
             product: products,
+            currentPage:page,
+            totalPage:Math.ceil(totalProducts/limit),
             breadcrumbs: [
                 { text: "Home", url: "/user/" },
                 { text: "PetBirdSupplies", url: "/user/petbird-supplies" }
@@ -733,6 +786,9 @@ const loadPetBirdSupplies = async (req, res) => {
 
 const fillterCategoryOfPetBird = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1 ;
+      let limit = 9 ;
+      let skip = (page-1)*limit;
       const user = req.session.user;
       const category = req.query.category;
   
@@ -749,7 +805,8 @@ const fillterCategoryOfPetBird = async (req, res) => {
       }
   
       // Fetch and sort products
-      const findProducts = await Product.find(query).lean();
+      let totalProducts = await Product.countDocuments(query);
+      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
       findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
   
       const currentProducts = findProducts
@@ -776,6 +833,8 @@ const fillterCategoryOfPetBird = async (req, res) => {
         product: currentProducts,
         category: cat,
         user: userData,
+        totalPage:Math.ceil(totalProducts/limit),
+        currentPage:page,
         breadcrumbs:[
             {text:"Home",url:"/user/"},
             {text:"PetBirdSupplies",url:"/user/petbird-supplies"}
@@ -830,6 +889,9 @@ const fillterCategoryOfPetBird = async (req, res) => {
   
 const loadFishSupplies = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1 ;
+      let limit = 9 ;
+       let skip = (page -1)*limit ;
       let sorted ;
       let sort= req.query.sort;
       const user = req.session.user;
@@ -855,16 +917,22 @@ const loadFishSupplies = async (req, res) => {
         const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
         
         // Find products only in these categories
+        let totalProducts = await Product.countDocuments({category: { $in: categoryIds }});
         const products = await Product.find({
             isBlocked: false,
             category: { $in: categoryIds },
             quantity: { $gte: 0 }
-        }).sort(sorted);
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort(sorted);
 
         res.render("fishSupplies", {
             user: userData,
             category: categoreiesWithId,
             product: products,
+            currentPage:page,
+            totalPage:Math.ceil(totalProducts/limit),
             breadcrumbs: [
                 { text: "Home", url: "/user/" },
                 { text: "FishSupplies", url: "/user/fish-supplies" }
@@ -880,6 +948,9 @@ const loadFishSupplies = async (req, res) => {
 
 const fillterCategoryOfFish = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1 ;
+      let limit = 9 ;
+      let skip = (page-1)*limit;
       const user = req.session.user;
       const category = req.query.category;
   
@@ -896,7 +967,8 @@ const fillterCategoryOfFish = async (req, res) => {
       }
   
       // Fetch and sort products
-      const findProducts = await Product.find(query).lean();
+      let totalProducts = await Product.countDocuments(query);
+      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
       findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
   
       const currentProducts = findProducts
@@ -923,6 +995,8 @@ const fillterCategoryOfFish = async (req, res) => {
         product: currentProducts,
         category: cat,
         user: userData,
+        totalPage:Math.ceil(totalProducts/limit),
+        currentPage:page,
         breadcrumbs:[
             {text:"Home",url:"/user/"},
             {text:"FishSupplies",url:"/user/fish-supplies"}
@@ -975,6 +1049,9 @@ const fillterCategoryOfFish = async (req, res) => {
   // Accessoreis
   const loadAccessories = async (req, res) => {
     try {
+      let page = parseInt(req.query.page) || 1 ;
+      let limit = 9 ;
+      let skip = (page-1)*limit;
       let sort = req.query.sort;
       let sorted;
         // Fetch user session details
@@ -1014,17 +1091,23 @@ const fillterCategoryOfFish = async (req, res) => {
         }));
 
         // Fetch products in the filtered categories, ensuring availability and not blocked
+        let totalProducts = await Product.countDocuments({category: { $in: categoryIds }});
         const products = await Product.find({
             isBlocked: false,
             category: { $in: categoryIds },
             quantity: { $gte: 0 }    
-        }).sort(sorted);
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort(sorted);
 
         // Render the Accessories page
         res.render("accessories", {
             user: userData,
             category: categoriesWithId,
             product: products,
+            totalPage:Math.ceil(totalProducts/limit),
+            currentPage:page,
             breadcrumbs: [
                 { text: "Home", url: "/user/" },
                 { text: "Accessories", url: "/user/Accessories" }
@@ -1040,6 +1123,9 @@ const fillterCategoryOfFish = async (req, res) => {
 
 const fillterCategoryOfAccessories = async (req, res) => {
   try {
+    let page = parseInt(req.query.page) || 1 ;
+    let limit = 9;
+    let skip = (page-1)*limit;
     const user = req.session.user;
     const category = req.query.category;
 
@@ -1056,7 +1142,8 @@ const fillterCategoryOfAccessories = async (req, res) => {
     }
 
     // Fetch and sort products
-    const findProducts = await Product.find(query).lean();
+    const totalProducts = await Product.countDocuments(query);
+    const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
     findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
 
     const currentProducts = findProducts
@@ -1092,6 +1179,8 @@ const fillterCategoryOfAccessories = async (req, res) => {
       product: currentProducts,
       category: categories,
       user: userData,
+      currentPage:page,
+      totalPage:Math.ceil(totalProducts/limit),
       breadcrumbs:[
           {text:"Home",url:"/user/"},
           {text:"Accessories",url:"/user/accessories"}
@@ -1146,6 +1235,9 @@ const ProuctDetailsOfAccessories = async(req, res) => {
   
 const loadTreats = async (req, res) => {
   try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page -1)*limit;
     let sort = req.query.sort;
     let sorted;
      // Fetch user session details
@@ -1185,17 +1277,23 @@ const loadTreats = async (req, res) => {
    }
 
      // Fetch products in the filtered categories, ensuring availability and not blocked
+     let totalProducts = await Product.countDocuments({category: { $in: categoryIds }})
      const products = await Product.find({
          isBlocked: false,
          category: { $in: categoryIds },
          quantity: { $gte: 0 }    
-     }).sort(sorted);
+     })
+     .skip(skip)
+     .limit(limit)
+     .sort(sorted);
 
      // Render the Accessories page
      res.render("treat", {
          user: userData,
          category: categoriesWithId,
          product: products,
+         currentPage:page,
+         totalPage:Math.ceil(totalProducts/limit),
          breadcrumbs: [
              { text: "Home", url: "/user/" },
              { text: "Treats", url: "/user/Treats" }
@@ -1210,6 +1308,10 @@ const loadTreats = async (req, res) => {
 
 const fillterCategoryOfTreats = async (req, res) => {
   try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page -1)*limit;
+    let sort = req.query.sort;
     const user = req.session.user;
     const category = req.query.category;
 
@@ -1226,7 +1328,8 @@ const fillterCategoryOfTreats = async (req, res) => {
     }
 
     // Fetch and sort products
-    const findProducts = await Product.find(query).lean();
+    let totalProducts = await Product.countDocuments(query);
+    const findProducts = await Product.find(query).skip(skip).limit(limit).sort(sort).lean();
     findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
 
     const currentProducts = findProducts
@@ -1262,6 +1365,8 @@ const fillterCategoryOfTreats = async (req, res) => {
       product: currentProducts,
       category: categories,
       user: userData,
+      totalPage:Math.ceil(totalProducts/limit),
+      currentPage:page,
       breadcrumbs:[
           {text:"Home",url:"/user/"},
           {text:"Treat",url:"/user/treat"}
@@ -1316,6 +1421,9 @@ const ProuctDetailsOfTreats = async(req, res) => {
 
 const loadToys = async (req, res) => {
   try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page - 1) * limit;
     let sorted;
     let sort = req.query.sort;
      // Fetch user session details
@@ -1354,17 +1462,23 @@ const loadToys = async (req, res) => {
    }
 
      // Fetch products in the filtered categories, ensuring availability and not blocked
+     let totalProducts = await Product.countDocuments({category: { $in: categoryIds }});
      const products = await Product.find({
          isBlocked: false,
          category: { $in: categoryIds },
          quantity: { $gte: 0 }    
-     }).sort(sorted);
+     })
+     .skip(skip)
+     .limit(limit)
+     .sort(sorted);
 
      // Render the Accessories page
      res.render("toys", {
          user: userData,
          category: categoriesWithId,
          product: products,
+         totalPage:Math.ceil(totalProducts/limit),
+         currentPage:page,
          breadcrumbs: [
              { text: "Home", url: "/user/" },
              { text: "Toys", url: "/user/toys" }
@@ -1379,6 +1493,9 @@ const loadToys = async (req, res) => {
 
 const fillterCategoryOfToys = async (req, res) => {
   try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page - 1) * limit;
     const user = req.session.user;
     const category = req.query.category;
 
@@ -1395,7 +1512,8 @@ const fillterCategoryOfToys = async (req, res) => {
     }
 
     // Fetch and sort products
-    const findProducts = await Product.find(query).lean();
+    let totalProducts = await Product.countDocuments(query);
+    const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
     findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
 
     const currentProducts = findProducts
@@ -1430,6 +1548,8 @@ const fillterCategoryOfToys = async (req, res) => {
       product: currentProducts,
       category: categories,
       user: userData,
+      totalPage:Math.ceil(totalProducts/limit),
+      currentPage:page,
       breadcrumbs:[
           {text:"Home",url:"/user/"},
           {text:"Toys",url:"/user/toys"}
@@ -1483,6 +1603,9 @@ const ProuctDetailsOfToys = async(req, res) => {
 
 const loadFood = async (req, res) => {
   try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page-1 )*limit;
     let sorted ; 
     let sort = req.query.sort;
      // Fetch user session details
@@ -1521,17 +1644,23 @@ const loadFood = async (req, res) => {
    }
 
      // Fetch products in the filtered categories, ensuring availability and not blocked
+     let totalProducts = await Product.countDocuments({ category: { $in: categoryIds }});
      const products = await Product.find({
          isBlocked: false,
          category: { $in: categoryIds },
          quantity: { $gte: 0 }    
-     }).sort(sorted);
+     })
+     .skip(skip)
+     .limit(limit)
+     .sort(sorted);
 
      // Render the Accessories page
      res.render("food", {
          user: userData,
          category: categoriesWithId,
          product: products,
+         totalPage:Math.ceil(totalProducts/limit),
+         currentPage:page,
          breadcrumbs: [
              { text: "Home", url: "/user/" },
              { text: "Food", url: "/user/food" }
@@ -1546,6 +1675,9 @@ const loadFood = async (req, res) => {
 
 const fillterCategoryOfFood = async (req, res) => {
   try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page - 1) * limit;
     const user = req.session.user;
     const category = req.query.category;
 
@@ -1560,9 +1692,10 @@ const fillterCategoryOfFood = async (req, res) => {
     if (findCategory) {
       query.category = findCategory._id;
     }
+    let totalProducts = await Product.countDocuments(query);
 
     // Fetch and sort products
-    const findProducts = await Product.find(query).lean();
+    const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
     findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
 
     const currentProducts = findProducts
@@ -1601,6 +1734,8 @@ const fillterCategoryOfFood = async (req, res) => {
       product: currentProducts,
       category: categories,
       user: userData,
+      totalPage:Math.ceil(totalProducts/limit),
+      currentPage:page,
       breadcrumbs:[
           {text:"Home",url:"/user/"},
           {text:"Food",url:"/user/food"}

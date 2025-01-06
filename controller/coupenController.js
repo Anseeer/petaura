@@ -93,6 +93,7 @@ const applyCoupen = async(req,res)=>{
         if(discountValue > coupen.maxDiscount){
              discountValue = coupen.maxDiscount;
         }
+        discountValue = parseFloat(discountValue.toFixed(2));
  
         res.status(200).json({success:true,message:"SuccessFully Applyed Coupen",discountValue})
 

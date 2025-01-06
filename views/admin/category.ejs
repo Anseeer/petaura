@@ -146,7 +146,7 @@
                 <!-- Add Category Form -->
                 <div class="col-md-6">
                     <h2 class="content-title card-title">Create Category</h2>
-                    <form action="/admin/addCategory" id="addCategoryForm" method="post">
+                    <form action="#" onsubmit="addCategory(event)" id="addCategoryForm" method="post">
                         <div class="mb-4">
                             <label for="name" class="form-label">Name</label>
                             <input type="text" placeholder="Type here" class="form-control" name="name" id="name" />
@@ -182,7 +182,7 @@
                 <!-- Add Parent Category Form -->
                 <div class="col-md-6">
                     <h2 class="content-title card-title">Create Parent Category</h2>
-                    <form action="/admin/addParentCategory" id="addParentCategoryForm" method="post">
+                    <form action="#" onsubmit="addParentCategory(event)" id="addParentCategoryForm" method="post">
                         <div class="mb-4">
                             <label for="parent_name" class="form-label">Parent Name</label>
                             <input type="text" placeholder="Type here" class="form-control" name="parent_name" id="parent_name" />
@@ -204,6 +204,103 @@
 </section>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
+ function addCategory(event){
+    event.preventDefault();
+
+const name = document.getElementById("name").value;
+const parent = document.getElementById("parent").value;
+const offer = document.getElementById("offer").value;
+const description = document.getElementById("description").value;
+
+
+    fetch("/admin/addCategory",{
+        method:"POST",
+        headers:{
+            'Content-Type':'application/json',
+        },
+        body:JSON.stringify({name,parent,offer,description})
+    })
+    .then((response)=> response.json())
+    .then((response)=>{
+        if(response.success){
+            Swal.fire({
+                icon:"success",
+                title:"Added",
+                showCancelButton:false,
+                showConfirmButton:false,
+                text:response.message,
+                timer:1500
+            })
+        }else{
+            Swal.fire({
+                icon:"error",
+                title:"Faild To Add",
+                showCancelButton:false,
+                showConfirmButton:false,
+                text:response.message,
+                timer:1500
+            })
+        }
+    })
+    .catch(()=>{
+        Swal.fire({
+                icon:"error",
+                title:"Error",
+                showCancelButton:false,
+                showConfirmButton:false,
+                timer:1500
+            })
+    })
+
+ }
+
+ function addParentCategory(event){
+    event.preventDefault();
+    const name = document.getElementById("parent_name").value;
+    const description = document.getElementById("parent_description").value; 
+
+    fetch("/admin/addParentCategory",{
+        method:"POST",
+        headers:{
+            'Content-Type':'application/json',
+        },
+        body:JSON.stringify({name,description})
+    })
+    .then((response)=> response.json())
+    .then((response)=>{
+        if(response.success){
+            Swal.fire({
+                icon:"success",
+                title:"Added",
+                showCancelButton:false,
+                showConfirmButton:false,
+                text:response.message,
+                timer:1500
+            })
+        }else{
+            Swal.fire({
+                icon:"error",
+                title:"Faild To Add",
+                showCancelButton:false,
+                showConfirmButton:false,
+                text:response.message,
+                timer:1500
+            })
+        }
+    })
+    .catch(()=>{
+        Swal.fire({
+                icon:"error",
+                title:"Error",
+                showCancelButton:false,
+                showConfirmButton:false,
+                timer:1500
+            })
+    })
+
+
+ }
     function confirmDelete(id) {
         Swal.fire({
             title: 'Are you sure?',

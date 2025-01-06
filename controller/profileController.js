@@ -487,11 +487,14 @@ const editedAddressInChekout = async(req,res)=>{
 
 const loadReferral = async(req,res)=>{
     try {
-        const userId = req.session.user;
-        const referral = await Referral.findOne({ userId: userId }).populate("referredUsers.userId", 'email name');
+        const user = req.session.user;
+        const referral = await Referral.findOne({ userId: user }).populate(
+            'referredUsers.userId', // Path to populate
+            'email name' // Fields to include from User model
+        );
+        console.log("Referral:", referral);
         const referredUsers = referral.referredUsers;
-        console.log(referral)
-        console.log(referredUsers)
+        console.log("reffered:",referredUsers);
         res.render("referral",{referral,referredUsers});
     } catch (error) {
         console.log(error)

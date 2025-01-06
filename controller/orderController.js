@@ -5,19 +5,18 @@ const User = require("../model/userSchema");
 const ReturnRequest = require("../model/returnRequestSchema");
 
 
-const loadOrder = async(req,res)=>{
+const  loadOrder = async(req,res)=>{
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 5;
         const skip = (page - 1) * limit ;
         const total = await Order.countDocuments({});
-        const orders = await Order.find({})
+        const orders = await Order.find()
         .sort({createdAT:-1})
         .skip(skip)
         .limit(limit)
         .populate("orderedItems.product","_id name Image status quantity")
         
-        console.log("ORDERPRODUCT:",orders.product);
         res.render("orderManagement",{orders,currentPage:page,totalPage:Math.ceil(total/limit)});
     } catch (error) {
         res.status(400).json({success:false,message:"Error In loadOrder"})

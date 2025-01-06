@@ -34,17 +34,17 @@ const blockCustomer = async(req,res)=>{
         let id = req.query.id;
         if (!id) {
             console.error("Invalid ID received");
-            return res.status(400).send("Invalid request. No ID provided.");
+            return res.status(400).json({success:false,message:"in valid id received"});
         }
         
         console.log("Recived ID:",id);
         
         await User.updateOne({_id:id},{$set:{isBlocked:true}});
         console.log("blocked")
-        res.redirect("/admin/list-customer");
-    } catch (error) {
+        return res.status(200).json({success:true,message:"Blocked"});
+      } catch (error) {
         console.log("Error in blockCustomer",error)
-        res.status(400).send("Error");
+        return res.status(400).json({success:false,message:"error in the block user"});
     }
 }
 
@@ -54,10 +54,10 @@ const unblockCustomer = async(req,res)=>{
         await User.updateOne({_id:id},{$set:{isBlocked:false}});
         console.log("unblocked")
 
-        res.redirect("/admin/list-customer");
+        return res.status(200).json({success:true,message:"unBlocked"});
     } catch (error) {
         console.log("Error in unblockCustomer",error)
-        res.status(400).send("Error");
+        return res.status(400).json({success:false,message:"Error"});
     }
 }
 

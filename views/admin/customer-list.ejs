@@ -51,11 +51,11 @@
                             <td>
                                 <% if (customer[i].isBlocked === false) { %>
                                     <button class="btn btn-sm btn-danger">
-                                        <a href="/admin/blockCustomer?id=<%= customer[i]._id %>" style="color: white; text-decoration: none;">Block</a>
+                                        <a onclick="blockCustomer(event,'<%= customer[i]._id %>')" style="color: white; text-decoration: none;">Block</a>
                                     </button>
                                 <% } else { %>
                                     <button class="btn btn-sm btn-success">
-                                        <a href="/admin/unblockCustomer?id=<%= customer[i]._id %>" style="color: white; text-decoration: none;">UnBlocked</a>
+                                        <a onclick="unblockCustomer(event,'<%= customer[i]._id %>')"  style="color: white; text-decoration: none;">UnBlocked</a>
                                     </button>
                                 <% } %>
                             </td>
@@ -75,6 +75,129 @@
 </section>
 
 <script>
+
+function blockCustomer(event,id){
+    event.preventDefault()
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to block this customer?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, block!",
+        cancelButtonText: "No, cancel!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, proceed with the fetch request
+            fetch(`/admin/blockCustomer?id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+                .then((res) => res.json()) // Ensure response is converted to JSON
+                .then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Customer Blocked!",
+                            showCancelButton: false,
+                            showConfirmButton: false,
+                            timer: 1500, // Auto close after 1.5 seconds
+                        });
+                        window.location.reload()
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed to Block Customer",
+                            showCancelButton: false,
+                            showConfirmButton: false,
+                            timer: 1500, // Auto close after 1.5 seconds
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "An error occurred",
+                        text: "Please try again later.",
+                        showCancelButton: false,
+                        showConfirmButton: true,
+                    });
+                });
+        } else {
+            // If canceled, display an optional message
+            Swal.fire({
+                icon: "info",
+                title: "Action Cancelled",
+                showCancelButton: false,
+                showConfirmButton: true,
+            });
+        }
+    });
+}
+
+function unblockCustomer(event,id){
+    event.preventDefault()
+    Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to block this customer?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, block!",
+        cancelButtonText: "No, cancel!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // If confirmed, proceed with the fetch request
+            fetch(`/admin/unblockCustomer?id=${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+                .then((res) => res.json()) // Ensure response is converted to JSON
+                .then((data) => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Customer unBlocked!",
+                            showCancelButton: false,
+                            showConfirmButton: false,
+                            timer: 1500, // Auto close after 1.5 seconds
+                        });
+                        window.location.reload()
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Failed to unBlock Customer",
+                            showCancelButton: false,
+                            showConfirmButton: false,
+                            timer: 1500, // Auto close after 1.5 seconds
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "An error occurred",
+                        text: "Please try again later.",
+                        showCancelButton: false,
+                        showConfirmButton: true,
+                    });
+                });
+        } else {
+            // If canceled, display an optional message
+            Swal.fire({
+                icon: "info",
+                title: "Action Cancelled",
+                showCancelButton: false,
+                showConfirmButton: true,
+            });
+        }
+    });
+}
+
     // Colorful and custom confirmation alert
     function confirmDeletion(event) {
         event.preventDefault(); // Prevents the default link action (so we can show the alert)

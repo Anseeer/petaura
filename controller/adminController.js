@@ -1,5 +1,7 @@
 const User = require("../model/userSchema");
 const Order = require("../model/orderSchema");
+const Category = require("../model/categorySchema");
+const Product = require("../model/productSchema");
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
@@ -38,9 +40,34 @@ const login = async(req,res)=>{
 };
  
 
-const loadDashboard = (req,res)=>{
+const loadDashboard = async(req,res)=>{
     try {
-        res.render("admin-dashboard");
+        const product = await Product.find({}).sort({saleCount:-1}).limit(5);
+        const totalCount = await Product.aggregate([
+            {
+                $group:{
+                    _id:null,
+                    total:{$sum:"$saleCount"},
+                },
+            },
+        ]);
+        const categoryTotal = await Category.aggregate([
+            {
+                $group:{
+                    _id:null,
+                    total:{$sum:"$saleCount"},
+                },
+            },
+        ]);
+        
+        const total = totalCount.length > 0 ? totalCount[0].total : 0;
+        const Totalcategory = categoryTotal.length > 0 ? categoryTotal[0].total : 0;
+        console.log(total)
+        // console.log("product Top Sale:",product);
+        const category = await Category.find({}).sort({saleCount:-1}).limit(5);
+        // console.log("top 5 categopry:",category);
+        
+        res.render("admin-dashboard",{product,category,total,Totalcategory});
     } catch (error) {
         console.log(error,"Faild to load home");
         res.render("admin-login",{message:"Please try again "});

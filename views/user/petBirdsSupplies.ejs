@@ -186,6 +186,48 @@
   display: block; /* Show dropdown */
 }
 
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+/* Pagination buttons */
+.pagination a {
+  display: inline-block;
+  padding: 10px 15px;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 5px;
+  color: #ffa500; /* Bootstrap's primary color */
+  border: 1px solid #ffa500;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Active button styling */
+.pagination a.btn-secondary {
+  background-color: #ffa500;
+  color: #fff;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Hover effect for buttons */
+.pagination a:hover {
+  background-color: #ffa500; /* Darker shade of primary */
+  color: #fff;
+}
+
+/* Disabled button styling */
+.pagination a.disabled {
+  color: #6c757d;
+  border-color: #6c757d;
+  cursor: not-allowed;
+  pointer-events: none;
+} 
             </style>
 
             
@@ -273,6 +315,28 @@
               </div>
             <% } %>
           </div>
+          
+
+<div class="pagination">
+      <% if (currentPage > 1) { %>
+          <a href="/user/petbird-supplies?page=<%= currentPage - 1 %>" class="btn">Previous</a>
+      <% } else { %>
+          <a class="btn disabled">Previous</a>
+      <% } %>
+  
+      <% for (let i = 1; i <= totalPage; i++) { %>
+          <a href="/user/petbird-supplies?page=<%= i %>" 
+             class="btn <%= currentPage === i ? 'btn-secondary' : '' %>">
+             <%= i %>
+          </a>
+      <% } %>
+  
+      <% if (currentPage < totalPage) { %>
+          <a href="/user/petbird-supplies?page=<%= currentPage + 1 %>" class="btn">Next</a>
+      <% } else { %>
+          <a class="btn disabled">Next</a>
+      <% } %>
+  </div>
         </div>
       </section>
     </div>

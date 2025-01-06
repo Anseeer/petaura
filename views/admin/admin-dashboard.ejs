@@ -1,5 +1,68 @@
 <%- include("../partials/admin/header.ejs") %>
+<style>
+  
+</style>
+<div class="row"> <!-- Cards -->
+    <!-- Top 5 Products Card -->
+    <div class="col-md-6">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Top 5 Products</h5>
+                <ul class="list-group">
+                    <% product.forEach(product => { 
+                        let truncatedName = product.name.split(' ').slice(0, 1).join(' '); // Truncate to 3 words
+                    %>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <%= truncatedName %> <!-- Display truncated name -->
+                        <div style="width: 70%; margin-left: 10px;"> <!-- Match width to Top Categories -->
+                            <div class="progress">
+                                <div class="progress-bar" 
+                                     role="progressbar" 
+                                     style="width: <%= ((product.saleCount / total) * 100).toFixed(2) %>%; background-color: #464545" 
+                                     aria-valuenow="<%= product.saleCount %>" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                    <span class="sr-only"><%= ((product.saleCount / total) * 100).toFixed(2) %>%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
 
-    <h1>Dashboard</h1>
+    <!-- Top 5 Categories Card -->
+    <div class="col-md-6">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">Top 5 Categories</h5>
+                <ul class="list-group">
+                    <% category.forEach(category => { 
+                        let truncatedName = category.name.split(' ').slice(0, 3).join(' '); // Truncate to 3 words
+                    %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <%= truncatedName %> <!-- Display truncated category name -->
+                            <div style="width: 70%; margin-left: 10px;">
+                                <div class="progress">
+                                    <div class="progress-bar" 
+                                         role="progressbar" 
+                                         style="width: <%= ((category.saleCount / Totalcategory) * 100).toFixed(2) %>%; background-color: #464545" 
+                                         aria-valuenow="<%= category.saleCount %>" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        <span class="sr-only"><%= ((category.saleCount / Totalcategory) * 100).toFixed(2) %>%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    <% }) %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <%- include("../partials/admin/footer.ejs") %>

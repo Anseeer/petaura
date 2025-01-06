@@ -170,7 +170,7 @@
                     <hr />
                     <div class="d-flex justify-content-between fw-bold">
                         <span>Total</span>
-                        <span id="totalPrice">₹<%=cart.totalPrice%> </span>
+                        <span id="totalPrice">₹<%=cart.totalPrice %> </span>
                     </div>
                     <a href="/user/checkout-page"><button class="btn checkout-btn mt-3">Checkout</button></a>
                     <div class="text-center mt-2">
@@ -220,7 +220,7 @@ function increaseQty(event, productId, quantity) {
         updateCart(productId, currentQty, quantity); // Update the cart on the backend
     } else {
         Swal.fire({
-            icon:"success",
+            icon:"error",
             title:"Cannot exceed available stock",
             showCancelButton:false,
             showConfirmButton:false,
@@ -283,7 +283,6 @@ function updateCart(productId,currentQty ,quantity) {
                         timer: 1500,
                     })
                     location.reload();
-                    // Optionally, remove the DOM element related to the product here
                 } else {
                     Swal.fire({
                         icon: "error",

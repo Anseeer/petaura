@@ -132,8 +132,8 @@
                 </div>
                 <div class="mt-2">
                     <h5>
-                        Referral Code: 
-                        <span id="referralCode">http://localhost:3004/user/Signup?ref=<%= referral.referralCode %></span>
+                        Referral Link: 
+                        <span id="referralCode">http://localhost:3003/user/Signup?ref=<%= referral.referralCode %></span>
                     </h5>
                     <button id="copyButton" class="btn btn-sm btn-secondary mt-2 " onclick="copyReferralCode()" style="margin-left: 300px;" >Copy</button>
                 </div>
@@ -174,7 +174,13 @@
         function copyReferralCode() {
             const referralCode = document.getElementById("referralCode").innerText;
             navigator.clipboard.writeText(referralCode).then(() => {
-                alert("Referral code copied to clipboard!");
+                Swal.fire({
+                    icon:"success",
+                    title:"Copied",
+                    showCancelButton:false,
+                    showConfirmButton:false,
+                    timer:1200
+                })
             }).catch(err => {
                 console.error("Failed to copy referral code: ", err);
             });
