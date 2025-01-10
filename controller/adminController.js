@@ -42,32 +42,77 @@ const login = async(req,res)=>{
 
 const loadDashboard = async(req,res)=>{
     try {
+    let filterValue = req.query.filter || 'year';
+    console.log(filterValue);
+    let currentDate = new Date();
+    let startDate, endDate;
+
+if (filterValue === "year") {
+    startDate = new Date(currentDate.getFullYear(), 0, 1); // January 1st of current year
+    endDate = new Date(currentDate.getFullYear() + 1, 0, 1); // January 1st of next year
+} else if (filterValue === "month") {
+    startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // First day of current month
+    endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); // First day of next month
+}
         const product = await Product.find({}).sort({saleCount:-1}).limit(5);
-        const totalCount = await Product.aggregate([
-            {
-                $group:{
-                    _id:null,
-                    total:{$sum:"$saleCount"},
-                },
-            },
-        ]);
-        const categoryTotal = await Category.aggregate([
-            {
-                $group:{
-                    _id:null,
-                    total:{$sum:"$saleCount"},
-                },
-            },
-        ]);
-        
-        const total = totalCount.length > 0 ? totalCount[0].total : 0;
-        const Totalcategory = categoryTotal.length > 0 ? categoryTotal[0].total : 0;
-        console.log(total)
-        // console.log("product Top Sale:",product);
         const category = await Category.find({}).sort({saleCount:-1}).limit(5);
-        // console.log("top 5 categopry:",category);
+        const users = await User.countDocuments({});
         
-        res.render("admin-dashboard",{product,category,total,Totalcategory});
+        const totalSales = await Order.aggregate([
+            {
+                $match:{
+                    "orderedItems.status":"delivered",
+                    "createdAT":{
+                        $gte:startDate,
+                        $lte:endDate,
+                    },
+                },
+            },
+            {
+                $group:{
+                    _id:null,
+                    total:{$sum:"$finalPrice"},
+                }
+            }
+        ]);
+
+        let sales = totalSales.length > 0 ? totalSales[0].total : 0;
+        console.log("totoalSales:",sales)
+
+        const totalRevenue = await Order.aggregate([
+            {
+                $unwind: "$orderedItems", // Unwind the orderedItems array
+            },
+            {
+                $match: {
+                    "orderedItems.status": "delivered", // Filter for delivered items
+                    "paymentStatus": "PAID",
+                    "createdAT":{
+                        $gte:startDate,
+                        $lte:endDate,
+                    },
+                },
+            },
+            {
+                $project: {
+                    revenuePerItem: { $round: [{ $multiply: ["$orderedItems.totalPrice", 0.05] }, 2] },
+                },
+            },
+            {
+                $group: {
+                    _id: null, // Aggregate into a single result
+                    revenue: { $sum: "$revenuePerItem" }, // Sum the revenue
+                },
+            },
+        ]);
+        
+        let revenue = totalRevenue.length > 0 ? totalRevenue[0].revenue : 0;
+        console.log("Total Revenue (5)% of totalPrice):", revenue);
+        
+        
+        
+
+        res.render("admin-dashboard",{product,category,users,totalSales:sales,revenue});
     } catch (error) {
         console.log(error,"Faild to load home");
         res.render("admin-login",{message:"Please try again "});
@@ -103,91 +148,63 @@ const loadSalesReport = async (req, res) => {
     }
 };
 
-
 const filterSalesReport = async (req, res) => {
     try {
-        const{filter,selectRange,startDate,endDate} = req.body;
-        console.log("Body:",req.body)
+        const { filter, selectRange, startDate, endDate } = req.body;
+        console.log("Request Body:", req.body);
+
         let start, end;
         const now = new Date();
 
+        // Determine date range based on selected option
         if (selectRange === "week") {
+            console.log("Week")
             start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             end = now;
         } else if (selectRange === "month") {
+            console.log("month")
             start = new Date(now.getFullYear(), now.getMonth(), 1);
             end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         } else if (selectRange === "year") {
+            console.log("year")
             start = new Date(now.getFullYear(), 0, 1);
             end = new Date(now.getFullYear(), 11, 31);
-        } else if(selectRange == "custom" && startDate && endDate) {
+        } else if (selectRange === "custom" && startDate && endDate) {
+            console.log("custom")
             start = new Date(startDate);
             end = new Date(endDate);
-            // Ensure full day range for custom dates
             start.setUTCHours(0, 0, 0, 0);
             end.setUTCHours(23, 59, 59, 999);
-    
-        }else{
+        } else {
+            console.log("default")
             start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
             end = now;
         }
 
         console.log("Start Date:", start, "End Date:", end);
+
+        // Fetch orders based on date range and filter
         const order = await Order.aggregate([
-            {
-                $unwind: "$orderedItems"
-            },
+            { $unwind: "$orderedItems" },
             {
                 $match: {
                     "orderedItems.status": filter,
-                    createdAT: { $gte: start, $lte: end }, // Ensure field name matches exactly
+                    createdAT: { $gte: start, $lte: end }
                 }
+            },
+            {
+                $sort: { createdAT: -1 }
             }
         ]);
-        console.log("ORDER:",order)
 
-        res.status(200).json({success:true,order});
+        console.log("Filtered Orders:", order);
+
+        res.status(200).json({ success: true, order });
     } catch (error) {
-        console.error("Error in loadSalesReport:", error);
+        console.error("Error in filterSalesReport:", error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
-
-// const loadSalesReportForCustomDate = async (req, res) => {
-//     try {
-//         const { startDate, endDate } = req.body;
-
-//         // Validate request body
-//         if (!startDate || !endDate) {
-//             return res.status(400).json({ success: false, message: "Start and end dates are required" });
-//         }
-
-       
-//         console.log("Start Date:", start, "End Date:", end);
-
-//         const order = await Order.aggregate([
-//             {
-//                 $unwind: "$orderedItems"
-//             },
-//             {
-//                 $match: {
-//                     "orderedItems.status": "delivered",
-//                     createdAT: { $gte: start, $lte: end },
-//                 }
-//             }
-//         ]);
-
-//         console.log("Order:", order);
-
-//         // Render the sales report page with order data
-//         res.status(200).render("salesReport", { order });
-//     } catch (error) {
-//         console.error("Error:", error);
-//         res.status(500).send({ success: false, message: "Error loading sales report" });
-//     }
-// };
-
-
 
 module.exports = {
     loadLogin,

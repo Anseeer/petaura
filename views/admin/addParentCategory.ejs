@@ -1,0 +1,144 @@
+<%- include("../partials/admin/header.ejs") %> 
+
+<style>
+    .error-msg {
+        color: red;
+    }
+    .form-container {
+        min-height: 100vh; /* Full viewport height */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<!-- Add Parent Category Form -->
+<div class="form-container">
+    <div class="col-md-6">
+        <h2 class="content-title card-title text-center">Create Parent Category</h2>
+        <form action="#" onsubmit="addParentCategory(event)" id="addParentCategoryForm" method="post">
+            <div class="mb-4">
+                <label for="parent_name" class="form-label">Parent Name</label>
+                <input type="text" placeholder="Type here" class="form-control" name="parent_name" id="parent_name" />
+                <div class="error-msg" id="err1"></div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Parent Description</label>
+                <textarea placeholder="Type here" name="parent_description" id="parent_description" class="form-control"></textarea>
+                <div class="error-msg" id="err2"></div>
+            </div>
+            <div class="d-grid">
+                <button class="btn btn-primary" type="submit">Create Parent Category</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script>
+    
+
+    function addParentCategory(event){
+    event.preventDefault();
+    const name = document.getElementById("parent_name").value;
+    const description = document.getElementById("parent_description").value; 
+    console.log(name,description);
+
+    fetch("/admin/addParentCategory",{
+        method:"POST",
+        headers:{
+            'Content-Type':'application/json',
+        },
+        body:JSON.stringify({name,description})
+    })
+    .then((response)=> response.json())
+    .then((response)=>{
+        if(response.success){
+            Swal.fire({
+                icon:"success",
+                title:"Added",
+                showCancelButton:false,
+                showConfirmButton:false,
+                text:response.message,
+                timer:1500
+            })
+            window.location.href="/admin/parentCategories"
+        }else{
+            Swal.fire({
+                icon:"error",
+                title:"Faild To Add",
+                showCancelButton:false,
+                showConfirmButton:false,
+                text:response.message,
+                timer:1500
+            })
+        }
+    })
+    .catch(()=>{
+        Swal.fire({
+                icon:"error",
+                title:"Error",
+                showCancelButton:false,
+                showConfirmButton:false,
+                timer:1500
+            })
+    })
+
+
+ }
+
+// form validation of the ParentCategory
+const Parent_name = document.getElementById("parent_name");
+const Parent_description = document.getElementById("parent_description"); 
+const addParentCategoryForm = document.getElementById("addParentCategoryForm");
+const err_1 = document.getElementById("err1")
+const err_2 = document.getElementById("err2")
+
+function Parent_nameValidation() {
+    const nameVal = Parent_name.value;
+    const namePattern = /^[a-zA-Z\s]+$/;
+
+    if (nameVal.trim() === "") {
+        err_1.style.display = "block";
+        err_1.innerHTML = "Please Enter Category Name";
+    } else if (!namePattern.test(nameVal)) {
+        err_1.style.display = "block";
+        err_1.innerHTML = "Name Only Allowed Alphabets";
+    } else {
+        err_1.style.display = "none";
+        err_1.innerHTML = "";
+    }
+}
+
+function Parent_descriptionValidation() {
+    const desVal = Parent_description.value;
+    const desPattern = /^[a-zA-Z\s]+$/;
+
+    if (desVal.trim() === "") {
+        err_2.style.display = "block";
+        err_2.innerHTML = "Please Enter Description";
+    } else if (!desPattern.test(desVal)) {
+        err_2.style.display = "block";
+        err_2.innerHTML = "Description Only Allowed Alphabets";
+    } else {
+        err_2.style.display = "none";
+        err_2.innerHTML = "";
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    addParentCategoryForm.addEventListener("submit", function (e) {
+          Parent_nameValidation();
+            Parent_descriptionValidation();
+
+        // Prevent form submission if any validation fails
+        if (err_1.innerHTML || err_2.innerHTML ) {
+            e.preventDefault(); // Prevent form submission
+            console.log("Form validation failed.");
+        } else {
+            console.log("Form validation passed.");
+        }
+    });
+});
+</script>
+<%- include("../partials/admin/footer.ejs") %> 

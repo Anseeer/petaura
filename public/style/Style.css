@@ -204,13 +204,13 @@
 }
 
 .Ubanner {
-    height: 250px;
+    height: 300px;
     margin-top: 5px;
 }
 
 .Ubanner_text {
-    background-color: rgb(230, 189, 102);
-    height: 250px;
+  background: linear-gradient(135deg, #f3ab11f8, #f8c930);
+    height: 300px;
     font-size: 25px;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     font-style: oblique;
@@ -222,7 +222,7 @@
 }
 
 .Uimage-container {
-    height: 250px; /* Match the banner height */
+    height: 300px; /* Match the banner height */
     display: flex; /* Flexbox to center the image */
     justify-content: center; /* Center image horizontally */
     align-items: center; /* Center image vertically */

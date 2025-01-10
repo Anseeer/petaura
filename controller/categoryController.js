@@ -6,9 +6,13 @@ const Product = require("../model/productSchema");
 
 const categoryInfo = async (req, res) => {
     let query = {};
+    let page = req.query.page || 1;
+    let limit = 6 ;
+    let skip = (page-1)*limit;
     try {
         if (req.query.search) {
             const searchTerm = req.query.search;
+            console.log(searchTerm);
             query = {
                 $or: [
                     { name: { $regex: searchTerm, $options: "i" } },
@@ -17,14 +21,14 @@ const categoryInfo = async (req, res) => {
             };
 
             const category = await Category.find(query).populate('parent', 'name'); // Only get the 'name' field
-            const parentCategory = await ParentCategory.find(query);
 
-            res.render("category", { category, parentCategory });
+            res.render("category", { category });
         } else {
-            const category = await Category.find({}).populate('parent', 'name'); // Only get the 'name' field
+            const totalCount =  await Category.countDocuments({});
+            const category = await Category.find({}).populate('parent', 'name').skip(skip).limit(limit).sort({createdAt:-1}); // Only get the 'name' field
             const parentCategory = await ParentCategory.find({});
 
-            res.render("category", { category, parentCategory });
+            res.render("category", { category, parentCategory ,currentPage:page,totalPage:Math.ceil(totalCount/limit)});
         }
     } catch (error) {
         console.log("Error occurs in categoryInfo:", error.message);
@@ -32,12 +36,23 @@ const categoryInfo = async (req, res) => {
     }
 };
 
+const loadAddCategory = async(req,res)=>{
+  try {
+    const parentCategory = await ParentCategory.find({});
+    const category = await Category.find({}).populate('parent', 'name'); // Only get the 'name' field
+
+    res.render("addCategory",{parentCategory,category});
+  } catch (error) {
+    res.status(400).json({success:false,message:"Error in addCategory"});
+  }
+}
+
 const addCategory = async (req, res) => {
     try {
       const { name, description, parent,offer } = req.body;
   
       // Validate required fields
-      if (!name || !description || !parent ,!offer) {
+      if (!name || !description || !parent || !offer) {
         return res.status(400).json({ success:false, message: "Name and description are required" });
       }
       console.log(parent)
@@ -92,6 +107,34 @@ const addCategory = async (req, res) => {
     }
 }
 
+const loadParentCategory = async(req,res)=>{
+  try {
+    let query={};
+    let searchTerm = req.query.search;
+    if(searchTerm){
+      query={
+        name:{$regex:searchTerm,$options:"i"},
+        description:{$regex:searchTerm,$options:"i"},
+      }
+      const parentCategory = await ParentCategory.find(query);
+      res.render("parentCategory",{parentCategory});  
+    }else{
+      const parentCategory = await ParentCategory.find(query);
+    res.render("parentCategory",{parentCategory});
+    }
+  } catch (error) {
+    res.status(400).json({success:false,message:"Error in the parentCategory"});
+  }
+}
+
+const loadAddParentCategory = async(req,res)=>{
+  try {
+    res.render("addParentCategory");
+  } catch (error) {
+    res.status(400).json({success:false,message:"Error in the loadAddParentCategory"});
+  }
+}
+
   const deleteParentCategory = async (req,res)=>{
     try {
         if(req.query.id){
@@ -99,7 +142,7 @@ const addCategory = async (req, res) => {
             const del =  await ParentCategory.deleteOne({_id:id});
             if(del){
                 console.log("deleteParentCategory Successfull");
-                res.redirect("/admin/Category");
+                res.redirect("/admin/parentCategories");
             }else{
                 console.log("Something error in DeleteParentCategory");
                 
@@ -146,6 +189,17 @@ const unListCategory = async(req,res)=>{
     }
 }
 
+const unListParentCategory = async(req,res)=>{
+    try {
+        const id = req.query.id;
+        const findCategory = await ParentCategory.updateOne({_id:id},{$set:{isListed:false}});
+        res.redirect("/admin/parentCategories");
+    } catch (error) {
+        console.log("ERROR in unlistCategory");
+        res.status(400).send("ERROR in unlist Categoy");
+    }
+}
+
 const ListCategory = async(req,res)=>{
     try {
         const id = req.query.id;
@@ -156,6 +210,18 @@ const ListCategory = async(req,res)=>{
         res.status(400).send("ERROR in list Categoy");
     }
 }  
+
+const ListParentCategory = async(req,res)=>{
+    try {
+        const id = req.query.id;
+        const findCategory = await ParentCategory.updateOne({_id:id},{$set:{isListed:true}});
+        res.redirect("/admin/parentCategories");
+    } catch (error) {
+        console.log("ERROR in listCategory");
+        res.status(400).send("ERROR in list Categoy");
+    }
+}  
+
 const addParentCategory = async (req, res) => {
     try {
       const { name, description } = req.body;
@@ -170,8 +236,8 @@ const addParentCategory = async (req, res) => {
   
       // Create and save new parent category
       const newParent = new ParentCategory({
-        name:parent_name,
-        description:parent_description,
+        name:name,
+        description:description,
       });
   
       await newParent.save();
@@ -226,7 +292,7 @@ const editParentCategory = async (req, res) => {
             return res.status(404).send("Category not found");
         }
 
-        res.redirect("/admin/category");
+        res.redirect("/admin/parentCategories");
     } catch (error) {
         console.error("Error occurred in editing ParentCategory:", error);
         res.status(500).send("An error occurred while updating the category");
@@ -238,9 +304,7 @@ const loadCatSupplies = async (req, res) => {
       let page = parseInt(req.query.page) || 1;
       let limit = 9;
       let skip = (page - 1) * limit;
-      let sorted;
-      let sort = req.query.sort;
-      console.log("Sort value:", sort);
+    
       const user = req.session.user;
       const userData = await User.findById(user); // Correcting the query to find user by ID
       const ParentCat = await ParentCategory.findOne({ name: "Cat" });
@@ -249,15 +313,6 @@ const loadCatSupplies = async (req, res) => {
           console.log("Cannot find the ParentCategory");
       }
 
-      if (sort === "high-low") {
-          sorted = { salePrice: -1 };
-      } else if (sort === "low-high") {
-          sorted = { salePrice: 1 };
-      } else if (sort === "a-z") {
-          sorted = { name: 1 };
-      } else if (sort === "z-a") {
-          sorted = { name: -1 };
-      }
 
       const categories = await Category.find({ isListed: true, parent: ParentCat._id });
       const categoryIds = categories.map((category) => category._id.toString());
@@ -274,7 +329,6 @@ const loadCatSupplies = async (req, res) => {
           })
           .skip(skip)
           .limit(limit)
-          .sort(sorted)
           .sort({ createdAt: -1 });
       
 
@@ -284,6 +338,7 @@ const loadCatSupplies = async (req, res) => {
           user: userData,
           category: categoreiesWithId,
           product: products,
+          parent:ParentCat._id,
           currentPage:page,
           totalPage: Math.ceil(totalProduct/limit),
           breadcrumbs: [
@@ -298,41 +353,68 @@ const loadCatSupplies = async (req, res) => {
   }
 };
 
-
 const fillterCategoryOfCat = async (req, res) => {
-    try {
-      let page = parseInt(req.query.page) || 1;
-      let limit = 9;
-      let skip = (page - 1) * limit;
-      const user = req.session.user;
-      const category = req.query.category;
-  
-      // Validate category query parameter
-      const findCategory = category ? await Category.findOne({ _id: category }) : null;
-  
-      // Build query for products
-      const query = {
-        isBlocked: false,
-        quantity: { $gte: 0 },
-      };
-      if (findCategory) {
-        query.category = findCategory._id;
+  try {
+    let sorted;
+    let sort = req.query.sort || "";
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page - 1) * limit;
+    const user = req.session.user;
+    const category = req.query.category || ""; 
+    const search = req.query.search || ""; 
+    console.log("category", category);
+    console.log("sort", sort);
+    console.log("search", search);
+
+    // Initialize query for products
+    const query = {
+      isBlocked: false,
+      quantity: { $gte: 0 },
+      name:{$regex:search,$options:"i"},
+    };
+
+    if (category) {
+      // Check if it's a parent category
+      const ParentCat = await ParentCategory.findById(category);
+      if (ParentCat) {
+        // Fetch all subcategories under the parent category
+        const subcategories = await Category.find({ parent: ParentCat._id, isListed: true });
+        const subcategoryIds = subcategories.map((sub) => sub._id);
+        query.category = { $in: subcategoryIds };
+      } else {
+        // Treat as a regular category
+        const findCategory = await Category.findOne({ isListed: true, _id: category });
+        if (findCategory) {
+          query.category = findCategory._id;
+        }
       }
-  
-      // Fetch and sort products
-      let totalProducts = await Product.countDocuments(query);
-      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
-      findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-  
-      const currentProducts = findProducts
-  
+    }
+
+    // Apply sorting
+    if (sort === "high-low") {
+      sorted = { salePrice: -1 };
+    } else if (sort === "low-high") {
+      sorted = { salePrice: 1 };
+    } else if (sort === "a-z") {
+      sorted = { name: 1 };
+    } else if (sort === "z-a") {
+      sorted = { name: -1 };
+    }
+
+    // Fetch and sort products
+    let totalProducts = await Product.countDocuments(query);
+    const findProducts = await Product.find(query).skip(skip).limit(limit).sort(sorted).lean();
+
+    // Fetch user data if logged in
+   
       // Fetch user data if logged in
       let userData = null;
       if (user) {
         userData = await User.findOne({ _id: user });
         if (userData) {
           const searchEntry = {
-            category: findCategory ? findCategory._id : null,
+            category: query.category ? query.category._id : null,
             searchOn: new Date(),
           };
           userData.searchHistory.push(searchEntry);
@@ -340,26 +422,28 @@ const fillterCategoryOfCat = async (req, res) => {
         }
       }
   
-      const ParentCat = await ParentCategory.findOne({name:"Cat"});
-      const cat = await Category.find({ isListed: true ,parent:ParentCat._id});
-  
-      // Render the page
-      res.render("catSupplies", {
-        product: currentProducts,
-        category: cat,
-        user: userData,
-        totalPage:page,
-        currentPage:Math.ceil(totalProducts/limit),
-        breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"CatSupplies",url:"/user/cat-supplies"}
-        ]
-      });
-    } catch (error) {
-      console.error("Error in fillterCategory:", error);
-      res.status(500).render("error",{message:"Error in Filltering the category"});
-    }
-  };
+
+    // Fetch all categories under the Cat parent
+    const ParentCat = await ParentCategory.findOne({ name: "Cat" });
+    const cat = await Category.find({ isListed: true, parent: ParentCat._id });
+
+    // Render the page
+    res.status(200).json({
+      product: findProducts,
+      category: cat,
+      user: userData,
+      totalPage: Math.ceil(totalProducts / limit),
+      currentPage: page,
+      breadcrumbs: [
+        { text: "Home", url: "/user/" },
+        { text: "CatSupplies", url: "/user/cat-supplies" },
+      ],
+    });
+  } catch (error) {
+    console.error("Error in fillterCategoryOfCat:", error);
+    res.status(500).json({ success: false, message: "Error in filtering the category" });
+  }
+};
 
   const ProuctDetails = async(req, res) => {
     try {
@@ -412,8 +496,6 @@ const loadDogSupplies = async (req, res) => {
       let page = parseInt(req.query.page) || 1 ;
       let limit = 9;
       let skip = (page - 1) * limit ;
-      let sorted ;
-        let sort= req.query.sort;
         const user = req.session.user;
         const userData = await User.findById(user); // Correcting the query to find user by ID
         const ParentDog = await ParentCategory.findOne({name:"Dog"});
@@ -422,15 +504,7 @@ const loadDogSupplies = async (req, res) => {
             console.log("Cant ind the The ParentCategory");
         }
 
-        if(sort == "high-low"){
-          sorted = {salePrice:-1}
-       }else if(sort == "low-high"){
-          sorted = {salePrice:1}
-       }else if(sort == "a-z"){
-         sorted = {name:1}
-       }else if (sort = 'z-a'){
-         sorted = {name:-1}
-       }
+       
 
         const categories = await Category.find({ isListed: true ,parent:ParentDog._id }); 
         const categoryIds = categories.map((category) => category._id.toString());
@@ -445,13 +519,14 @@ const loadDogSupplies = async (req, res) => {
         })
         .skip(skip)
         .limit(limit)
-        .sort(sorted);
+        .sort({createdAt:-1});
 
         res.render("dogSupplies", {
             user: userData,
             category: categoreiesWithId,
             product: products,
             currentPage:page,
+            parent:ParentDog._id,
             totalPage:Math.ceil(totalPage/limit),
             breadcrumbs: [
                 { text: "Home", url: "/user/" },
@@ -465,67 +540,78 @@ const loadDogSupplies = async (req, res) => {
     }
 };
 
-
 const fillterCategoryOfDog = async (req, res) => {
-    try {
-      let page = parseInt(req.query.page) || 1 ;
+  try {
+      let page = parseInt(req.query.page) || 1;
       let limit = 9;
-      let skip = (page - 1) * limit ;
+      let skip = (page - 1) * limit;
       const user = req.session.user;
-      const category = req.query.category;
-  
-      // Validate category query parameter
-      const findCategory = category ? await Category.findOne({ _id: category }) : null;
-  
-      // Build query for products
+      let category = req.query.category || "";
+      let sorted;
+      let sort = req.query.sort;
+      let search = req.query.search;
+      console.log("sort:",sort);
+      console.log("search:",search);
+      console.log("category:",category);
+
       const query = {
-        isBlocked: false,
-        quantity: { $gte: 0 },
+          isBlocked: false,
+          quantity: { $gte: 0 },
+          name: { $regex: search, $options: "i" },
       };
-      if (findCategory) {
-        query.category = findCategory._id;
+
+      if (category) {
+          let parentCategory = await ParentCategory.findById(category);
+          if (parentCategory) {
+              let subcategories = await Category.find({ parent: parentCategory._id, isListed: true });
+              let subcategoryIds = subcategories.map((subcategory) => subcategory._id);
+              query.category = { $in: subcategoryIds };
+          } else {
+              let specificCategory = await Category.findOne({ _id: category, isListed: true });
+              if (specificCategory) {
+                  query.category = specificCategory._id;
+              }
+          }
       }
-  
-      // Fetch and sort products
-      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
-      findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
+
+      if (sort === "high-low") {
+          sorted = { salePrice: -1 };
+      } else if (sort === "low-high") {
+          sorted = { salePrice: 1 };
+      } else if (sort === "a-z") {
+          sorted = { name: 1 };
+      } else if (sort === "z-a") {
+          sorted = { name: -1 };
+      }
+
+      const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
       let totalProducts = await Product.countDocuments(query);
-      const currentProducts = findProducts
-  
-      // Fetch user data if logged in
+      const currentProducts = findProducts;
+
       let userData = null;
       if (user) {
-        userData = await User.findOne({ _id: user });
-        if (userData) {
-          const searchEntry = {
-            category: findCategory ? findCategory._id : null,
-            searchOn: new Date(),
-          };
-          userData.searchHistory.push(searchEntry);
-          await userData.save();
-        }
+          userData = await User.findOne({ _id: user });
       }
-  
-      const ParentDog = await ParentCategory.findOne({name:"Dog"});
-      const cat = await Category.find({ isListed: true ,parent:ParentDog._id});
-  
-      // Render the page
-      res.render("dogSupplies", {
-        product: currentProducts,
-        category: cat,
-        user: userData,
-        totalPage:Math.ceil(totalProducts/limit),
-        currentPage:page,
-        breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"DogSupplies",url:"/user/dog-supplies"}
-        ]
+
+      const ParentDog = await ParentCategory.findOne({ name: "Dog" });
+      const cat = await Category.find({ isListed: true, parent: ParentDog._id });
+
+      res.status(200).json({
+          product: currentProducts,
+          category: cat,
+          user: userData,
+          totalPage: Math.ceil(totalProducts / limit),
+          currentPage: page,
+          breadcrumbs: [
+              { text: "Home", url: "/user/" },
+              { text: "DogSupplies", url: "/user/dog-supplies" },
+          ],
       });
-    } catch (error) {
+  } catch (error) {
       console.error("Error in fillterDogegory:", error);
-      res.status(500).render("error",{message:"Error in Filltering the category"});
-    }
-  };
+      res.status(500).render("error", { message: "Error in Filtering the category" });
+  }
+};
 
   
   const ProuctDetailsOfDog = async(req, res) => {
@@ -572,8 +658,7 @@ const loadSmallPetsSupplies = async (req, res) => {
       let page = parseInt(req.query.page) || 1 ;
       let limit = 9 ;
       let skip = (page-1)*limit;
-        let sorted ;
-        let sort= req.query.sort;
+      
         const user = req.session.user;
         const userData = await User.findById(user); // Correcting the query to find user by ID
         const ParentSmallPets = await ParentCategory.findOne({name:"SmallPets"});
@@ -581,15 +666,7 @@ const loadSmallPetsSupplies = async (req, res) => {
         if(!ParentSmallPets){
             console.log("Cant ind the The ParentCategory");
         }
-        if(sort == "high-low"){
-          sorted = {salePrice:-1}
-       }else if(sort == "low-high"){
-          sorted = {salePrice:1}
-       }else if(sort == "a-z"){
-         sorted = {name:1}
-       }else if (sort = 'z-a'){
-         sorted = {name:-1}
-       }
+       
 
         const categories = await Category.find({ isListed: true ,parent:ParentSmallPets._id }); 
         const categoryIds = categories.map((category) => category._id.toString());
@@ -604,12 +681,13 @@ const loadSmallPetsSupplies = async (req, res) => {
         })
         .skip(skip)
         .limit(limit)
-        .sort(sorted);
+        .sort({createdAt:-1});
 
         res.render("smallPetsSupplies", {
             user: userData,
             category: categoreiesWithId,
             product: products,
+            parent:ParentSmallPets._id ,
             totalPage:Math.ceil(totalProducts/limit),
             currentPage:page,
             breadcrumbs: [
@@ -626,64 +704,76 @@ const loadSmallPetsSupplies = async (req, res) => {
 
 
 const fillterCategoryOfSmallPets = async (req, res) => {
-    try {
-      let page = parseInt(req.query.page) || 1 ;
-      let limit = 9 ;
-      let skip = (page-1)*limit;
-      const user = req.session.user;
-      const category = req.query.category;
-  
-      // Validate category query parameter
-      const findCategory = category ? await Category.findOne({ _id: category }) : null;
-  
-      // Build query for products
-      const query = {
+  try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page - 1) * limit;
+    const user = req.session.user;
+    let category = req.query.category || "";
+    let sorted;
+    let sort = req.query.sort;
+    let search = req.query.search;
+    console.log("sort:",sort);
+    console.log("search:",search);
+    console.log("category:",category);
+
+    const query = {
         isBlocked: false,
         quantity: { $gte: 0 },
-      };
-      if (findCategory) {
-        query.category = findCategory._id;
-      }
-  
-      // Fetch and sort products
-      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
-      findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-      let totalProducts = await Product.countDocuments(query);
-      const currentProducts = findProducts
-  
-      // Fetch user data if logged in
-      let userData = null;
-      if (user) {
-        userData = await User.findOne({ _id: user });
-        if (userData) {
-          const searchEntry = {
-            category: findCategory ? findCategory._id : null,
-            searchOn: new Date(),
-          };
-          userData.searchHistory.push(searchEntry);
-          await userData.save();
+        name: { $regex: search, $options: "i" },
+    };
+
+    if (category) {
+        let parentCategory = await ParentCategory.findById(category);
+        if (parentCategory) {
+            let subcategories = await Category.find({ parent: parentCategory._id, isListed: true });
+            let subcategoryIds = subcategories.map((subcategory) => subcategory._id);
+            query.category = { $in: subcategoryIds };
+        } else {
+            let specificCategory = await Category.findOne({ _id: category, isListed: true });
+            if (specificCategory) {
+                query.category = specificCategory._id;
+            }
         }
-      }
-  
-      const ParentSmallPets = await ParentCategory.findOne({name:"SmallPets"});
-      const cat = await Category.find({ isListed: true ,parent:ParentSmallPets._id});
-  
-      // Render the page
-      res.render("SmallPetsSupplies", {
+    }
+
+    if (sort === "high-low") {
+        sorted = { salePrice: -1 };
+    } else if (sort === "low-high") {
+        sorted = { salePrice: 1 };
+    } else if (sort === "a-z") {
+        sorted = { name: 1 };
+    } else if (sort === "z-a") {
+        sorted = { name: -1 };
+    }
+
+    const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
+    let totalProducts = await Product.countDocuments(query);
+    const currentProducts = findProducts;
+
+    let userData = null;
+    if (user) {
+        userData = await User.findOne({ _id: user });
+    }
+
+    const ParentDog = await ParentCategory.findOne({ name: "SmallPets" });
+    const cat = await Category.find({ isListed: true, parent: ParentDog._id });
+
+    res.status(200).json({
         product: currentProducts,
         category: cat,
         user: userData,
-        currentPage:page,
-        totalPage:Math.ceil(totalProducts/limit),
-        breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"SmallPetsSupplies",url:"/user/smallpets-supplies"}
-        ]
-      });
-    } catch (error) {
-      console.error("Error in fillterSmallPetsegory:", error);
-      res.status(500).render("error",{message:"Error in Filltering the category"});
-    }
+        totalPage: Math.ceil(totalProducts / limit),
+        currentPage: page,
+        breadcrumbs: [
+            { text: "Home", url: "/user/" },
+            { text: "DogSupplies", url: "/user/dog-supplies" },
+        ],
+    });
+} catch (error) {
+    console.error("Error in fillterDogegory:", error);
+    res.status(500).render("error", { message: "Error in Filtering the category" });
+}
   };
 
   
@@ -731,8 +821,7 @@ const loadPetBirdSupplies = async (req, res) => {
       let page = parseInt(req.query.page) || 1;
       let limit = 9;
       let skip = (page -1)*limit;
-      let sorted ;
-      let sort= req.query.sort;
+      
         const user = req.session.user;
         const userData = await User.findById(user); // Correcting the query to find user by ID
         const ParentPetBird = await ParentCategory.findOne({name:"PetBirds"});
@@ -740,15 +829,7 @@ const loadPetBirdSupplies = async (req, res) => {
         if(!ParentPetBird){
             console.log("Cant ind the The ParentCategory");
         }
-        if(sort == "high-low"){
-          sorted = {salePrice:-1}
-       }else if(sort == "low-high"){
-          sorted = {salePrice:1}
-       }else if(sort == "a-z"){
-         sorted = {name:1}
-       }else if (sort = 'z-a'){
-         sorted = {name:-1}
-       }
+        
 
         const categories = await Category.find({ isListed: true ,parent:ParentPetBird._id }); 
         const categoryIds = categories.map((category) => category._id.toString());
@@ -763,13 +844,14 @@ const loadPetBirdSupplies = async (req, res) => {
         })
         .skip(skip)
         .limit(limit)
-        .sort(sorted);
+        .sort({createdAt:-1});
 
         res.render("petBirdsSupplies", {
             user: userData,
             category: categoreiesWithId,
             product: products,
             currentPage:page,
+            parent:ParentPetBird._id,
             totalPage:Math.ceil(totalProducts/limit),
             breadcrumbs: [
                 { text: "Home", url: "/user/" },
@@ -785,65 +867,76 @@ const loadPetBirdSupplies = async (req, res) => {
 
 
 const fillterCategoryOfPetBird = async (req, res) => {
-    try {
-      let page = parseInt(req.query.page) || 1 ;
-      let limit = 9 ;
-      let skip = (page-1)*limit;
-      const user = req.session.user;
-      const category = req.query.category;
-  
-      // Validate category query parameter
-      const findCategory = category ? await Category.findOne({ _id: category }) : null;
-  
-      // Build query for products
-      const query = {
+  try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page - 1) * limit;
+    const user = req.session.user;
+    let category = req.query.category || "";
+    let sorted;
+    let sort = req.query.sort;
+    let search = req.query.search;
+    console.log("sort:",sort);
+    console.log("search:",search);
+    console.log("category:",category);
+
+    const query = {
         isBlocked: false,
         quantity: { $gte: 0 },
-      };
-      if (findCategory) {
-        query.category = findCategory._id;
-      }
-  
-      // Fetch and sort products
-      let totalProducts = await Product.countDocuments(query);
-      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
-      findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-  
-      const currentProducts = findProducts
-  
-      // Fetch user data if logged in
-      let userData = null;
-      if (user) {
-        userData = await User.findOne({ _id: user });
-        if (userData) {
-          const searchEntry = {
-            category: findCategory ? findCategory._id : null,
-            searchOn: new Date(),
-          };
-          userData.searchHistory.push(searchEntry);
-          await userData.save();
+        name: { $regex: search, $options: "i" },
+    };
+
+    if (category) {
+        let parentCategory = await ParentCategory.findById(category);
+        if (parentCategory) {
+            let subcategories = await Category.find({ parent: parentCategory._id, isListed: true });
+            let subcategoryIds = subcategories.map((subcategory) => subcategory._id);
+            query.category = { $in: subcategoryIds };
+        } else {
+            let specificCategory = await Category.findOne({ _id: category, isListed: true });
+            if (specificCategory) {
+                query.category = specificCategory._id;
+            }
         }
-      }
-  
-      const ParentPetBird = await ParentCategory.findOne({name:"PetBirds"});
-      const cat = await Category.find({ isListed: true ,parent:ParentPetBird._id});
-  
-      // Render the page
-      res.render("petBirdsSupplies", {
+    }
+
+    if (sort === "high-low") {
+        sorted = { salePrice: -1 };
+    } else if (sort === "low-high") {
+        sorted = { salePrice: 1 };
+    } else if (sort === "a-z") {
+        sorted = { name: 1 };
+    } else if (sort === "z-a") {
+        sorted = { name: -1 };
+    }
+
+    const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
+    let totalProducts = await Product.countDocuments(query);
+    const currentProducts = findProducts;
+
+    let userData = null;
+    if (user) {
+        userData = await User.findOne({ _id: user });
+    }
+
+    const ParentDog = await ParentCategory.findOne({ name: "PetBirds" });
+    const cat = await Category.find({ isListed: true, parent: ParentDog._id });
+
+    res.status(200).json({
         product: currentProducts,
         category: cat,
         user: userData,
-        totalPage:Math.ceil(totalProducts/limit),
-        currentPage:page,
-        breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"PetBirdSupplies",url:"/user/petbird-supplies"}
-        ]
-      });
-    } catch (error) {
-      console.error("Error in fillterSmallPetsegory:", error);
-      res.status(500).render("error",{message:"Error in Filltering the category"});
-    }
+        totalPage: Math.ceil(totalProducts / limit),
+        currentPage: page,
+        breadcrumbs: [
+            { text: "Home", url: "/user/" },
+            { text: "DogSupplies", url: "/user/dog-supplies" },
+        ],
+    });
+} catch (error) {
+    console.error("Error in fillterDogegory:", error);
+    res.status(500).render("error", { message: "Error in Filtering the category" });
+}
   };
 
   
@@ -892,8 +985,6 @@ const loadFishSupplies = async (req, res) => {
       let page = parseInt(req.query.page) || 1 ;
       let limit = 9 ;
        let skip = (page -1)*limit ;
-      let sorted ;
-      let sort= req.query.sort;
       const user = req.session.user;
         const userData = await User.findById(user); // Correcting the query to find user by ID
         const ParentFish = await ParentCategory.findOne({name:"Fish"});
@@ -902,16 +993,7 @@ const loadFishSupplies = async (req, res) => {
             console.log("Cant ind the The ParentCategory");
         }
         
-        if(sort == "high-low"){
-          sorted = {salePrice:-1}
-       }else if(sort == "low-high"){
-          sorted = {salePrice:1}
-       }else if(sort == "a-z"){
-         sorted = {name:1}
-       }else if (sort = 'z-a'){
-         sorted = {name:-1}
-       }
-
+       
         const categories = await Category.find({ isListed: true ,parent:ParentFish._id }); 
         const categoryIds = categories.map((category) => category._id.toString());
         const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
@@ -925,13 +1007,13 @@ const loadFishSupplies = async (req, res) => {
         })
         .skip(skip)
         .limit(limit)
-        .sort(sorted);
-
+        .sort({createdAt:-1});
         res.render("fishSupplies", {
             user: userData,
             category: categoreiesWithId,
             product: products,
             currentPage:page,
+            parent:ParentFish._id ,
             totalPage:Math.ceil(totalProducts/limit),
             breadcrumbs: [
                 { text: "Home", url: "/user/" },
@@ -947,65 +1029,76 @@ const loadFishSupplies = async (req, res) => {
 
 
 const fillterCategoryOfFish = async (req, res) => {
-    try {
-      let page = parseInt(req.query.page) || 1 ;
-      let limit = 9 ;
-      let skip = (page-1)*limit;
-      const user = req.session.user;
-      const category = req.query.category;
-  
-      // Validate category query parameter
-      const findCategory = category ? await Category.findOne({ _id: category }) : null;
-  
-      // Build query for products
-      const query = {
+  try {
+    let page = parseInt(req.query.page) || 1;
+    let limit = 9;
+    let skip = (page - 1) * limit;
+    const user = req.session.user;
+    let category = req.query.category || "";
+    let sorted;
+    let sort = req.query.sort;
+    let search = req.query.search;
+    console.log("sort:",sort);
+    console.log("search:",search);
+    console.log("category:",category);
+
+    const query = {
         isBlocked: false,
         quantity: { $gte: 0 },
-      };
-      if (findCategory) {
-        query.category = findCategory._id;
-      }
-  
-      // Fetch and sort products
-      let totalProducts = await Product.countDocuments(query);
-      const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
-      findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-  
-      const currentProducts = findProducts
-  
-      // Fetch user data if logged in
-      let userData = null;
-      if (user) {
-        userData = await User.findOne({ _id: user });
-        if (userData) {
-          const searchEntry = {
-            category: findCategory ? findCategory._id : null,
-            searchOn: new Date(),
-          };
-          userData.searchHistory.push(searchEntry);
-          await userData.save();
+        name: { $regex: search, $options: "i" },
+    };
+
+    if (category) {
+        let parentCategory = await ParentCategory.findById(category);
+        if (parentCategory) {
+            let subcategories = await Category.find({ parent: parentCategory._id, isListed: true });
+            let subcategoryIds = subcategories.map((subcategory) => subcategory._id);
+            query.category = { $in: subcategoryIds };
+        } else {
+            let specificCategory = await Category.findOne({ _id: category, isListed: true });
+            if (specificCategory) {
+                query.category = specificCategory._id;
+            }
         }
-      }
-  
-      const ParentFish = await ParentCategory.findOne({name:"Fish"});
-      const cat = await Category.find({ isListed: true ,parent:ParentFish._id});
-  
-      // Render the page
-      res.render("fishSupplies", {
+    }
+
+    if (sort === "high-low") {
+        sorted = { salePrice: -1 };
+    } else if (sort === "low-high") {
+        sorted = { salePrice: 1 };
+    } else if (sort === "a-z") {
+        sorted = { name: 1 };
+    } else if (sort === "z-a") {
+        sorted = { name: -1 };
+    }
+
+    const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
+    let totalProducts = await Product.countDocuments(query);
+    const currentProducts = findProducts;
+
+    let userData = null;
+    if (user) {
+        userData = await User.findOne({ _id: user });
+    }
+
+    const ParentDog = await ParentCategory.findOne({ name: "Fish" });
+    const cat = await Category.find({ isListed: true, parent: ParentDog._id });
+
+    res.status(200).json({
         product: currentProducts,
         category: cat,
         user: userData,
-        totalPage:Math.ceil(totalProducts/limit),
-        currentPage:page,
-        breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"FishSupplies",url:"/user/fish-supplies"}
-        ]
-      });
-    } catch (error) {
-      console.error("Error in fillterFishegory:", error);
-      res.status(500).render("error",{message:"Error in Filltering the category"});
-    }
+        totalPage: Math.ceil(totalProducts / limit),
+        currentPage: page,
+        breadcrumbs: [
+            { text: "Home", url: "/user/" },
+            { text: "DogSupplies", url: "/user/dog-supplies" },
+        ],
+    });
+} catch (error) {
+    console.error("Error in fillterDogegory:", error);
+    res.status(500).render("error", { message: "Error in Filtering the category" });
+}
   };
 
   
@@ -1052,8 +1145,6 @@ const fillterCategoryOfFish = async (req, res) => {
       let page = parseInt(req.query.page) || 1 ;
       let limit = 9 ;
       let skip = (page-1)*limit;
-      let sort = req.query.sort;
-      let sorted;
         // Fetch user session details
         const user = req.session.user;
         const userData = await User.findById(user);
@@ -1073,15 +1164,7 @@ const fillterCategoryOfFish = async (req, res) => {
             name: { $in: accessoryCategories }
         });
         console.log("Found Categories ",categories); 
-        if(sort == "high-low"){
-          sorted = {salePrice:-1}
-       }else if(sort == "low-high"){
-          sorted = {salePrice:1}
-       }else if(sort == "a-z"){
-         sorted = {name:1}
-       }else if (sort = 'z-a'){
-         sorted = {name:-1}
-       }
+       
 
         // Extract category IDs and names for frontend use
         const categoryIds = categories.map(category => category._id.toString());
@@ -1099,13 +1182,14 @@ const fillterCategoryOfFish = async (req, res) => {
         })
         .skip(skip)
         .limit(limit)
-        .sort(sorted);
+        .sort({createdAt:-1});
 
         // Render the Accessories page
         res.render("accessories", {
             user: userData,
             category: categoriesWithId,
             product: products,
+            allProduct:categoryIds,
             totalPage:Math.ceil(totalProducts/limit),
             currentPage:page,
             breadcrumbs: [
@@ -1120,77 +1204,94 @@ const fillterCategoryOfFish = async (req, res) => {
 };
 
 
-
 const fillterCategoryOfAccessories = async (req, res) => {
   try {
-    let page = parseInt(req.query.page) || 1 ;
+    let page = parseInt(req.query.page) || 1;
     let limit = 9;
-    let skip = (page-1)*limit;
+    let skip = (page - 1) * limit;
     const user = req.session.user;
-    const category = req.query.category;
+    let category = req.query.category;
+    let sort = req.query.sort;
+    let sorted;
+    let search = req.query.search || ""; // Ensure search defaults to an empty string
 
-    // Validate category query parameter
-    const findCategory = category ? await Category.findOne({ _id: category }) : null;
+    console.log("Sort:", sort);
+    console.log("Category:", category);
+    console.log("Search:", search);
+
+    // Convert category string to an array of ObjectIds, if provided
+    let categoryIds = [];
+    if (category) {
+      if (category.includes(",")) {
+        categoryIds = category.split(","); // Split into an array
+      } else {
+        categoryIds.push(category); // Single category
+      }
+    }
 
     // Build query for products
     const query = {
       isBlocked: false,
       quantity: { $gte: 0 },
+      name: { $regex: search, $options: "i" },
     };
-    if (findCategory) {
-      query.category = findCategory._id;
+
+    if (sort === "high-low") {
+      sorted = { salePrice: -1 };
+    } else if (sort === "low-high") {
+      sorted = { salePrice: 1 };
+    } else if (sort === "a-z") {
+      sorted = { name: 1 };
+    } else if (sort === "z-a") {
+      sorted = { name: -1 };
+    }
+
+    if (categoryIds.length > 0) {
+      query.category = { $in: categoryIds };
     }
 
     // Fetch and sort products
     const totalProducts = await Product.countDocuments(query);
-    const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
-    findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-
-    const currentProducts = findProducts
+    const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
 
     // Fetch user data if logged in
     let userData = null;
     if (user) {
       userData = await User.findOne({ _id: user });
-      if (userData) {
-        const searchEntry = {
-          category: findCategory ? findCategory._id : null,
-          searchOn: new Date(),
-        };
-        userData.searchHistory.push(searchEntry);
-        await userData.save();
-      }
     }
+
+    // Fetch accessory categories
     const accessoryCategories = [
       "CatAccessories",
       "DogAccessories",
-      "SmallPetAccessories ",
-      "PetBirdAccessories ",
-      "FishAccessories "  
-  ];
-      
-  // Fetch categories matching the accessory names and ensure they are listed
-  const categories = await Category.find({
+      "SmallPetAccessories",
+      "PetBirdAccessories",
+      "FishAccessories",
+    ];
+
+    const categories = await Category.find({
       isListed: true,
-      name: { $in: accessoryCategories }
-  });
-    // Render the page
-    res.render("accessories", {
-      product: currentProducts,
+      name: { $in: accessoryCategories },
+    });
+
+    // Render the response
+    res.status(200).json({
+      product: findProducts,
       category: categories,
       user: userData,
-      currentPage:page,
-      totalPage:Math.ceil(totalProducts/limit),
-      breadcrumbs:[
-          {text:"Home",url:"/user/"},
-          {text:"Accessories",url:"/user/accessories"}
-      ]
+      currentPage: page,
+      totalPage: Math.ceil(totalProducts / limit),
+      breadcrumbs: [
+        { text: "Home", url: "/user/" },
+        { text: "Accessories", url: "/user/accessories" },
+      ],
     });
   } catch (error) {
-    console.error("Error in fillterFishegory:", error);
-    res.status(500).render("error",{message:"Error in Filltering the category"});
+    console.error("Error in fillterCategoryOfAccessories:", error);
+    res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
+
 
 
 const ProuctDetailsOfAccessories = async(req, res) => {
@@ -1238,8 +1339,7 @@ const loadTreats = async (req, res) => {
     let page = parseInt(req.query.page) || 1;
     let limit = 9;
     let skip = (page -1)*limit;
-    let sort = req.query.sort;
-    let sorted;
+    
      // Fetch user session details
      const user = req.session.user;
      const userData = await User.findById(user);
@@ -1266,15 +1366,7 @@ const loadTreats = async (req, res) => {
          _id: category._id,
          name: category.name
      }));
-     if(sort == "high-low"){
-      sorted = {salePrice:-1}
-   }else if(sort == "low-high"){
-      sorted = {salePrice:1}
-   }else if(sort == "a-z"){
-     sorted = {name:1}
-   }else if (sort = 'z-a'){
-     sorted = {name:-1}
-   }
+    
 
      // Fetch products in the filtered categories, ensuring availability and not blocked
      let totalProducts = await Product.countDocuments({category: { $in: categoryIds }})
@@ -1285,7 +1377,7 @@ const loadTreats = async (req, res) => {
      })
      .skip(skip)
      .limit(limit)
-     .sort(sorted);
+     .sort({createdAt:-1});
 
      // Render the Accessories page
      res.render("treat", {
@@ -1293,6 +1385,7 @@ const loadTreats = async (req, res) => {
          category: categoriesWithId,
          product: products,
          currentPage:page,
+         allProduct:categoryIds,
          totalPage:Math.ceil(totalProducts/limit),
          breadcrumbs: [
              { text: "Home", url: "/user/" },
@@ -1310,71 +1403,88 @@ const fillterCategoryOfTreats = async (req, res) => {
   try {
     let page = parseInt(req.query.page) || 1;
     let limit = 9;
-    let skip = (page -1)*limit;
-    let sort = req.query.sort;
+    let skip = (page - 1) * limit;
     const user = req.session.user;
-    const category = req.query.category;
+    let category = req.query.category;
+    let sort = req.query.sort;
+    let sorted;
+    let search = req.query.search || ""; // Ensure search defaults to an empty string
 
-    // Validate category query parameter
-    const findCategory = category ? await Category.findOne({ _id: category }) : null;
+    console.log("Sort:", sort);
+    console.log("Category:", category);
+    console.log("Search:", search);
+
+    // Convert category string to an array of ObjectIds, if provided
+    let categoryIds = [];
+    if (category) {
+      if (category.includes(",")) {
+        categoryIds = category.split(","); // Split into an array
+      } else {
+        categoryIds.push(category); // Single category
+      }
+    }
 
     // Build query for products
     const query = {
       isBlocked: false,
       quantity: { $gte: 0 },
+      name: { $regex: search, $options: "i" },
     };
-    if (findCategory) {
-      query.category = findCategory._id;
+
+    if (sort === "high-low") {
+      sorted = { salePrice: -1 };
+    } else if (sort === "low-high") {
+      sorted = { salePrice: 1 };
+    } else if (sort === "a-z") {
+      sorted = { name: 1 };
+    } else if (sort === "z-a") {
+      sorted = { name: -1 };
+    }
+
+    if (categoryIds.length > 0) {
+      query.category = { $in: categoryIds };
     }
 
     // Fetch and sort products
-    let totalProducts = await Product.countDocuments(query);
-    const findProducts = await Product.find(query).skip(skip).limit(limit).sort(sort).lean();
-    findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-
-    const currentProducts = findProducts
+    const totalProducts = await Product.countDocuments(query);
+    const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
 
     // Fetch user data if logged in
     let userData = null;
     if (user) {
       userData = await User.findOne({ _id: user });
-      if (userData) {
-        const searchEntry = {
-          category: findCategory ? findCategory._id : null,
-          searchOn: new Date(),
-        };
-        userData.searchHistory.push(searchEntry);
-        await userData.save();
-      }
     }
-    const treatCategories = [
-      "CatTreat",
-      "DogTreat",
-      "SmallPets Treat",
-      "PetBirds Treat",
-      "Fish Treat"  
-  ];
-      
-  // Fetch categories matching the accessory names and ensure they are listed
-  const categories = await Category.find({
+
+    // Fetch accessory categories
+    const accessoryCategories = [     
+"CatTreat",
+"DogTreat",
+"SmallPets Treat",
+"PetBirds Treat",
+"Fish Treat"
+
+    ];
+
+    const categories = await Category.find({
       isListed: true,
-      name: { $in: treatCategories }
-  });
-    // Render the page
-    res.render("treat", {
-      product: currentProducts,
+      name: { $in: accessoryCategories },
+    });
+
+    // Render the response
+    res.status(200).json({
+      product: findProducts,
       category: categories,
       user: userData,
-      totalPage:Math.ceil(totalProducts/limit),
-      currentPage:page,
-      breadcrumbs:[
-          {text:"Home",url:"/user/"},
-          {text:"Treat",url:"/user/treat"}
-      ]
+      currentPage: page,
+      totalPage: Math.ceil(totalProducts / limit),
+      breadcrumbs: [
+        { text: "Home", url: "/user/" },
+        { text: "Accessories", url: "/user/accessories" },
+      ],
     });
   } catch (error) {
-    console.error("Error in filltertreat:", error);
-    res.status(500).render("error",{message:"Error in Filltering the category"});
+    console.error("Error in fillterCategoryOfAccessories:", error);
+    res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
 
@@ -1424,8 +1534,7 @@ const loadToys = async (req, res) => {
     let page = parseInt(req.query.page) || 1;
     let limit = 9;
     let skip = (page - 1) * limit;
-    let sorted;
-    let sort = req.query.sort;
+    
      // Fetch user session details
      const user = req.session.user;
      const userData = await User.findById(user);
@@ -1451,15 +1560,7 @@ const loadToys = async (req, res) => {
          _id: category._id,
          name: category.name
      }));
-     if(sort == "high-low"){
-      sorted = {salePrice:-1}
-   }else if(sort == "low-high"){
-      sorted = {salePrice:1}
-   }else if(sort == "a-z"){
-     sorted = {name:1}
-   }else if (sort = 'z-a'){
-     sorted = {name:-1}
-   }
+    
 
      // Fetch products in the filtered categories, ensuring availability and not blocked
      let totalProducts = await Product.countDocuments({category: { $in: categoryIds }});
@@ -1470,13 +1571,14 @@ const loadToys = async (req, res) => {
      })
      .skip(skip)
      .limit(limit)
-     .sort(sorted);
+     .sort({createdAt:-1});
 
      // Render the Accessories page
      res.render("toys", {
          user: userData,
          category: categoriesWithId,
          product: products,
+         allProduct:categoryIds,
          totalPage:Math.ceil(totalProducts/limit),
          currentPage:page,
          breadcrumbs: [
@@ -1497,70 +1599,87 @@ const fillterCategoryOfToys = async (req, res) => {
     let limit = 9;
     let skip = (page - 1) * limit;
     const user = req.session.user;
-    const category = req.query.category;
+    let category = req.query.category;
+    let sort = req.query.sort;
+    let sorted;
+    let search = req.query.search || ""; // Ensure search defaults to an empty string
 
-    // Validate category query parameter
-    const findCategory = category ? await Category.findOne({ _id: category }) : null;
+    console.log("Sort:", sort);
+    console.log("Category:", category);
+    console.log("Search:", search);
+
+    // Convert category string to an array of ObjectIds, if provided
+    let categoryIds = [];
+    if (category) {
+      if (category.includes(",")) {
+        categoryIds = category.split(","); // Split into an array
+      } else {
+        categoryIds.push(category); // Single category
+      }
+    }
 
     // Build query for products
     const query = {
       isBlocked: false,
       quantity: { $gte: 0 },
+      name: { $regex: search, $options: "i" },
     };
-    if (findCategory) {
-      query.category = findCategory._id;
+
+    if (sort === "high-low") {
+      sorted = { salePrice: -1 };
+    } else if (sort === "low-high") {
+      sorted = { salePrice: 1 };
+    } else if (sort === "a-z") {
+      sorted = { name: 1 };
+    } else if (sort === "z-a") {
+      sorted = { name: -1 };
+    }
+
+    if (categoryIds.length > 0) {
+      query.category = { $in: categoryIds };
     }
 
     // Fetch and sort products
-    let totalProducts = await Product.countDocuments(query);
-    const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
-    findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-
-    const currentProducts = findProducts
+    const totalProducts = await Product.countDocuments(query);
+    const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
 
     // Fetch user data if logged in
     let userData = null;
     if (user) {
       userData = await User.findOne({ _id: user });
-      if (userData) {
-        const searchEntry = {
-          category: findCategory ? findCategory._id : null,
-          searchOn: new Date(),
-        };
-        userData.searchHistory.push(searchEntry);
-        await userData.save();
-      }
     }
+
+    // Fetch accessory categories
     const ToysCategories = [
       "CatToys",
-      "DogToys ",
-      "SmallPets Toys",
-      "PetBird Toys"  
-  ];
-      
-  // Fetch categories matching the accessory names and ensure they are listed
-  const categories = await Category.find({
+    "DogToys ",
+    "SmallPets Toys",
+    "PetBird Toys"
+
+    ];
+
+    const categories = await Category.find({
       isListed: true,
-      name: { $in: ToysCategories }
-  });
-    // Render the page
-    res.render("toys", {
-      product: currentProducts,
+      name: { $in: ToysCategories },
+    });
+
+    // Render the response
+    res.status(200).json({
+      product: findProducts,
       category: categories,
       user: userData,
-      totalPage:Math.ceil(totalProducts/limit),
-      currentPage:page,
-      breadcrumbs:[
-          {text:"Home",url:"/user/"},
-          {text:"Toys",url:"/user/toys"}
-      ]
+      currentPage: page,
+      totalPage: Math.ceil(totalProducts / limit),
+      breadcrumbs: [
+        { text: "Home", url: "/user/" },
+        { text: "Accessories", url: "/user/accessories" },
+      ],
     });
   } catch (error) {
-    console.error("Error in filltertreat:", error);
-    res.status(500).render("error",{message:"Error in Filltering the category"});
+    console.error("Error in fillterCategoryOfAccessories:", error);
+    res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
-
 
 const ProuctDetailsOfToys = async(req, res) => {
   try {
@@ -1606,8 +1725,7 @@ const loadFood = async (req, res) => {
     let page = parseInt(req.query.page) || 1;
     let limit = 9;
     let skip = (page-1 )*limit;
-    let sorted ; 
-    let sort = req.query.sort;
+  
      // Fetch user session details
      const user = req.session.user;
      const userData = await User.findById(user);
@@ -1633,15 +1751,7 @@ const loadFood = async (req, res) => {
          _id: category._id,
          name: category.name
      }));
-     if(sort == "high-low"){
-      sorted = {salePrice:-1}
-   }else if(sort == "low-high"){
-      sorted = {salePrice:1}
-   }else if(sort == "a-z"){
-     sorted = {name:1}
-   }else if (sort = 'z-a'){
-     sorted = {name:-1}
-   }
+     
 
      // Fetch products in the filtered categories, ensuring availability and not blocked
      let totalProducts = await Product.countDocuments({ category: { $in: categoryIds }});
@@ -1652,13 +1762,14 @@ const loadFood = async (req, res) => {
      })
      .skip(skip)
      .limit(limit)
-     .sort(sorted);
+     .sort({createdAt:-1});
 
      // Render the Accessories page
      res.render("food", {
          user: userData,
          category: categoriesWithId,
          product: products,
+         allProduct:categoryIds,
          totalPage:Math.ceil(totalProducts/limit),
          currentPage:page,
          breadcrumbs: [
@@ -1679,71 +1790,85 @@ const fillterCategoryOfFood = async (req, res) => {
     let limit = 9;
     let skip = (page - 1) * limit;
     const user = req.session.user;
-    const category = req.query.category;
+    let category = req.query.category;
+    let sort = req.query.sort;
+    let sorted;
+    let search = req.query.search || ""; // Ensure search defaults to an empty string
 
-    // Validate category query parameter
-    const findCategory = category ? await Category.findOne({ _id: category }) : null;
+    console.log("Sort:", sort);
+    console.log("Category:", category);
+    console.log("Search:", search);
+
+    // Convert category string to an array of ObjectIds, if provided
+    let categoryIds = [];
+    if (category) {
+      if (category.includes(",")) {
+        categoryIds = category.split(","); // Split into an array
+      } else {
+        categoryIds.push(category); // Single category
+      }
+    }
 
     // Build query for products
     const query = {
       isBlocked: false,
       quantity: { $gte: 0 },
+      name: { $regex: search, $options: "i" },
     };
-    if (findCategory) {
-      query.category = findCategory._id;
+
+    if (sort === "high-low") {
+      sorted = { salePrice: -1 };
+    } else if (sort === "low-high") {
+      sorted = { salePrice: 1 };
+    } else if (sort === "a-z") {
+      sorted = { name: 1 };
+    } else if (sort === "z-a") {
+      sorted = { name: -1 };
     }
-    let totalProducts = await Product.countDocuments(query);
+
+    if (categoryIds.length > 0) {
+      query.category = { $in: categoryIds };
+    }
 
     // Fetch and sort products
-    const findProducts = await Product.find(query).skip(skip).limit(limit).lean();
-    findProducts.sort((a, b) => new Date(b.createdOn) - new Date(a.createdOn)); // Assuming "date" field exists
-
-    const currentProducts = findProducts
+    const totalProducts = await Product.countDocuments(query);
+    const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
 
     // Fetch user data if logged in
     let userData = null;
     if (user) {
       userData = await User.findOne({ _id: user });
-      if (userData) {
-        const searchEntry = {
-          category: findCategory ? findCategory._id : null,
-          searchOn: new Date(),
-        };
-        userData.searchHistory.push(searchEntry);
-        await userData.save();
-      }
     }
-    
-     // Define accessory categories
-     const FoodCategories = [
+
+    // Fetch accessory categories
+    const FoodCategories = [
       "CatFood",
       "DogFood",
-      "SmallPets Food ",
-      "PetBird Food ",
-      "Fish Food"  
-  ];
-      
-  // Fetch categories matching the accessory names and ensure they are listed
-  const categories = await Category.find({
-      isListed: true,
-      name: { $in: FoodCategories }
-  });
+      "SmallPets Food",
+      "PetBird Food",
+      "Fish Food",
+    ];
 
-    // Render the page
-    res.render("food", {
-      product: currentProducts,
+    const categories = await Category.find({
+      isListed: true,
+      name: { $in: FoodCategories },
+    });
+
+    // Render the response
+    res.status(200).json({
+      product: findProducts,
       category: categories,
       user: userData,
-      totalPage:Math.ceil(totalProducts/limit),
-      currentPage:page,
-      breadcrumbs:[
-          {text:"Home",url:"/user/"},
-          {text:"Food",url:"/user/food"}
-      ]
+      currentPage: page,
+      totalPage: Math.ceil(totalProducts / limit),
+      breadcrumbs: [
+        { text: "Home", url: "/user/" },
+        { text: "Accessories", url: "/user/accessories" },
+      ],
     });
   } catch (error) {
-    console.error("Error in filltertreat:", error);
-    res.status(500).render("error",{message:"Error in Filltering the category"});
+    console.error("Error in fillterCategoryOfAccessories:", error);
+    res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
 
@@ -2236,7 +2361,9 @@ module.exports = {
     loadEditCategory,
     editCategory,
     ListCategory,
+    ListParentCategory,
     unListCategory,
+    unListParentCategory,
     addParentCategory , 
     loadeditParentCategory,
     editParentCategory ,
@@ -2275,5 +2402,8 @@ module.exports = {
     filterAccessories,
     filterFood,
     filterToys,
-    filterTreat
+    filterTreat,
+    loadAddCategory,
+    loadParentCategory,
+    loadAddParentCategory
 } 

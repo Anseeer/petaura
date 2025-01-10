@@ -1,6 +1,7 @@
 const User = require("../model/userSchema");
 const Address = require("../model/addressSchema");
 const Order = require("../model/orderSchema");
+const PendingOrder = require("../model/pendingOrderSchema");
 const Product = require("../model/productSchema");
 const Referral = require("../model/referralSchema");
 const nodemailer = require("nodemailer");
@@ -182,13 +183,16 @@ const loadOrderHistory = async(req,res)=>{
     try {
 
         const page = parseInt(req.query.page) || 1;
-        const limit = 5;
+        const limit = 4;
         const skip = (page -1) * limit;
 
         const userId = req.session.user;
         const totalOrders = await Order.countDocuments({userId})
 
-
+        const pending = await PendingOrder.find({userId}).populate("orderedItems.product", ' _id name Image description ').sort({createdAT:-1});
+        
+        const pendingOrders = pending.orderedItems;
+        console.log("pendingOrders:",pending);
         const orders = await Order.find({userId})
         .skip(skip)
         .limit(limit)
@@ -198,7 +202,7 @@ const loadOrderHistory = async(req,res)=>{
 
         console.log("orders:",orders,"orderedItems:",orderedItems);
 
-        res.render("orderHistory",{orders,orderedItems,currentPage:page,totalPage:Math.ceil(totalOrders/limit)}); 
+        res.render("orderHistory",{orders,orderedItems,pendingOrders,pending,currentPage:page,totalPage:Math.ceil(totalOrders/limit)}); 
     } catch (error) {
         res.status(400).send("Error in the loadOrderHistory");
         console.log(error)

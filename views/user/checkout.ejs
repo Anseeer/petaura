@@ -95,16 +95,26 @@
               <td>₹<%= cart.totalPrice %></td>
             </tr>
             <tr>
-              <th>Shipping</th>
-              <td>Free</td>
+              <% if(cart.totalPrice < 500 ){ %>
+              <th>Delivery</th>
+              <td id="deliveryFee">₹40</td>
+              <%}else{%>
+                <th>Delivery</th>
+                <td>Free</td>
+                <%}%>
             </tr>
             <tr>
               <th>Coupen Discount </th>
               <td id="coupenDiscount" >₹0</td>
             </tr>
             <tr>
+              <% if(cart.totalPrice < 500){ %>
               <th>Total</th>
-              <td id="orderTotal"  >₹<%= cart.totalPrice %></td>
+              <td id="orderTotal">₹<%= cart.totalPrice + 40 %></td>
+              <%}else{%>
+                <th>Total</th>
+                <td id="orderTotal">₹<%= cart.totalPrice %></td>
+                <%}%>
             </tr>
           </table>
 
@@ -182,7 +192,11 @@
 
 
   document.getElementById("placeOrderButton").addEventListener("click", function () {
+    let delivery ;
     const discount= document.getElementById("coupenDiscount").innerHTML.slice(1);
+    if('<%= cart.totalPrice %>' < 500 ){
+       delivery= document.getElementById("deliveryFee").innerHTML.slice(1);
+    }
     fetch("/user/place-order", {
       method: "POST",
       headers: {
@@ -194,6 +208,7 @@
         paymentMethod: selectedPaymentMethod,
         subTotal:'<%= cart.totalPrice %>',
         discount:discount,
+        deliveryFee:delivery||0,
         orderItem: '<%-JSON.stringify(cart.items) %>',
         totalPrice: document.getElementById('orderTotal').textContent.replace('₹', ''),
         discountApplied: appliedDiscount
@@ -201,12 +216,12 @@
     })
       .then((response) => response.json())
       .then((response) => {
-        console.log(response)
+        console.log("respponse:",response)
         if (response.success) {
           if (selectedPaymentMethod == "Razorpay" && response.razorPayOrderId) {
     // Initialize Razorpay for online payment
     const rzp = new Razorpay({
-        key: 'rzp_test_SVAqK9YTUX1qbQ', // Replace with your Razorpay test key
+        key: response.razorpayKey, // Replace with your Razorpay test key
         amount: response.finalPrice * 100, // Convert to paise
         currency: 'INR',
         name:"PETAURA",
@@ -260,13 +275,19 @@
         },
     });
 
-    // // Handle payment failure
-    // rzp.on('payment.failed', (error) => {
-    //     console.error("Payment failed:", error);
-    //     rzp.close();
-    //     // Redirect user as needed
-    //     window.location.href = '/user/cart'; // Redirect to cart
-    // });
+    // Handle payment failure
+    rzp.on('payment.failed', (error) => {
+        console.error("Payment failed:", error);
+        rzp.close();
+        // Redirect user as needed
+        Swal.fire({
+                        icon: "error",
+                        title: "Order Payment Faild",
+                        timer: 1500,
+                        showConfirmButton: false,
+                    })
+                    window.location.href = `/user/orderHistory`; 
+    });
 
     // Open Razorpay modal
     rzp.open();

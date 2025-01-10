@@ -27,15 +27,20 @@ router.post("/addCustomer",adminauth,customerController.addCustomer);
 // category management 
 router.get("/category",adminauth,categoryController.categoryInfo);
 router.post("/addCategory",adminauth,categoryController.addCategory);
+router.get("/addCategory",adminauth,categoryController.loadAddCategory);
 router.get("/deleteCategory",adminauth,categoryController.deleteCategory);
 router.get("/deleteParentCategory",adminauth,categoryController.deleteParentCategory);
 router.get("/editCategory",adminauth,categoryController.loadEditCategory);
 router.post("/editCategory",adminauth,categoryController.editCategory);
 router.get("/ListCategory",adminauth,categoryController.ListCategory);
+router.get("/ListParentCategory",adminauth,categoryController.ListParentCategory);
 router.get("/unListCategory",adminauth,categoryController.unListCategory);
+router.get("/unListParentCategory",adminauth,categoryController.unListParentCategory);
 router.post("/addParentCategory",adminauth,categoryController.addParentCategory);
 router.get("/editParentCategory",adminauth,categoryController.loadeditParentCategory);
 router.post("/editParentCategory",adminauth,categoryController.editParentCategory);
+router.get("/parentCategories",adminauth,categoryController.loadParentCategory);
+router.get("/addParentCategory",adminauth,categoryController.loadAddParentCategory);
 // order managemnt
 router.get("/order",adminauth,orderController.loadOrder)
 router.post("/edit-order-status",adminauth,orderController.updateStatus)

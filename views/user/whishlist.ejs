@@ -104,10 +104,15 @@
                                 <strike>₹<%= item.productId.regularPrice %></strike>
                             </p>
                             <%}%>
-                        <p>Status: <%= item.productId.Status %></p>
+                            <% if(item.productId.Status == "Out of Stock" || item.productId.quantity <= 0 ){ %>
+                                <p>Status: "Out of Stock"</p>
+                            <% } else { %>
+                                <p>Status: <%= item.productId.Status %></p>
+                            <% } %>
+                            
                         <a href="/user/ProuctDetails?product=<%= item.productId._id %>" class="text-primary text-decoration-none">View More Details</a>
                     </div>
-                    <% if( item.productId.Status !== "Out of Stock"){ %>
+                    <% if( item.productId.Status !== "Out of Stock" && item.productId.quantity > 0){ %>
                     <a href="/user/add-to-cart?productId=<%= item.productId._id %>"><i class="fas fa-cart-plus cart-icon"></i></a>
                     <%}%>
                 </div>

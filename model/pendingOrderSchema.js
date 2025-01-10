@@ -2,14 +2,17 @@ const mongoose = require("mongoose");
 const {Schema} = mongoose;
 
 const pendingOrderSchema = new Schema({
+    razorPayOrderId:{
+        type:'String',
+        required:true,
+    },
     orderId:{
         type:"String",
         required:true
     },
     userId:{
         type:Schema.Types.ObjectId,
-        ref:"User",
-        unique:true
+        ref:"User"
     },
     orderedItems:[{
         product:{
@@ -56,6 +59,10 @@ const pendingOrderSchema = new Schema({
     discount:{
         type:Number,
         default:0
+    },
+    deliveryFee:{
+        type:Number,
+        default:0,
     },
     finalPrice:{
         type:Number,

@@ -1,0 +1,166 @@
+<%- include("../partials/admin/header.ejs") %> 
+<style>
+    .error-msg{
+        color: red;
+    }
+</style>
+<div class="card-body">
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <!-- Add Category Form -->
+        <div class="col-md-6">
+            <h2 class="content-title card-title text-center">Create Category </h2>
+            <form action="#" onsubmit="addCategory(event)" id="addCategoryForm" method="post">
+                <div class="mb-4">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" placeholder="Type here" class="form-control" name="name" id="name" />
+                    <div class="error-msg" id="error1"></div>
+                </div>
+                <div class="mb-4">
+                    <label for="parent" class="form-label">Parent Category</label>
+                    <select name="parent" class="form-select" id="parent">
+                        <option value="">Select Parent Category</option>
+                        <% parentCategory.forEach((parent) => { %>
+                            <option value="<%= parent._id %>" <%= category.parent == parent._id ? 'selected' : '' %>>
+                                <%= parent.name %>
+                            </option>                          
+                        <% }); %> 
+                    </select>
+                    <div class="error-msg" id="error2"></div>
+                </div> 
+                <div class="mb-4">
+                    <label class="form-label">Offer</label>
+                    <input placeholder="Category Offer%" name="offer" id="offer" class="form-control"></input>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Description</label>
+                    <textarea placeholder="Type here" name="description" id="description" class="form-control"></textarea>
+                    <div class="error-msg" id="error3"></div>
+                </div>
+                <div class="d-grid">
+                    <button class="btn btn-primary" type="submit">Create Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const name = document.getElementById("name");
+        const parent = document.getElementById("parent");
+        const description = document.getElementById("description");
+        const err1 = document.getElementById("error1");
+        const err2 = document.getElementById("error2");
+        const err3 = document.getElementById("error3");
+        const addCategoryForm = document.getElementById("addCategoryForm");
+    
+        function nameValidation() {
+            const nameVal = name.value;
+            const namePattern = /^[a-zA-Z\s]+$/;
+    
+            if (nameVal.trim() === "") {
+                err1.style.display = "block";
+                err1.innerHTML = "Please Enter Category Name";
+            } else if (!namePattern.test(nameVal)) {
+                err1.style.display = "block";
+                err1.innerHTML = "Name Only Allowed Alphabets";
+            } else {
+                err1.style.display = "none";
+                err1.innerHTML = "";
+            }
+        }
+    
+        function parentValidation() {
+            const parentVal = parent.value;
+    
+            if (parentVal.trim() === "") {
+                err2.style.display = "block";
+                err2.innerHTML = "Please Select a Parent Category";
+            } else {
+                err2.style.display = "none";
+                err2.innerHTML = "";
+            }
+        }
+    
+        function descriptionValidation() {
+            const desVal = description.value;
+    
+            if (desVal.trim() === "") {
+                err3.style.display = "block";
+                err3.innerHTML = "Please Enter Description";
+            } else {
+                err3.style.display = "none";
+                err3.innerHTML = "";
+            }
+        }
+    
+        addCategoryForm.addEventListener("submit", function (e) {
+            e.preventDefault(); // Prevent default form submission
+    
+            nameValidation();
+            parentValidation();
+            descriptionValidation();
+    
+            // Check if any validation failed
+            if (err1.innerHTML || err2.innerHTML || err3.innerHTML) {
+                console.log("Form validation failed.");
+                return; // Do not proceed further
+            }
+    
+            console.log("Form validation passed.");
+            addCategory(); // Call the function to submit the form data
+        });
+    
+        function addCategory() {
+            const name = document.getElementById("name").value;
+            const parent = document.getElementById("parent").value;
+            const offer = document.getElementById("offer").value;
+            const description = document.getElementById("description").value;
+    
+            console.log(name, parent, offer, description);
+    
+            fetch("/admin/addCategory", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, parent, offer, description })
+            })
+            .then((response) => response.json())
+            .then((response) => {
+                if (response.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Added",
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        text: response.message,
+                        timer: 1500
+                    });
+                    window.location.href = "/admin/category";
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed To Add",
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        text: response.message,
+                        timer: 1500
+                    });
+                }
+            })
+            .catch(() => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            });
+        }
+    });
+    </script>
+    
+
+<%- include("../partials/admin/footer.ejs") %> 

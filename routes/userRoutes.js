@@ -72,7 +72,6 @@ userRoutes.post("/resetPass",profileController.resetPass);
 userRoutes.post("/reset-password",profileController.newPass);  
 userRoutes.get("/reset-password",profileController.loadNewPass);    
 userRoutes.get("/profile",userauth,profileController.loadProfile);       
-userRoutes.get("/orderHistory",userauth,profileController.loadOrderHistory);       
 userRoutes.get("/address",userauth,profileController.loadAddress);       
 userRoutes.post("/addAddress",userauth,profileController.addNewAddress);                     
 userRoutes.get("/edit-address",userauth,profileController.editAddress);                     
@@ -90,16 +89,16 @@ userRoutes.get("/remove-from-cart",userauth, userController.removeFromCart);
 userRoutes.get("/viewMoreDetails",userauth,userController.laodDetails);
 userRoutes.post("/update-cart",userauth,userController.updateCart);
 
-
-
 // order
 userRoutes.get("/checkout-page",userauth,userController.loadCheckoutPage);
 userRoutes.post("/place-order",userauth,userController.placeOrder)
 userRoutes.get("/order-details",userauth,orderController.orderDetails);
+userRoutes.get("/pending-order-details",userauth,orderController.pendingOrderDetails);
 userRoutes.post("/order-cancel",userauth,orderController.orderCancel);       
 userRoutes.post("/order-return",userauth,orderController.orderReturn);       
 userRoutes.post("/order-return-request",userauth,orderController.returnRequest);
-
+userRoutes.get("/orderHistory",userauth,profileController.loadOrderHistory);       
+userRoutes.post("/updatePendingOrder",userauth,orderController.updatePendingOrder);       
 
 
 // WhishList
@@ -109,6 +108,7 @@ userRoutes.post("/delete-from-whishlist",userauth,userController.removeFromWishl
 
 // verify payment 
 userRoutes.post("/verifyOnline-payment/:orderId",userauth,userController.verifyOnlinePayment);
+userRoutes.post("/Wallet-verify-payment",userauth,userController.WalletVerifyPayment);
 
 // wallet
 userRoutes.get("/wallet",userauth,userController.loadWallet);

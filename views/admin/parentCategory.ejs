@@ -1,0 +1,89 @@
+<%- include("../partials/admin/header.ejs") %> 
+
+<div class="content-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="content-title card-title"><span><a style="text-decoration: none;color: black;" href="/admin/category">Categories</a></span> / <span><a style="text-decoration: none;color: black;" href="/admin/parentCategories">ParentCategory</a></span></h2>
+        <a href="/admin/addParentCategory"><button>Add ParentCategories</button></a>
+    </div>
+    
+    <div>
+        <form action="/admin/parentCategories" method="get">
+            <input type="text" placeholder="Search Categories" name="search" class="form-control bg-white">
+        </form>
+    </div>
+</div><div class="row">
+    <!-- Parent Categories Table -->
+    <div class="col-md-12">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Parent Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (parentCategory && parentCategory.length > 0) { %>
+                        <% for (let i = 0; i < parentCategory.length; i++) { %>
+                        <tr>
+                            <td><%= parentCategory[i]._id %></td>
+                            <td><b><%= parentCategory[i].name %></b></td>
+                            <td><%= parentCategory[i].description %></td>
+                            <td>
+                                <% if (parentCategory[i].isListed) { %>
+                                    <p style="color: green;">LISTED</p>
+                                <% } else { %>
+                                    <p style="color: red;">UNLISTED</p>
+                                <% } %>
+                            </td>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <a href="#" data-bs-toggle="dropdown" class="btn btn-primary rounded btn-sm font-sm">
+                                        <i class="material-icons md-more_horiz"></i>
+                                    </a>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="/admin/editParentCategory?id=<%=parentCategory[i]._id%>">Edit</a>
+                                        <a class="dropdown-item" href="/admin/ListParentCategory?id=<%=parentCategory[i]._id%>" style="color: green;">List</a>
+                                        <a class="dropdown-item" href="/admin/unListParentCategory?id=<%=parentCategory[i]._id%>" style="color: red;">Unlist</a>
+                                        <a class="dropdown-item text-danger" href="#" onclick="confirmDeleteParent('<%= parentCategory[i]._id %>')">Delete</a>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <% } %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="text-center">No parent categories found</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script>
+      function confirmDeleteParent(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this action!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'No, keep it',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Redirect to the delete URL
+                window.location.href = '/admin/deleteParentCategory?id=' + id;
+            }
+        });
+    }
+
+    
+    
+</script>
+<%- include("../partials/admin/footer.ejs") %> 

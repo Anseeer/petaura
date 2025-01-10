@@ -90,10 +90,10 @@
                     <% Product.Status = "Out of Stock" %>
                 <h4 style="padding-top: 15px;color: red;font-weight: 600;"><%=Product.Status%></h4>
                 <%}else{%>
-                    <a href="/user/add-to-cart?productId=<%= Product._id %> "><button class="cart-btn"><i class="fas fa-shopping-cart"></i></button></a>
+                    <button id="addToCart" onclick=" event.stopPropagation();  return  addToCart(event,'<%= Product._id %>')" class="cart-btn"><i class="fas fa-shopping-cart"></i></button>
 
                 <!-- Buy Now Button with text only -->
-                <button class="buy-now">Buy Now</button>
+                <!-- <button class="buy-now">Buy Now</button> -->
                     <%}%>
             </div>
         </div>
@@ -255,6 +255,60 @@
 
   console.log('Toggled wishlist button for product ID:', id);
 }
+
+function addToCart(e, id) {
+  e.preventDefault();
+  const button = document.getElementById("addToCart");
+
+  if (button.style.backgroundColor === 'red') {
+    // Change button style to indicate removal
+    button.style.color = 'red';
+    button.style.backgroundColor = 'white';
+
+    // Fetch to remove from cart
+    fetch(`/user/remove-from-cart?productId=${id}`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    .then(response => response.json())
+    .then(response => {
+      if (response.success) {
+        console.log("Successfully removed from cart");
+      } else {
+        console.log("Failed to remove from cart");
+      }
+    })
+    .catch(() => {
+      console.log("Error removing from cart");
+    });
+
+  } else {
+    // Change button style to indicate addition
+    button.style.color = 'white';
+    button.style.backgroundColor = 'red';
+    console.log("Starting fetch to add");
+
+    // Fetch to add to cart
+    fetch(`/user/add-to-cart?productId=${id}`, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    .then(response => response.json())
+    .then(response => {
+      if (response.success) {
+        console.log("Successfully added to cart", response.message);
+      } else {
+        console.log("Failed to add to cart");
+      }
+    })
+    .catch(err => console.log("Error adding to cart:", err.message));
+  }
+}
+
 
 </script>
 

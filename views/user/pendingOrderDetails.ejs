@@ -1,5 +1,5 @@
 
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -93,7 +93,7 @@
 .order-container {
   width: 80%;
   margin: 2rem auto;
-  background: #ffa500;
+  background:rgb(211, 196, 168);
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
@@ -246,8 +246,8 @@ svg {
 
     <div class="content">
   <div class="order-container">
-    <h1>Thanks for your Order, <%= user.name %>!</h1>
-    <div class="receipt-details">
+    <h2 class="text-center" style="color:red;">Payment Failed</h2>
+    <p class="text-center text-red" style="color:red;">Unfortunately, your payment could not be processed. Please try again.</p>    <div class="receipt-details">
       <h3>Receipt</h3>
       <p>Receipt Voucher: <span><%=order.orderId%></span></p>
     </div>
@@ -262,16 +262,11 @@ svg {
       </div>
     </div>
     <div class="actions">
-      <% if(orderedItem.status == "delivered"){ %>
-      <button class="btn btn-secondary" onclick="returnOrderRequest(event, '<%= order.orderId %>', '<%= order.userId %>', '<%= product.product %>','<%= product._id %>','<%=  product.quantity %>','<%=  product.totalPrice %>')" >Return Order</button>
-      <% } else if(orderedItem.status == "pending"){ %>
-      <button class=" btn btn-secondary"  onclick="orderCancel(event, '<%= order.orderId %>', '<%= product.quantity %>', '<%= product._id %>','<%= product.product %>')">Cancel Order</button>
-      <% } %>
-      <button class=" btn btn-secondary" disabled>Write a Review</button>
+     <button class="btn btn-secondary" onclick="rePayment(event,'<%= order.razorPayOrderId %>')">Retry</button>
     </div>
     <div class="order-summary">
       <h3>Order Details</h3>
-      <p>Payment Method: <span><%= order.paymentMethod %></span></p>
+      <p>Payment Method: <span style="color:red;">Payemnt Faild</span> </p>
       <p>Address: <span>
         <%= `${order.address[0].name}, ${order.address[0].state}, ${order.address[0].country}, ${order.address[0].pincode}, Phone: ${order.address[0].phone}` %>
     </span></p>
@@ -288,129 +283,112 @@ svg {
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
 
   
-function orderCancel(event, orderId, productQyt, orderedItemId , productId) {
-    event.preventDefault(); // Prevent default form behavior
 
-    console.log("parameters",orderId, productQyt, orderedItemId , productId); 
+function rePayment(event, razorPayOrderId) {
+    event.preventDefault();
+    console.log("orderId:", razorPayOrderId);
+    console.log("1");
 
-    Swal.fire({
-        icon: "warning",
-        title: "Are you sure?",
-        text: "You want to cancel this order?",
-        showCancelButton: true,
-        confirmButtonText: "Yes, cancel it",
-        cancelButtonText: "No",
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch("/user/order-cancel", {
-                method: "POST",
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId, productQyt, orderedItemId, productId})
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Order Canceled Successfully",
-                        text: data.message,
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    location.reload(); // Reload page to refresh the order list
-                } else {
-                    throw new Error(data.message || "Something went wrong. Please try again.");
-                }
-            })
-            .catch(error => {
-                Swal.fire({
-                    icon: "error",
-                    title: "Order Cancellation Failed",
-                    text: error.message,
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-            });
+    // Send a request to update the pending order
+    fetch("/user/updatePendingOrder", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ razorPayOrderId }),
+    })
+    .then((response) => {
+        console.log("2");
+        if (!response.ok) {
+            throw new Error('Failed to fetch data');
         }
-    }).catch(error => {
-        Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Something went wrong. Please try again!",
-            timer: 1500,
-            showConfirmButton: false
-        });
-    });
-}
-    
+        return response.json(); // Return parsed JSON
+    })
+    .then((response) => {
+        console.log("response:", response);
+        console.log("3");
 
-function returnOrderRequest(event, orderId, userId, productId, orderedItemId ,productQty , productPrice) {
-    event.preventDefault(); // Prevent default form behavior
+        if (response.success) {
+            console.log("4");
+            try {
+                // Initialize Razorpay for the online payment
+                const rzp = new Razorpay({
+                    key: response.razorpayKey, // Your Razorpay key
+                    amount: response.pendingOrder[0].finalPrice, // Amount to be paid in paise (1 INR = 100 paise)
+                    currency: "INR", // Currency used for payment
+                    order_id: response.pendingOrder[0].razorPayOrderId, // Razorpay order ID
 
-    Swal.fire({
-        icon: "warning",
-        title: "Are you sure?",
-        text: "You want to request a return for this order?",
-        showCancelButton: true,
-        confirmButtonText: "Yes, return it",
-        cancelButtonText: "No",
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire({
-                title: 'Reason for Return',
-                input: 'text',
-                inputLabel: 'Please enter the reason for the return',
-                inputPlaceholder: 'Enter reason here...',
-                showCancelButton: true,
-                confirmButtonText: 'Submit',
-                preConfirm: (reason) => {
-                    return fetch("/user/order-return-request", {
-                        method: "POST",
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orderId, userId, productId, orderedItemId,productQty , productPrice, reason })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (!data.success) {
-                            throw new Error(data.message || "Something went wrong. Please try again.");
+                    // Handle payment success
+                    handler: async (razorpayResponse) => {
+                        try {
+                            console.log("orderId",response.pendingOrder[0].orderId)
+                            // Send the Razorpay payment response to your server for verification
+                            const result = await fetch(`/user/verifyOnline-payment/${response.pendingOrder[0].orderId}`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify(razorpayResponse),
+                            })
+                            .catch(err => {
+                                // Handle network errors during the fetch request
+                                console.error("Network Error:", err);
+                                throw err;
+                            });
+
+                            // Parse the JSON response from the server
+                            const verificationResult = await result.json();
+
+                            // Check if payment verification was successful
+                            if (verificationResult.success) {
+                                // Redirect to order confirmation page
+                                window.location.href = `/user/orderHistory`;
+                            } else {
+                                // Show error message if payment verification fails
+                            }
+                        } catch (err) {
+                            // Handle errors that occur during payment verification
+                            console.error("Verification Error:", err);
                         }
-                        Swal.fire({
-                            icon: "success",
-                            title: "Return request sent",
-                            text: data.message,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                        location.reload(); // Reload page to refresh the order list
-                    })
-                    .catch(error => {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Order return failed",
-                            text: error.message,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                    });
-                }
-            });
+                    },
+
+                    theme: {
+                        color: "#3399cc", // Customize the color of the Razorpay modal
+                    }
+                });
+
+                // Handle payment failure
+                rzp.on("payment.failed", (response) => {
+                    console.error("Payment Failed Response:", response);
+                });
+
+                // Open the Razorpay payment modal
+                rzp.open();
+            } catch (error) {
+                console.error("Error during payment verification:", error);
+                rzp.close();
+            }
+        } else {
+            console.error("Failed to retrieve order details:", response.message);
         }
-    }).catch(error => {
+    })
+    .catch((error) => {
+        console.error("Error occurred:", error);
         Swal.fire({
             icon: "error",
-            title: "Error",
-            text: "Something went wrong. Please try again!",
+            title: "Payment failed",
+            text: "There was an issue with the payment process.",
             timer: 1500,
             showConfirmButton: false,
         });
     });
 }
+
 
 </script>
 </body>

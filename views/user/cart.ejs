@@ -163,18 +163,28 @@
                         <span id="subTotal">₹<%= cart.totalPrice %></span>
                     </div>
                     <div class="d-flex justify-content-between">
-                        <span>Shipping:</span>
-                        <span>Free</span>
+                        <% if (cart.totalPrice < 500) { %>
+                            <span>Delivery:</span>
+                            <span id="deliveryFee">₹ 40</span>
+                        <% } else { %>
+                            <span>Delivery:</span>
+                            <span id="deliveryFee">Free</span>
+                        <% } %>
                     </div>
+                    
                     
                     <hr />
                     <div class="d-flex justify-content-between fw-bold">
                         <span>Total</span>
-                        <span id="totalPrice">₹<%=cart.totalPrice %> </span>
+                        <% if(cart.totalPrice < 500){ %>
+                        <span id="totalPrice">₹<%=cart.totalPrice + 40 %> </span>
+                        <%} else {%>
+                            <span id="totalPrice">₹<%=cart.totalPrice  %> </span>
+                            <% } %>
                     </div>
                     <a href="/user/checkout-page"><button class="btn checkout-btn mt-3">Checkout</button></a>
                     <div class="text-center mt-2">
-                        <a href="/user" class="text-dark text-decoration-none"><u>Continue Shopping</u></a>
+                        <a href="/user/" class="text-dark text-decoration-none"><u>Continue Shopping</u></a>
                     </div>
                 </div>
             </div>
@@ -238,12 +248,15 @@ function updateCart(productId,currentQty ,quantity) {
     })
         .then((response) => response.json()) 
         .then((data) => {
+
             if (data.success) {
                 console.log("Cart updated successfully.")
                 const Subtotal = document.getElementById("subTotal");
                 const totalPrice = document.getElementById("totalPrice");
+                const deliveryFee = document.getElementById("deliveryFee");
                 Subtotal.textContent = `₹${data.cart.totalPrice}`
-                totalPrice.textContent = `₹${data.cart.totalPrice}`
+                totalPrice.textContent = data.cart.totalPrice > "500" ? `₹${data.cart.totalPrice}`:`₹${data.cart.totalPrice + 40}`;
+                deliveryFee.textContent = data.cart.totalPrice > "500" ? "Free" : "₹40";
             } else {
                 Swal.fire({
                     icon:"error",

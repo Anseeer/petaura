@@ -192,13 +192,54 @@
     </div>
 
     <div class="content">
-        <div class="container mt-4 py-5">
+        <!-- Pending Orders Section -->
+         <% if(pending && pending.length > 0){ %>
+        <div class="p-4 shadow-lg rounded bg-white mb-4">
+            <h3 class="mb-4 text-center text-uppercase text-dark">Pending Orders</h3>
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Product</th>
+                        <th> Discount</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% pending.forEach((pending)=>{ %>
+                        <% pending.orderedItems.forEach(item => { %>
+
+                        <tr>
+                            <td  onclick="location.href='/user/pending-order-details?productId=<%= item.product._id %>&orderId=<%= pending.orderId %>&orderedItemsId=<%= item._id %>'">
+                                <img src="<%= item.product.Image[0] %>" alt="Product Image" class="product-image" style="width: 50px; height: auto; margin-right: 10px;">
+                                <%= item.name %>
+                            </td>
+                            <td><%= item.coupenDiscount || 0 %></td>
+                        <td>₹<%= item.totalPrice.toFixed(2) %></td>
+                        <td><%= item.quantity %></td>
+                        <td><%= item.status %></td>
+                            <td>
+                                <button class="btn btn-success btn-sm" onclick="rePayment(event,'<%= pending.razorPayOrderId %>')" >Retry</button>
+                            </td>
+                        </tr>
+                   <% }) %>
+                   <% }) %>
+                 
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+        <!-- Order History Section -->
+        <div class="container mt-0 py-3 shadow-lg rounded bg-white">
+            <h3 class="mb-4 text-center text-uppercase text-dark">Order History</h3>
             <% if (orders && orders.length > 0) { %>
-            <table class="table">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>Product</th>
-                        <th>Coupon Discount</th>
+                        <th> Discount</th>
                         <th>Price</th>
                         <th>Quantity</th>
                         <th>Status</th>
@@ -208,26 +249,20 @@
                 <tbody>
                     <% orders.forEach(order => { %>
                     <% order.orderedItems.forEach(item => { %>
-                    <tr >
-                        <td onclick="location.href='/user/order-details?productId=<%= item.product._id %>&orderId=<%= order.orderId %>&orderedItemsId=<%= item._id %>'  ">
+                    <tr>
+                        <td onclick="location.href='/user/order-details?productId=<%= item.product._id %>&orderId=<%= order.orderId %>&orderedItemsId=<%= item._id %>'">
                             <img src="<%= item.product.Image[0] %>" alt="Product Image" class="product-image">
                             <%= item.product.name %>
                         </td>
                         <td><%= item.coupenDiscount || 0 %></td>
-                        <td>₹<%= item.totalPrice %></td>
+                        <td>₹<%= item.totalPrice.toFixed(2) %></td>
                         <td><%= item.quantity %></td>
                         <td><%= item.status %></td>
                         <td>
                             <% if(item.status == "delivered"){ %>
-                                <button class="btn btn-warning btn-sm  btn-custom" onclick="returnOrderRequest(event, '<%= order.orderId %>', '<%= order.userId %>', '<%= item.product._id %>','<%= item._id %>','<%= item.quantity %>','<%= item.totalPrice %>')">Return request</button>
-                                <%}else if(item.status == "returned"){ %>
-                                    <!-- <button class="btn btn-success btn-sm  btn-custom" > Returned</button> -->
-                                <%}else if(item.status == "canceled"){ %>
-                                    <!-- <button class="btn btn-secondary btn-sm  btn-custom" > canceled</button> -->
-                                <%}else if(item.status == "requested"){%>
-                                    <!-- <button class="btn btn-secondary btn-sm  btn-custom" > requested</button> -->
-                                <%}else if(item.status == "pending" ){%>
-                            <button class="btn btn-danger btn-sm  btn-custom" onclick="orderCancel(event, '<%= order.orderId %>', '<%= item.quantity %>', '<%= item._id %>','<%= item.product._id %>')">CancelOrder</button>
+                                <button class="btn btn-warning btn-sm btn-custom" onclick="returnOrderRequest(event, '<%= order.orderId %>', '<%= order.userId %>', '<%= item.product._id %>','<%= item._id %>','<%= item.quantity %>','<%= item.totalPrice %>')">Return request</button>
+                            <%} else if(item.status == "pending"){ %>
+                                <button class="btn btn-danger btn-sm btn-custom" onclick="orderCancel(event, '<%= order.orderId %>', '<%= item.quantity %>', '<%= item._id %>','<%= item.product._id %>')">Cancel Order</button>
                             <%}%>
                         </td>
                     </tr>
@@ -235,7 +270,6 @@
                     <% }) %>
                 </tbody>
             </table>
-
             <div class="pagination">
                 <% if (currentPage > 1) { %>
                     <a href="/user/orderHistory?page=<%= currentPage - 1 %>" class="btn">Previous</a>
@@ -257,20 +291,22 @@
                 <% } %>
             </div>
             
-
-
+    
             <% } else { %>
-            <div class="no-orders">
+            <div class="no-orders text-center">
                 <h3>Your order history is empty!</h3>
                 <p>It seems like you haven’t placed any orders yet.</p>
-                <a href="/user/">Start Shopping</a>
+                <a href="/user/" class="btn btn-primary">Start Shopping</a>
             </div>
             <% } %>
         </div>
     </div>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
     <script>
         function orderCancel(event, orderId, productQyt, orderedItemId , productId) {
     event.preventDefault(); // Prevent default form behavior
@@ -388,7 +424,108 @@ function returnOrderRequest(event, orderId, userId, productId, orderedItemId ,pr
             title: "Error",
             text: "Something went wrong. Please try again!",
             timer: 1500,
-            showConfirmButton: false
+            showConfirmButton: false,
+        });
+    });
+}
+
+
+function rePayment(event, razorPayOrderId) {
+    event.preventDefault();
+    console.log("orderId:", razorPayOrderId);
+    console.log("1");
+
+    // Send a request to update the pending order
+    fetch("/user/updatePendingOrder", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ razorPayOrderId }),
+    })
+    .then((response) => {
+        console.log("2");
+        if (!response.ok) {
+            throw new Error('Failed to fetch data');
+        }
+        return response.json(); // Return parsed JSON
+    })
+    .then((response) => {
+        console.log("response:", response);
+        console.log("3");
+
+        if (response.success) {
+            console.log("4");
+            try {
+                // Initialize Razorpay for the online payment
+                const rzp = new Razorpay({
+                    key: response.razorpayKey, // Your Razorpay key
+                    amount: response.pendingOrder[0].finalPrice, // Amount to be paid in paise (1 INR = 100 paise)
+                    currency: "INR", // Currency used for payment
+                    order_id: response.pendingOrder[0].razorPayOrderId, // Razorpay order ID
+
+                    // Handle payment success
+                    handler: async (razorpayResponse) => {
+                        try {
+                            console.log("orderId",response.pendingOrder[0].orderId)
+                            // Send the Razorpay payment response to your server for verification
+                            const result = await fetch(`/user/verifyOnline-payment/${response.pendingOrder[0].orderId}`, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify(razorpayResponse),
+                            })
+                            .catch(err => {
+                                // Handle network errors during the fetch request
+                                console.error("Network Error:", err);
+                                throw err;
+                            });
+
+                            // Parse the JSON response from the server
+                            const verificationResult = await result.json();
+
+                            // Check if payment verification was successful
+                            if (verificationResult.success) {
+                                // Redirect to order confirmation page
+                                window.location.href = `/user/orderHistory`;
+                            } else {
+                                // Show error message if payment verification fails
+                            }
+                        } catch (err) {
+                            // Handle errors that occur during payment verification
+                            console.error("Verification Error:", err);
+                        }
+                    },
+
+                    theme: {
+                        color: "#3399cc", // Customize the color of the Razorpay modal
+                    }
+                });
+
+                // Handle payment failure
+                rzp.on("payment.failed", (response) => {
+                    console.error("Payment Failed Response:", response);
+                });
+
+                // Open the Razorpay payment modal
+                rzp.open();
+            } catch (error) {
+                console.error("Error during payment verification:", error);
+                rzp.close();
+            }
+        } else {
+            console.error("Failed to retrieve order details:", response.message);
+        }
+    })
+    .catch((error) => {
+        console.error("Error occurred:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Payment failed",
+            text: "There was an issue with the payment process.",
+            timer: 1500,
+            showConfirmButton: false,
         });
     });
 }

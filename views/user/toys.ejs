@@ -262,15 +262,15 @@
       <div class="Ccategory-sidebar bg-light p-4 shadow rounded">
         <h5 class="fw-bold mb-3">Toys Categoy:</h5>
         <ul class="list-unstyled">
-          <li><a href="/user/toys" class="text-decoration-none text-dark py-2 d-block">All Products</a></li>
+          <li><a onclick="category(event,'<%= allProduct %>')" class="text-decoration-none text-dark py-2 d-block">All Products</a></li>
           <% for(let i=0 ; i < category.length ; i++){%>
-          <li><a href="/user/fillterCategoryOfToys?category=<%=category[i]._id%>" class="text-decoration-none text-dark py-2 d-block"><%=category[i].name%></a></li>
+          <li><a onclick="category(event,'<%= category[i]._id %>')" class="text-decoration-none text-dark py-2 d-block"><%=category[i].name%></a></li>
           <%}%>
         </ul>
         <hr class="my-4">
         <div class="sort-options mt-4">
           <h6 class="fw-bold mb-2">Sort By:</h6>
-          <select class="form-select" onchange="location.href=`/user/toys?sort=${this.value}` ">
+          <select class="form-select" onchange="sort(event,this.value)">
             <option value="" disabled selected>Choose...</option>
             <option value="low-high">Price: Low to High</option>
             <option value="high-low">Price: High to Low</option>
@@ -308,9 +308,9 @@
                       <% if (product[i].Status === "Out of Stock" || product[i].quantity <= 0) { %>
                         <p style="color: red;">Out of Stock</p>
                       <% } else { %>
-                        <a href="/user/add-to-cart?productId=<%= product[i]._id %>">
-                          <button class="btn btn-warning">Add to Cart</button>
-                        </a>
+                        <span onclick="event.stopPropagation(); return addToCart(event, '<%= product[i]._id %>','<%= i %>')">
+                          <button id="addToCart-<%= i %>" class="btn btn-warning">Add to Cart</button>
+                        </span>
                       <% } %>
                     </div>
                   </div>
@@ -346,6 +346,93 @@
 </div>
 <script>
   
+
+  let filterState={
+  sort:"",
+  search:"",
+  category:"<%= allProduct %>",
+ }
+
+function sort(event,sort){
+  event.preventDefault();
+  console.log(sort);
+  filterState.sort = sort;
+  applyFilter()
+}
+  
+function category(event,category){
+  event.preventDefault();
+  console.log(category);
+  filterState.category = category;
+  applyFilter()
+}
+
+function Search(event){
+  event.preventDefault();
+  let search = document.getElementById("search").value;
+  filterState.search = search;
+  applyFilter()
+}
+
+function applyFilter(){
+  const {sort,search,category} = filterState;
+
+  fetch(`/user/fillterCategoryOfToys?search=${search}&sort=${sort}&category=${category}`,{
+    method:"GET",
+    headers:{
+      'Content-Type':'application/json'
+    }
+  })
+  .then((response)=>{
+    if(!response.ok){
+      throw new Error
+    }
+    return response.json()
+  })
+  .then((data)=>{
+    const productContainer = document.getElementById("productContainer");
+    productContainer.innerHTML="";
+    let products = data.product;
+    if(!products){
+      productContainer.innerHTML="<p>Product Not Found </p>";
+    }
+    products.forEach((product,index)=>{
+      let productDetails = `
+    <div class="col-md-4 mb-4">
+                <a href="/user/ProuctDetailsOfFish?product=${ product._id }" class="text-decoration-none">
+                  <div class="Ccard position-relative">
+                    <!-- Wishlist button -->
+                    <span onclick="event.stopPropagation(); return addToWishlist(event, ' ${product._id }')">
+                      <button id="wishlist-btn-${index}" class="wishlist-btn btn btn-light p-2 rounded-circle position-absolute top-0 end-0 m-2">
+                        <i class="fa fa-heart"></i>
+                      </button>
+                    </span>
+    
+                    <!-- Product image -->
+                    <img src="${ product.Image[0] }" alt="Product Image" class="Ccard-img-top">
+    
+                    <!-- Card body -->
+                    <div class="Ccard-body" style="text-align: left;">
+                      <h5 class="Ccard-title">Name: ${ product.name} </h5>
+                      <p class="Ccard-text">Brand</p>
+                      <p class="Ccard-text">Price: ₹ ${product.salePrice} <strike>₹${product.regularPrice}</strike></p>
+                      ${product.Status === "Out of Stock" || product.quantity <= 0?
+                        `<p style="color: red;">Out of Stock</p>`
+                        :` <span onclick="event.stopPropagation(); return addToCart(event, '${product._id}','${index}')">
+                        <button id="addToCart-${index}" class="btn btn-warning">Add to Cart</button>
+                      </span>`
+                        }
+                    </div>
+                  </div>
+                </a>
+              </div>
+    `;
+    productContainer.innerHTML +=productDetails;
+    });
+  });
+}
+
+
   function addToWishlist(e, id) {
   e.preventDefault();
 
@@ -401,64 +488,40 @@
 }
 
 
-function Search(event){
-  event.preventDefault();
-  const search = document.getElementById("search").value;
-  fetch(`/user/toys-filter?search=${search}`,{
-    method:"GET",
-    headers:{
-      'Content-Type':'application/json'
-    }
+
+
+function addToCart(e, id,index) {
+  console.log("Product ID:", id);  // Check if the ID is being passed correctly
+  e.preventDefault();
+  e.stopPropagation();
+  const button = document.getElementById(`addToCart-${index}`);
+  // Create a small badge (popup)
+  const badge = document.createElement('span');
+  badge.classList.add('badge', 'bg-success');
+  badge.innerText = "Added to Cart";
+  
+  // Position the badge next to the button
+  button.parentElement.appendChild(badge);
+
+  // Set a timeout to remove the badge after a few seconds
+  setTimeout(() => {
+    badge.remove();
+  }, 3000); // The badge will disappear after 3 seconds
+
+  // Make the fetch request
+  fetch(`/user/add-to-cart?productId=${id}`, {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    },
   })
-  .then((response)=>{
-    if(!response.ok){
-      throw new Error
+  .then((res) => res.json())
+  .then((res) => {
+    if (res.success) {
+      console.log('Product added successfully');
     }
-    return response.json()
-  })
-  .then((data)=>{
-    const productContainer = document.getElementById("productContainer");
-    productContainer.innerHTML="";
-    let products = data.product;
-    if(!products){
-      productContainer.innerHTML="<p>Product Not Found </p>";
-    }
-    products.forEach((product,index)=>{
-      let productDetails = `
-    <div class="col-md-4 mb-4">
-                <a href="/user/ProuctDetailsOfFish?product=${ product._id }" class="text-decoration-none">
-                  <div class="Ccard position-relative">
-                    <!-- Wishlist button -->
-                    <span onclick="event.stopPropagation(); return addToWishlist(event, ' ${product._id }')">
-                      <button id="wishlist-btn-${index}" class="wishlist-btn btn btn-light p-2 rounded-circle position-absolute top-0 end-0 m-2">
-                        <i class="fa fa-heart"></i>
-                      </button>
-                    </span>
-    
-                    <!-- Product image -->
-                    <img src="${ product.Image[0] }" alt="Product Image" class="Ccard-img-top">
-    
-                    <!-- Card body -->
-                    <div class="Ccard-body" style="text-align: left;">
-                      <h5 class="Ccard-title">Name: ${ product.name} </h5>
-                      <p class="Ccard-text">Brand</p>
-                      <p class="Ccard-text">Price: ₹ ${product.salePrice} <strike>₹${product.regularPrice}</strike></p>
-                      ${product.Status === "Out of Stock" || product.quantity <= 0?
-                        `<p style="color: red;">Out of Stock</p>`
-                        :`<a href="/user/add-to-cart?productId=${product._id}">
-                          <button class="btn btn-warning">Add to Cart</button>
-                        </a>`
-                        }
-                    </div>
-                  </div>
-                </a>
-              </div>
-    `;
-    productContainer.innerHTML +=productDetails;
-    });
   });
 }
-
 
 </script>
 <script>

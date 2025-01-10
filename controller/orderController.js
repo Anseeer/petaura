@@ -1,9 +1,10 @@
 const Order = require("../model/orderSchema");
 const Product = require("../model/productSchema"); 
 const Wallet = require("../model/walletSchema"); 
+const PendingOrder = require("../model/pendingOrderSchema"); 
 const User = require("../model/userSchema");
 const ReturnRequest = require("../model/returnRequestSchema");
-
+const env = require('dotenv').config();
 
 const  loadOrder = async(req,res)=>{
     try {
@@ -207,6 +208,34 @@ const orderDetails = async(req,res)=>{
         console.log("address:",address);
         
         res.render("orderDetails",{order,user,orderedItem,product,address});  
+
+    } catch (error) {
+        res.status(400).json({success:false,message:"Error in the order detail loading"});
+        console.log(error)
+    }
+}
+
+const pendingOrderDetails = async(req,res)=>{
+    try {
+        const {productId,orderId,orderedItemsId} = req.query;
+        console.log("orderedItemsId",orderedItemsId);
+        const userId = req.session.user;
+        const user = await User.findById(userId);
+        const order = await PendingOrder.findOne({orderId}); 
+        const product = await order.orderedItems.find((item)=>{
+          return   item.product.toString() == productId.toString()
+        })
+        const orderedItem = order.orderedItems.find((item) => {
+            return item._id.toString() === orderedItemsId.toString();
+        });
+        
+        const address = order.address;
+        
+        console.log("order:",order);
+        console.log("product:",product);
+        console.log("address:",address);
+        
+        res.render("pendingOrderDetails",{order,user,orderedItem,product,address});  
 
     } catch (error) {
         res.status(400).json({success:false,message:"Error in the order detail loading"});
@@ -424,6 +453,21 @@ const orderDetailsPage = async(req,res)=>{
     }
 }
 
+const updatePendingOrder = async(req,res)=>{
+    try {
+        const {razorPayOrderId} = req.body;
+        console.log(req.body);
+        const findOrder = await PendingOrder.find({razorPayOrderId});
+
+        console.log("PendingOrder:",findOrder);
+        const razorpayKey = process.env.RAZORPAY_KEY;
+         res.status(200).json({success:true,pendingOrder:findOrder,razorpayKey})
+
+    } catch (error) {
+        res.status(400).json({success:false,message:"Error in the updatePendingOrder Function"});
+    }
+}
+
 module.exports = {
     loadOrder ,
     updateStatus,
@@ -433,5 +477,7 @@ module.exports = {
     returnRequest,
     returnRequestPage,
     updateRequestStatus,
-    orderDetailsPage
+    orderDetailsPage,
+    updatePendingOrder,
+    pendingOrderDetails
 }

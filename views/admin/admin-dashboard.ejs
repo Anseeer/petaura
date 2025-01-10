@@ -1,68 +1,234 @@
-<%- include("../partials/admin/header.ejs") %>
-<style>
-  
-</style>
-<div class="row"> <!-- Cards -->
-    <!-- Top 5 Products Card -->
-    <div class="col-md-6">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Top 5 Products</h5>
-                <ul class="list-group">
-                    <% product.forEach(product => { 
-                        let truncatedName = product.name.split(' ').slice(0, 1).join(' '); // Truncate to 3 words
-                    %>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <%= truncatedName %> <!-- Display truncated name -->
-                        <div style="width: 70%; margin-left: 10px;"> <!-- Match width to Top Categories -->
-                            <div class="progress">
-                                <div class="progress-bar" 
-                                     role="progressbar" 
-                                     style="width: <%= ((product.saleCount / total) * 100).toFixed(2) %>%; background-color: #464545" 
-                                     aria-valuenow="<%= product.saleCount %>" 
-                                     aria-valuemin="0" 
-                                     aria-valuemax="100">
-                                    <span class="sr-only"><%= ((product.saleCount / total) * 100).toFixed(2) %>%</span>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    <% }) %>
-                </ul>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("../partials/admin/header.ejs") %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 20px auto;
+        }
+
+        .summary-cards {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            flex: 1;
+            margin: 0 10px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-card .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #000; /* Black icons */
+        }
+
+        .summary-card h4 {
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .summary-card p {
+            
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .filter-container {
+            text-align: right;
+            margin-bottom: 15px;
+        }
+
+        .filter-container select {
+            padding: 5px 10px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .card {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .list-group {
+            max-height: 150px; /* Limit height to prevent overflow */
+            overflow-y: auto; /* Scrollable if content exceeds height */
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-group-item span {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="summary-cards">
+    <div class="summary-card">
+        <div class="icon"><i class="fas fa-chart-line"></i></div>
+        <h4>Total Sales</h4>
+        <p><%= totalSales %></p> <!-- Replace with actual sales count -->
+    </div>
+    <div class="summary-card">
+        <div class="icon"><i class="fas fa-dollar-sign"></i></div>
+        <h4>Total Revenue</h4>
+        <p><%= revenue %></p> <!-- Replace with actual revenue -->
+    </div>
+    <div class="summary-card">
+        <div class="icon"><i class="fas fa-users"></i></div>
+        <h4>Total Users</h4>
+        <p><%= users %></p> <!-- Replace with actual user count -->
+    </div>
+</div>
+
+<div class="filter-container">
+    <label for="timeFilter ">Filter:</label>
+    <select onchange="filterRevenue(event,this.value)" id="timeFilter">
+        <option value="year">Yearly</option>
+        <option value="month">Monthly</option>
+    </select>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="chart-container">
+            <canvas id="revenueBarChart"></canvas>
         </div>
     </div>
+    <div class="col-md-4">
+        <!-- Top Products Card -->
+        <div class="card">
+            <div class="card-title">Top 5 Products</div>
+            <ul class="list-group">
+                <% for(let i = 0 ; i < product.length ; i++){ %>
+                <li class="list-group-item"><span><%= product[i].name %></span></li>
+                <%}%>
+            </ul>
+        </div>
 
-    <!-- Top 5 Categories Card -->
-    <div class="col-md-6">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Top 5 Categories</h5>
-                <ul class="list-group">
-                    <% category.forEach(category => { 
-                        let truncatedName = category.name.split(' ').slice(0, 3).join(' '); // Truncate to 3 words
-                    %>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <%= truncatedName %> <!-- Display truncated category name -->
-                            <div style="width: 70%; margin-left: 10px;">
-                                <div class="progress">
-                                    <div class="progress-bar" 
-                                         role="progressbar" 
-                                         style="width: <%= ((category.saleCount / Totalcategory) * 100).toFixed(2) %>%; background-color: #464545" 
-                                         aria-valuenow="<%= category.saleCount %>" 
-                                         aria-valuemin="0" 
-                                         aria-valuemax="100">
-                                        <span class="sr-only"><%= ((category.saleCount / Totalcategory) * 100).toFixed(2) %>%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    <% }) %>
-                </ul>
-            </div>
+        <!-- Top Categories Card -->
+        <div class="card">
+            <div class="card-title">Top 5 Categories</div>
+            <ul class="list-group">
+                <% for(let i = 0 ; i < category.length ; i++){ %>
+                    <li class="list-group-item"><span><%= category[i].name %></span></li>
+                    <%}%>
+            </ul>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+   // Assuming you've already calculated total revenue (5% of totalPrice)
+const totalRevenue =' <%= revenue %>'; // This would be the result from your aggregation, for example
 
+// Bar Chart for Revenue Data (Only 1 Bar)
+const revenueData = {
+    labels: ["Total Revenue"], // Label for the single bar
+    datasets: [{
+        label: 'Revenue ',
+        data: [totalRevenue], // Pass the total revenue as a single data point
+        backgroundColor: 'grey', // Customize the bar color
+        borderColor: 'black', // Border color for the bar
+        borderWidth: 1, // Border width for the bar
+        barThickness: 38, // Border width for the bar
+    }]
+};
+
+// Create the chart with a single bar for total revenue
+const ctx = document.getElementById('revenueBarChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: revenueData,
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top', // Position of the legend
+            }
+        },
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Revenue' // Title for the X-axis
+                }
+            },
+            y: {
+                beginAtZero: true, // Start the Y-axis at 0
+                title: {
+                    display: true,
+                    text: 'Amount ($)' // Title for the Y-axis
+                }
+            }
+        }
+    }
+});
+
+   
+</script>
+<script>
+    
+    function filterRevenue(event,filter){
+        event.preventDefault();
+        console.log(filter);
+        filter = filter ? filter : "year";
+        fetch(`/admin/dashboard?filter=${filter}`,{
+            method:"GET",
+            headers:{
+                'Content-Type':'application/json',
+            }
+        })
+        .then((res)=>{
+            if(!res.ok){
+                throw new Error;
+            }else{
+                console.log(`filtered :${filter}`);
+            }
+        })
+        .catch((err)=>{
+            console.log(err)
+        })
+    }
+</script>
 <%- include("../partials/admin/footer.ejs") %>
+</body>
+</html>

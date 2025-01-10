@@ -33,7 +33,7 @@ const userauth = (req, res, next) => {
 
 const adminauth = async (req, res, next) => {
     try {
-        const admin = await User.findOne({ isAdmin: true });
+        const admin = req.session.admin;
         if (!admin) {
             console.log("No Admin Found");
             return res.redirect("/admin/login"); // Handle missing admin
