@@ -110,10 +110,10 @@
             <tr>
               <% if(cart.totalPrice < 500){ %>
               <th>Total</th>
-              <td id="orderTotal">₹<%= cart.totalPrice + 40 %></td>
+              <td id="orderTotal">₹<%= (cart.totalPrice + 40 ).toFixed(2) %></td>
               <%}else{%>
                 <th>Total</th>
-                <td id="orderTotal">₹<%= cart.totalPrice %></td>
+                <td id="orderTotal">₹<%= cart.totalPrice.toFixed(2) %></td>
                 <%}%>
             </tr>
           </table>
@@ -367,8 +367,8 @@ function applyCoupon(event) {
             showCancelButton:false,
             showConfirmButton:false,
           }).then(()=>{
-            const subtotal = "<%= cart.totalPrice %>";
-            const total = subtotal - res.discountValue;
+            // const subtotal = "<%= cart.totalPrice %>";
+            const total = totalAmount - res.discountValue;
             document.getElementById('orderTotal').innerHTML = `₹${total.toFixed(2)}`;
             document.getElementById('coupenDiscount').innerHTML = `₹${res.discountValue}`;
           })

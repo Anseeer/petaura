@@ -197,11 +197,15 @@ input[type="file"] {
                                 <label class="form-label">Category</label>
                                 <select name="category" class="form-select">
                                     <% for (let i = 0; i < category.length; i++) { %>
-                                        <option value="<%= category[i].name %>" ><%= category[i].name %></option>
+                                        <option value="<%= category[i].name %>" 
+                                            <%= category[i].name %> == <%= product.category %> ? 'selected' : '' %>>
+                                            <%= category[i].name %>
+                                        </option>
                                     <% } %>
                                 </select>
+                                
                             </div>
-                        </div>
+                        </div> 
                        
 
                         <!-- Submit Button -->

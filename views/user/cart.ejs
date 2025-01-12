@@ -177,8 +177,8 @@
                     <div class="d-flex justify-content-between fw-bold">
                         <span>Total</span>
                         <% if(cart.totalPrice < 500){ %>
-                        <span id="totalPrice">₹<%= cart.totalPrice.toFixed(2) + 40 %> </span>
-                        <%} else {%>
+                            <span id="totalPrice">₹<%= (cart.totalPrice + 40).toFixed(2) %> </span>
+                            <%} else {%>
                             <span id="totalPrice">₹<%= cart.totalPrice.toFixed(2)  %> </span>
                             <% } %>
                     </div>

@@ -193,7 +193,7 @@ const addProduct = async (req, res) => {
         try {
             const id = req.query.id;
     
-            const product = await Product.findById({_id:id});
+            const product = await Product.findById({_id:id}).populate("category",'name _id');
             const category = await Category.find({isListed:true});
             
             if(product){
