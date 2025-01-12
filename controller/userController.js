@@ -325,9 +325,23 @@ const loadCart = async(req,res)=>{
     const user= await User.findById(req.session.user);
     const cart = await Cart.findOne({userId:user._id}).populate('items.productId','name salePrice Status Image quantity _id finalPrice'); 
     if(!cart){
-        res.status(200).render("cart",{user,cart:{items:[]}});
+        res.render("cart",{user,cart:{items:[]}});
     }
     res.render("cart",{user,cart});
+  } catch (error) {
+    console.log("ERROE occures in loadCart ");
+    res.status(400).send("ERROR occures in loadCart ");
+  }
+}
+
+const fetchCart = async(req,res)=>{
+  try {
+    const user= await User.findById(req.session.user);
+    const cart = await Cart.findOne({userId:user._id}).populate('items.productId','name salePrice Status Image quantity _id finalPrice'); 
+    if(!cart){
+        res.status(200).json({user,cart:{items:[]}});
+    }
+    res.status(200).json({success:true,cart});
   } catch (error) {
     console.log("ERROE occures in loadCart ");
     res.status(400).send("ERROR occures in loadCart ");
@@ -423,8 +437,8 @@ const removeFromCart = async (req, res) => {
         }
 
         console.log("Cart items after removal:", updatedCart.items);
-
-        res.status(200).json({ success: true, message: "Successfully removed from cart" });
+        const datas = await Cart.findOne({ userId:user });
+        res.status(200).json({ success: true,datas});
     } catch (error) {
         console.error("Error in removeFromCart:", error);
         res.status(400).json({ success: false, message: "Error in removeFromCart" });
@@ -519,7 +533,7 @@ const loadCheckoutPage = async (req, res) => {
         const user = req.session.user;
         const addressDoc = await Address.findOne({ userId: user });
         const cart = await Cart.findOne({userId:user});
-        const coupons = await Coupen.find({});
+        const coupons = await Coupen.find({ isActive: true, expiredAt: { $gte: new Date() } });
         const address = addressDoc ? addressDoc.addresses : []; // Fallback to empty array if no addresses
         // console.log(address)
         res.render("checkout", { user, address ,cart,coupons}); // Pass addresses to the view
@@ -528,6 +542,11 @@ const loadCheckoutPage = async (req, res) => {
         res.status(500).send("Error loading checkout page.");
     }
 };
+function generateTransactionId() {
+    const timestamp = Date.now().toString();  // Current timestamp in milliseconds
+    const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
+    return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
+}
 
 const placeOrder = async (req, res) => {
     try {
@@ -679,8 +698,11 @@ const placeOrder = async (req, res) => {
                return res.status(400).json({success:false,message:"Insuficent Balance"});
             }
             wallet.balance -=Number(totalPrice);
-
+           
+            // Example usage:
+            const transactionId = generateTransactionId();
             wallet.history.push({
+                transactionId,
                 type: "DEBIT",
                 amount: totalPrice,
                 description: "Order payment",
@@ -755,6 +777,7 @@ const placeOrder = async (req, res) => {
                     status: "pending",
                     paymentStatus:"UNPAID",
                 });
+
                 if(newOrder.finalPrice > 1000){
                     return res.status(500).json({success:false,message:"Can not purchase COD above the 1000"})
                 }
@@ -767,7 +790,6 @@ const placeOrder = async (req, res) => {
             } catch (error) {
                 return  res.status(400).json({ success: false, message: "Order Faild" });
             }
-            
         }
 
         await Promise.all(
@@ -1016,6 +1038,11 @@ const loadWallet = async(req,res)=>{
         res.status(400).json({success:false,message:"Error in load wallet"});
     }
 }
+function generateTransactionId() {
+    const timestamp = Date.now().toString();  // Current timestamp in milliseconds
+    const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
+    return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
+}
 const addToWallet = async (req, res) => {
     try {
         const { amount } = req.body;
@@ -1056,6 +1083,7 @@ const addToWallet = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to add to wallet", error: error.message });
     }
 };
+
 const WalletVerifyPayment = async (req, res) => {
     try {
         const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
@@ -1091,8 +1119,10 @@ const WalletVerifyPayment = async (req, res) => {
         if (!wallet) {
             return res.status(404).json({ success: false, message: 'Wallet not found' });
         }
+        const transactionId = generateTransactionId();
 
         wallet.history.push({
+            transactionId,
             type: "CREDIT",
             amount: walletOrder.amount/100,
             description: "Deposit",
@@ -1136,5 +1166,6 @@ module.exports = {
     verifyOnlinePayment ,
     loadWallet,
     addToWallet,
-    WalletVerifyPayment
+    WalletVerifyPayment,
+    fetchCart 
 }  

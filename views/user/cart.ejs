@@ -124,7 +124,7 @@
         <div class="row">
             <!-- Product List -->
            <!-- Product List -->
-<div class="col-md-8">
+<div id="cart-products" class="col-md-8">
     <%if(cart.items.length > 0 ){%>
     <% for (let i = 0; i < cart.items.length; i++) { %>
       <div class="cart-item">
@@ -137,7 +137,7 @@
           <a href="/user/viewMoreDetails?id=<%=cart.items[i].productId._id %>" class="text-primary text-decoration-none">VIEW MORE DETAILS</a>
         </div>
         <!-- Product Price -->
-        <div class="ms-auto text-warning fw-bold">$<%= cart.items[i].productId.finalPrice %></div>
+        <div class="ms-auto text-warning fw-bold">₹<%= cart.items[i].productId.finalPrice %></div>
         <!-- Quantity -->
         <div class="quantity-control">
             <button class="decrease" id="decrease" onclick="decreaseQty(event, '<%= cart.items[i]._id %>', '<%= cart.items[i].productId.quantity %>')">-</button>
@@ -155,12 +155,12 @@
   
         <% if(cart.items.length >0 ){%>
             <!-- Order Summary -->
-            <div class="col-md-4">
+            <div id="cart-summury" class="col-md-4">
                 <div class="order-summary">
                     <h5 class="fw-bold">Order Summary</h5>
                     <div class="d-flex justify-content-between">
                         <span>Subtotal</span>
-                        <span id="subTotal">₹<%= cart.totalPrice %></span>
+                        <span id="subTotal">₹<%= cart.totalPrice.toFixed(2) %></span>
                     </div>
                     <div class="d-flex justify-content-between">
                         <% if (cart.totalPrice < 500) { %>
@@ -177,9 +177,9 @@
                     <div class="d-flex justify-content-between fw-bold">
                         <span>Total</span>
                         <% if(cart.totalPrice < 500){ %>
-                        <span id="totalPrice">₹<%=cart.totalPrice + 40 %> </span>
+                        <span id="totalPrice">₹<%= cart.totalPrice.toFixed(2) + 40 %> </span>
                         <%} else {%>
-                            <span id="totalPrice">₹<%=cart.totalPrice  %> </span>
+                            <span id="totalPrice">₹<%= cart.totalPrice.toFixed(2)  %> </span>
                             <% } %>
                     </div>
                     <a href="/user/checkout-page"><button class="btn checkout-btn mt-3">Checkout</button></a>
@@ -286,16 +286,17 @@ function updateCart(productId,currentQty ,quantity) {
             })
             .then((res) => res.json())
             .then((data) => {
+                console.log("Data:",data.datas)
                 if (data.success) {
                     Swal.fire({
                         icon: "success",
                         title: "Removed",
-                        text: data.message,
-                        showCancelButton: false,
+                         showCancelButton: false,
                         showConfirmButton: false,
                         timer: 1500,
                     })
                     location.reload();
+
                 } else {
                     Swal.fire({
                         icon: "error",
@@ -318,6 +319,97 @@ function updateCart(productId,currentQty ,quantity) {
                 });
             });
         }
+
+//         document.addEventListener("DOMContentLoaded",()=>{
+//             fetch("/user/fetchCart",{
+//                 method:"GET",
+//                 headers:{
+//                     'Content-Type':'application',
+//                 }
+//             })
+//             .then((res)=> res.json())
+//             .then((res)=>{
+//                 if(res.success){
+//                     console.log("res:",res)
+//                     fetchCartData(res.cart);
+//                 }else{
+//                     Swal.fire({
+//                         icon:"error",
+//                         title:"Faild To Fetch  Cart Data`s ",
+//                         showCancelButton:false,
+//                         showConfirmButton:false,
+//                         timer:1200,
+//                     })
+//                 }
+//             })
+//             .catch(()=>{
+//                 Swal.fire({
+//                         icon:"error",
+//                         title:"Error In Fetch  Cart Data`s ",
+//                         showCancelButton:false,
+//                         showConfirmButton:false,
+//                         timer:1200,
+//                     })
+//             })
+//         })
+//         function fetchCartData(cart) {
+//     const product = document.getElementById("cart-products");
+//     const summury = document.getElementById("cart-summury");
+//     product.innerHTML = "";
+//     summury.innerHTML = "";
+
+//     cart.items.forEach((item) => {
+//         let productData = ` 
+//             <div class="cart-item">
+//                 <button class="remove-btn" onclick="return removeFromCart(event, '${item.productId._id}')">&times;</button>
+//                 <!-- Product Image -->
+//                 <img src="${item.productId.Image[0]}" alt="${item.productId.name}" class="product-img">
+//                 <!-- Product Name -->
+//                 <div>
+//                     <div class="fw-bold">${item.productId.name}</div>
+//                     <a href="/user/viewMoreDetails?id=${item.productId._id}" class="text-primary text-decoration-none">VIEW MORE DETAILS</a>
+//                 </div>
+//                 <!-- Product Price -->
+//                 <div class="ms-auto text-warning fw-bold">₹${item.productId.finalPrice}</div>
+//                 <!-- Quantity -->
+//                 <div class="quantity-control">
+//                     <button class="decrease" id="decrease" onclick="decreaseQty(event, '${item._id}', '${item.productId.quantity}')">-</button>
+//                     <input type="number" id="quantity-${item._id}" value="${item.quantity}" class="quantity-input" readonly>
+//                     <button class="increase" id="increase" onclick="increaseQty(event, '${item._id}', '${item.productId.quantity}')">+</button>
+//                 </div>
+//             </div>
+//         `;
+//         product.innerHTML += productData;
+//     });
+
+//     // Calculate delivery fee and total price dynamically
+//     const deliveryFee = cart.totalPrice < 500 ? 40 : 0;
+//     const totalPrice = cart.totalPrice + deliveryFee;
+
+//     summury.innerHTML = `
+//         <div class="order-summary">
+//             <h5 class="fw-bold">Order Summary</h5>
+//             <div class="d-flex justify-content-between">
+//                 <span>Subtotal</span>
+//                 <span id="subTotal">₹${cart.totalPrice.toFixed(2)}</span>
+//             </div>
+//             <div class="d-flex justify-content-between">
+//                 <span>Delivery:</span>
+//                 <span id="deliveryFee">₹${deliveryFee > 0 ? deliveryFee : 'Free'}</span>
+//             </div>
+//             <hr />
+//             <div class="d-flex justify-content-between fw-bold">
+//                 <span>Total</span>
+//                 <span id="totalPrice">₹${totalPrice.toFixed(2)}</span>
+//             </div>
+//             <a href="/user/checkout-page"><button class="btn checkout-btn mt-3">Checkout</button></a>
+//             <div class="text-center mt-2">
+//                 <a href="/user/" class="text-dark text-decoration-none"><u>Continue Shopping</u></a>
+//             </div>
+//         </div>
+//     `;
+// }
+
         
     </script>
 </body>

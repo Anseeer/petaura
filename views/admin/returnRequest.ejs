@@ -32,6 +32,9 @@
                             <td>Damaged Item</td>
                             <td>
                             <select  
+                            <% if (requestedItem[i].status === 'approved' ||requestedItem[i].status === 'rejected') { %>
+                                disabled
+                            <% } %> 
                                 name="status" class="form-select" onchange="updateStatus('<%= requestedItem[i]._id %>', '<%= requestedItem[i].productId._id %>', '<%= requestedItem[i].orderId %>', '<%= requestedItem[i].quantity %>','<%= requestedItem[i].price %>' , this.value)">
                                 <option value="requested" <%= requestedItem[i].status === "requested" ? "selected='selected'" : "" %>>Requested</option>
                                 <option value="approved" <%= requestedItem[i].status === "approved" ? "selected='selected'" : "" %>>Aproved</option>

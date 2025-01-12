@@ -341,7 +341,6 @@
 
 function applyCoupon(event) {
   const applyCoupen = document.getElementById("applyCoupen");
-applyCoupen.disabled = true; // Disables the button
 
       event.preventDefault(); 
 
@@ -350,7 +349,7 @@ applyCoupen.disabled = true; // Disables the button
 
       console.log("inputCode:", inputCode, "totalAmount:", totalAmount);
 
-      fetch("/admin/apply-coupen",{
+      fetch("/user/apply-coupen",{
         method:"POST",
         headers:{
           'Content-Type':'application/json'
@@ -373,6 +372,8 @@ applyCoupen.disabled = true; // Disables the button
             document.getElementById('orderTotal').innerHTML = `₹${total.toFixed(2)}`;
             document.getElementById('coupenDiscount').innerHTML = `₹${res.discountValue}`;
           })
+          applyCoupen.disabled = true; // Disables the button
+
         }else{
           Swal.fire({
             icon:"error",

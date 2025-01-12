@@ -5,12 +5,17 @@ const walletSchema = new Schema({
     userId:{
         type:Schema.Types.ObjectId,
         required:true,
+        unique:true
     },
     balance:{
         type:Number,
         required:true,
     },
     history:[{
+        transactionId:{
+            type:String,
+            required:true,
+        },
         type:{
         type:String,
         enum:["CREDIT","DEBIT"],

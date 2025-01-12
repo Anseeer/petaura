@@ -335,7 +335,7 @@
                                     &#8377;<%= history[i].amount.toFixed(2) %>
                                 </td>
                                 <td style="padding: 8px;"><%= history[i].type %></td>
-                                <td style="padding: 8px;"><%= history[i]._id %></td>
+                                <td style="padding: 8px;"><%= history[i].transactionId %></td>
                                 <td style="padding: 8px;"><%= new Date(history[i].createdAt).toLocaleDateString("en-GB") %></td>
                                 <td style="padding: 8px;"><%= history[i].description %></td>
                             </tr>

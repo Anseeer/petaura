@@ -98,17 +98,29 @@
                                 <select 
                                     name="status" 
                                     class="form-select" 
-                                    onchange="updateStatus('<%= orders[i].orderId %>','<%= orders[i].userId %>', '<%= orders[i].orderedItems[j]._id %>', '<%= orders[i].orderedItems[j].product ? orders[i].orderedItems[j].product._id : null %>', '<%= orders[i].orderedItems[j].quantity %>', this.value)">
-                                    <option value="pending" <%= orders[i].orderedItems[j].status === "pending" ? "selected='selected'" : "" %>>Pending</option>
-                                    <option value="processing" <%= orders[i].orderedItems[j].status === "processing" ? "selected='selected'" : "" %>>Processing</option>
-                                    <option value="shipped" <%= orders[i].orderedItems[j].status === "shipped" ? "selected='selected'" : "" %>>Shipped</option>
-                                    <option value="delivered" <%= orders[i].orderedItems[j].status === "delivered" ? "selected='selected'" : "" %>>Delivered</option>
-                                    <option value="canceled" <%= orders[i].orderedItems[j].status === "canceled" ? "selected='selected'" : "" %>>Canceled</option>
-                                    <option value="" <%= orders[i].orderedItems[j].status === "requested" ? "selected='selected'" : "" %>>Requested</option>
-                                    <option value="" <%= orders[i].orderedItems[j].status === "return" ? "selected='selected'" : "" %>>Return</option>
-                                    <option value="" <%= orders[i].orderedItems[j].status === "approved" ? "selected='selected'" : "" %>>Approved</option>
-                                    <option value="" <%= orders[i].orderedItems[j].status === "rejected" ? "selected='selected'" : "" %>>Rejected</option>
+                                    <% if (orders[i].orderedItems[j].status === 'delivered' || orders[i].orderedItems[j].status === 'canceled' || orders[i].orderedItems[j].status === 'approved' || orders[i].orderedItems[j].status === 'rejected' ) { %>
+                                        disabled
+                                    <% } %> 
+                                    onchange="updateStatus(this, '<%= orders[i].orderId %>', '<%= orders[i].userId %>', '<%= orders[i].orderedItems[j]._id %>', '<%= orders[i].orderedItems[j].product ? orders[i].orderedItems[j].product._id : null %>', '<%= orders[i].orderedItems[j].quantity %>', this.value); this.disabled = true;">
+
+                                    <option value="<%= orders[i].orderedItems[j].status %>" selected="selected">
+                                        <%= orders[i].orderedItems[j].status.charAt(0).toUpperCase() + orders[i].orderedItems[j].status.slice(1) %>
+                                    </option>
+
+                                    <% if (orders[i].orderedItems[j].status !== "delivered") { %>
+                                        <option value="delivered">Delivered</option>
+                                    <% } %>
+                                    <% if (orders[i].orderedItems[j].status !== "canceled") { %>
+                                        <option value="canceled">Canceled</option>
+                                    <% } %>
+                                    <% if (orders[i].orderedItems[j].status !== "pending") { %>
+                                        <option value="pending">Pending</option>
+                                    <% } %>
+                                    
+
                                 </select>
+
+
                             </td>
                         </tr>
                     <% } %>
@@ -150,7 +162,7 @@
 
 <script>
 
-function updateStatus(orderId, userId, orderedItemsId , productId , productQty,status){
+function updateStatus(select, orderId, userId, orderedItemsId , productId , productQty,status){
     fetch("/admin/edit-order-status",{
         method:"POST",
         headers:{
@@ -169,7 +181,9 @@ function updateStatus(orderId, userId, orderedItemsId , productId , productQty,s
                 showCancelButton:false,
                 showConfirmButton:false
             }).then(()=>{
-                location.reload();
+                select.disabled =true;
+                // location.reload();
+                
             });
         }else{
             Swal.fire({

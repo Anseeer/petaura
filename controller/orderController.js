@@ -91,7 +91,11 @@ const updateStatus = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error." });
     }
 };
-
+function generateTransactionId() {
+    const timestamp = Date.now().toString();  // Current timestamp in milliseconds
+    const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
+    return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
+}
 const updateRequestStatus = async(req,res)=>{
     try {
 
@@ -141,12 +145,16 @@ const updateRequestStatus = async(req,res)=>{
                             message: "Wallet not found for the user",
                         });
                     }
-        
+                    
+                    
+                    // Example usage:
+                    const transactionId = generateTransactionId();
                     console.log("WALLET:", wallet);
         
                     // Update balance and add transaction history
                     wallet.balance += order.finalPrice;
                     wallet.history.push({
+                        transactionId,
                         type: "CREDIT",
                         amount: order.finalPrice,
                         description: "Refund for order returned",
@@ -242,7 +250,11 @@ const pendingOrderDetails = async(req,res)=>{
         console.log(error)
     }
 }
-
+function generateTransactionId() {
+    const timestamp = Date.now().toString();  // Current timestamp in milliseconds
+    const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
+    return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
+}
 const orderCancel = async (req, res) => {
     try {
         const {orderId, productQyt, orderedItemId ,productId} = req.body; 
@@ -281,10 +293,15 @@ const orderCancel = async (req, res) => {
             }
 
             console.log("WALLET:", wallet);
+           
+            
+            // Example usage:
+            const transactionId = generateTransactionId();
 
             // Update balance and add transaction history
             wallet.balance += order.finalPrice;
             wallet.history.push({
+                transactionId,
                 type: "CREDIT",
                 amount: order.finalPrice,
                 description: "Refund for order cancellation",

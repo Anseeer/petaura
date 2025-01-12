@@ -53,10 +53,12 @@ router.get("/order-details",adminauth,orderController.orderDetailsPage);
 router.get("/coupen",adminauth,coupenController.loadCoupen);
 router.get("/add-coupen",adminauth,coupenController.loadAddCoupen);
 router.post("/add-coupen",adminauth,coupenController.addCoupen);
-router.post("/apply-coupen",adminauth,coupenController.applyCoupen);
 router.get("/edit-coupon",adminauth,coupenController.editCoupen);
 router.post("/edit-coupon",adminauth,coupenController.updateCoupen);
 router.get("/delete-coupen",adminauth,coupenController.deleteCoupen);
+router.get("/inActive",adminauth,coupenController.inActiveCoupen);
+router.get("/Active",adminauth,coupenController.ActiveCoupen);
+
 
 // salesReport
 router.get("/sales-report",adminauth,adminController.loadSalesReport);

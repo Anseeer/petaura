@@ -41,6 +41,29 @@
     cursor: not-allowed;
     pointer-events: none;
 }
+.button-fixed {
+    display: inline-block;
+    width: 90px; /* Set equal width for both buttons */
+    padding: 5px 10px;
+    font-size: 12px;
+    text-align: center;
+    color: white;
+    background-color:grey;
+    border-radius: 5px;
+    text-decoration: none;
+    margin: 5px 2px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.button-fixed i {
+    margin-right: 3px;
+}
+
+.button-fixed:hover {
+    background-color: #524646;
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -114,13 +137,18 @@
                                 <%}%>
                             </td>
                             <td class="text-end">
-                                <a href="/admin/editProduct?id=<%=product[i]._id%>" class="btn btn-sm font-sm btn-secondary rounded">
-                                    <i class="material-icons md-delete_forever"></i> Edit
+                                <a href="/admin/editProduct?id=<%=product[i]._id%>" 
+                                   class="btn button-fixed">
+                                    <i class="material-icons">edit</i> Edit
                                 </a>
-                                <a href=""  onclick="confirmDelete(event, '<%=product[i]._id%>')" class="btn btn-sm font-sm btn-dark rounded">
-                                    <i class="material-icons md-delete_forever"></i> Delete
+                                <a href="" 
+                                   onclick="confirmDelete(event, '<%=product[i]._id%>')" 
+                                   class="btn button-fixed">
+                                    <i class="material-icons">delete_forever</i> Delete
                                 </a>
                             </td>
+                            
+                            
                         </tr>
                     <% } %>
                 </tbody>

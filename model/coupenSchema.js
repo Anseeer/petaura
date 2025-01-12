@@ -36,9 +36,10 @@ const coupenSchema = new Schema({
         type:Number,
         required:true
     },
-    isList:{
+    isActive:{
         type:Boolean,
-        required:true
+        required:true,
+        default:true
     }
 });
 

@@ -27,6 +27,7 @@ const loadproducts = async (req, res) => {
 
         // Aggregate to fetch products and join category data
         const products = await Product.aggregate([
+            {$sort:{createdAt:-1}},
             {
                 $lookup: {
                     from: "categories", // Collection name for categories

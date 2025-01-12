@@ -60,6 +60,7 @@ const addCoupen = async(req,res)=>{
 
 const applyCoupen = async(req,res)=>{
     try {
+        console.log("hey")
         console.log(req.body);
         const {inputCode,totalAmount} = req.body;
 
@@ -193,6 +194,52 @@ const deleteCoupen = async (req, res) => {
     }
 };
 
+const inActiveCoupen = async(req, res) => {
+    try {
+      const code = req.query.code;
+      console.log("Query:", req.query); // Log the full query object
+      console.log("Code received:", req.query.code); // Log the code specifically
+
+      const coupen = await Coupen.findOneAndUpdate(
+        { code },
+        { $set: { isActive: false } },
+        { new: true } // Ensure the updated document is returned
+      );
+      console.log("coupen:", coupen);
+      if (!coupen) {
+        console.log("Coupon not found");
+        return res.status(404).json({ success: false, message: "Coupon not found" });
+      }
+      let data = await Coupen.find({});
+      res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Error during coupon update:", error);
+      res.status(400).json({ success: false, message: "Error in inActiveCoupen function" });
+    }
+  };
+  
+  const ActiveCoupen = async(req, res) => {
+    try {
+      const code = req.query.code;
+      const coupen = await Coupen.findOneAndUpdate(
+        { code },
+        { $set: { isActive: true } },
+        { new: true } // Ensure the updated document is returned
+      );
+      console.log("coupen:", coupen);
+      if (!coupen) {
+        console.log("Coupon not found");
+        return res.status(404).json({ success: false, message: "Coupon not found" });
+      }
+      let data = await Coupen.find({});
+      res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Error during coupon update:", error);
+      res.status(400).json({ success: false, message: "Error in ActiveCoupen function" });
+    }
+  };
+  
+
 
 module.exports = {
     loadCoupen,
@@ -201,5 +248,7 @@ module.exports = {
     applyCoupen,
     editCoupen,
     updateCoupen,
-    deleteCoupen
+    deleteCoupen,
+    inActiveCoupen,
+    ActiveCoupen
 }

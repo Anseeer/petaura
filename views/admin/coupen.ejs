@@ -58,10 +58,11 @@
                   <th>Start Date</th>
                   <th>Expire Date</th>
                   <th>User Limit</th>
+                  <th>IsActive</th>
                   <th>Action</th> <!-- Action column added -->
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="tableBody">
                 <% if(coupen && coupen.length > 0){%>
 
                     <% for(let i=0 ; i < coupen.length ; i++){ %>
@@ -72,6 +73,17 @@
                       <td><%= new Date(coupen[i].createdAt).toLocaleDateString("en-GB") %></td>
                       <td><%= new Date( coupen[i].expiredAt).toLocaleDateString("en-GB") %></td>
                       <td><%= coupen[i].usageLimit %></td>
+                      <% if(coupen[i].isActive) { %>
+                        <td>
+                          <button class="btn btn-success btn-sm " onclick="inActive(event,'<%= coupen[i].code %>')">Active</button>
+                        </td>
+                        <% } else { %>
+                        <td>
+                          <button  class="btn btn-danger btn-sm " onclick="Active(event,'<%= coupen[i].code %>')">InActive</button>
+                        </td>
+                    <% } %>
+                    
+                    
                       <td class="table-action-icons " >
                         <a href="/admin/edit-coupon?id=<%= coupen[i]._id %>" class="btn btn-sm btn-warning">Edit</a>
                         <a onclick=" return deleteCoupen('<%= coupen[i]._id %>')" class="btn btn-sm btn-danger">Delete</a>
@@ -149,6 +161,72 @@
         text: "Your item is safe.",
       });
     }
+  });
+}
+function inActive(event, code) {
+  event.preventDefault();
+  console.log("InActive", code);
+
+  fetch(`/admin/inActive?code=${encodeURIComponent(code)}`, {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+      updateCouponTable(res.data);
+    }
+  })
+  .catch(error => console.error("Error:", error));
+}
+
+function Active(event, code) {
+  event.preventDefault();
+  console.log("Active", code);
+
+  fetch(`/admin/Active?code=${encodeURIComponent(code)}`, {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => res.json())
+  .then(res => {
+    if (res.success) {
+      updateCouponTable(res.data);
+    }
+  })
+  .catch(error => console.error("Error:", error));
+}
+
+function updateCouponTable(coupenList) {
+  let tableBody = document.getElementById("tableBody");
+  tableBody.innerHTML = "";
+
+  coupenList.forEach(coupen => {
+    let tableData = `
+      <tr>
+        <td>${coupen.code}</td>
+        <td>${coupen.discountPercentage}</td>
+        <td>${coupen.minOrderValue}</td>
+        <td>${new Date(coupen.createdAt).toLocaleDateString("en-GB")}</td>
+        <td>${new Date(coupen.expiredAt).toLocaleDateString("en-GB")}</td>
+        <td>${coupen.usageLimit}</td>
+        <td>
+          ${coupen.isActive 
+            ? `<button class="btn btn-success btn-sm" onclick="inActive(event, '${coupen.code}')">Active</button>` 
+            : `<button class="btn btn-danger btn-sm" onclick="Active(event, '${coupen.code}')">InActive</button>`}
+        </td>
+        <td class="table-action-icons">
+          <a href="/admin/edit-coupon?id=${coupen._id}" class="btn btn-sm btn-warning">Edit</a>
+          <a onclick="return deleteCoupen('${coupen._id}')" class="btn btn-sm btn-danger">Delete</a>
+        </td>
+      </tr>
+    `;
+
+    tableBody.insertAdjacentHTML('beforeend', tableData);
   });
 }
 

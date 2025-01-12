@@ -5,6 +5,7 @@ const userController = require("../controller/userController");
 const profileController = require("../controller/profileController");
 const categoryController = require("../controller/categoryController");
 const orderController = require("../controller/orderController");
+const coupenController = require("../controller/coupenController");
 const passport = require("passport");
 const {userauth} = require("../middlwares/auth");
 
@@ -47,7 +48,6 @@ userRoutes.get("/accessories",userauth,categoryController.loadAccessories);
 userRoutes.get("/fillterCategoryOfAccessories",userauth,categoryController.fillterCategoryOfAccessories); 
 userRoutes.get("/ProuctDetailsOfAccessories",userauth,categoryController.ProuctDetailsOfAccessories); 
 userRoutes.get("/accessories-filter",userauth,categoryController.filterAccessories); 
-  
 // Treat
 userRoutes.get("/treat",userauth,categoryController.loadTreats);
 userRoutes.get("/fillterCategoryOfTreats",userauth,categoryController.fillterCategoryOfTreats);
@@ -84,6 +84,7 @@ userRoutes.post("/change-password",userauth,profileController.editPassword);
 
 // cart management 
 userRoutes.get("/cart",userauth,userController.loadCart)
+userRoutes.get("/fetchCart",userauth,userController.fetchCart)
 userRoutes.get("/add-to-cart",userauth,userController.addToCart);
 userRoutes.get("/remove-from-cart",userauth, userController.removeFromCart);
 userRoutes.get("/viewMoreDetails",userauth,userController.laodDetails);
@@ -99,7 +100,6 @@ userRoutes.post("/order-return",userauth,orderController.orderReturn);
 userRoutes.post("/order-return-request",userauth,orderController.returnRequest);
 userRoutes.get("/orderHistory",userauth,profileController.loadOrderHistory);       
 userRoutes.post("/updatePendingOrder",userauth,orderController.updatePendingOrder);       
-
 
 // WhishList
 userRoutes.get("/whishlist",userauth,userController.loadWhishlist);
@@ -117,6 +117,7 @@ userRoutes.post("/addToWallet",userauth,userController.addToWallet);
 // referral
 userRoutes.get("/referral",userauth,profileController.loadReferral);
 
+userRoutes.post("/apply-coupen",userauth,coupenController.applyCoupen);
 
 userRoutes.get("/auth/google", passport.authenticate('google', {
     scope: ['profile', 'email'],
