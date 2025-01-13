@@ -196,7 +196,8 @@ const loadOrderHistory = async(req,res)=>{
         const orders = await Order.find({userId})
         .skip(skip)
         .limit(limit)
-        .populate("orderedItems.product", ' _id name Image description ').sort({createdAT:-1});
+        .populate("orderedItems.product", ' _id name Image description ')
+        .sort({createdAT:-1});
 
         const orderedItems = orders.orderedItems;
 

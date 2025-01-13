@@ -89,7 +89,6 @@ userRoutes.get("/add-to-cart",userauth,userController.addToCart);
 userRoutes.get("/remove-from-cart",userauth, userController.removeFromCart);
 userRoutes.get("/viewMoreDetails",userauth,userController.laodDetails);
 userRoutes.post("/update-cart",userauth,userController.updateCart);
-
 // order
 userRoutes.get("/checkout-page",userauth,userController.loadCheckoutPage);
 userRoutes.post("/place-order",userauth,userController.placeOrder)

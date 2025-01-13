@@ -152,8 +152,8 @@ svg {
         </span></p>
       
             <div class="cost-details">
-          <p>Delivery Charges: ₹0 %></p>
-          <p>Coupen Discount: ₹ <%= orderedItem.coupenDiscount %></p>
+              <p>Delivery Charges: ₹<%= order.deliveryFee %></p>
+              <p>Coupen Discount: ₹ <%= orderedItem.coupenDiscount %></p>
           <p>Total: ₹ <%= orderedItem.totalPrice %></p>
         </div>
       </div>

@@ -48,7 +48,6 @@ router.post("/order-cancel",adminauth,orderController.orderCancel);
 router.post("/update-returnRequest-status",adminauth,orderController.updateRequestStatus);
 router.get("/load-return-request",adminauth,orderController.returnRequestPage);
 router.get("/order-details",adminauth,orderController.orderDetailsPage);
-
 // coupen management 
 router.get("/coupen",adminauth,coupenController.loadCoupen);
 router.get("/add-coupen",adminauth,coupenController.loadAddCoupen);
@@ -58,17 +57,13 @@ router.post("/edit-coupon",adminauth,coupenController.updateCoupen);
 router.get("/delete-coupen",adminauth,coupenController.deleteCoupen);
 router.get("/inActive",adminauth,coupenController.inActiveCoupen);
 router.get("/Active",adminauth,coupenController.ActiveCoupen);
-
-
 // salesReport
 router.get("/sales-report",adminauth,adminController.loadSalesReport);
 // router.post("/sales-report",adminController.loadSalesReportForCustomDate);
 router.post("/filter-sales",adminauth,adminController.filterSalesReport);
-
 // offer management 
 router.get("/offer",adminauth,offerController.loadOffer);
 router.post("/add-product-offer",adminauth,offerController.addProductOffer);
-
 // multer 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -94,6 +89,4 @@ router.get("/deleteProduct",adminauth,productsController.deleteProduct);
 router.get("/blockProduct",adminauth,productsController.blockProduct);
 router.get("/unblockProduct",adminauth,productsController.unblockProduct);
 
-
-  
 module.exports = router ;

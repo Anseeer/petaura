@@ -934,23 +934,46 @@ const verifyOnlinePayment = async (req, res) => {
         });
     }
 };
-
-const loadWhishlist = async(req,res)=>{
+const loadWhishlist = async (req, res) => {
     try {
+        let page = parseInt(req.query.page) || 1;
+        let limit = 3;
+        let skip = (page - 1) * limit;
+
         const userId = req.session.user;
         const user = await User.findById(userId);
 
-        const whishlist = await Wishlist.findOne({userId:userId }).populate("products.productId",'name salePrice Image description regularPrice Status _id quantity');  
-        console.log(whishlist)
+        const whishlist = await Wishlist.findOne({ userId })
+            .populate({
+                path: "products.productId",
+                select: "name salePrice Image description regularPrice Status _id quantity",
+            });
+
         if (!whishlist || !whishlist.products || whishlist.products.length === 0) {
-            return res.render("whishlist", { user, whishlist: [], message: 'Your wishlist is empty. Start adding items!' });
+            return res.render("whishlist", { 
+                user, 
+                whishlist: [], 
+                message: 'Your wishlist is empty. Start adding items!' 
+            });
         }
-        res.render("whishlist",{user,whishlist:whishlist.products});
+
+        // Apply pagination manually on products
+        const paginatedProducts = whishlist.products.slice(skip, skip + limit);
+        let total = whishlist.products.length;
+
+        res.render("whishlist", {
+            user,
+            whishlist: paginatedProducts,
+            currentPage: page,
+            totalPage: Math.ceil(total / limit),
+        });
+
     } catch (error) {
-        console.log(error)
-        res.status(400).json({success:false,message:"ERROR in the loadWishlist"});
+        console.log(error);
+        res.status(400).json({ success: false, message: "ERROR in the loadWishlist" });
     }
-}
+};
+
 
 
 const addToWishlist = async (req, res) => {
