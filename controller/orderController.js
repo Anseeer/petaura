@@ -70,14 +70,17 @@ const updateStatus = async (req, res) => {
                 await wallet.save();
             }    
         }
+
         
-        // Update the order status
+        const deadline = new Date();
+        deadline.setDate(deadline.getDate() + 14);
+        
         const updateResult = await Order.findOneAndUpdate(
-            { orderId ,userId ,"orderedItems._id":orderedItemsId},
-            { $set: { "orderedItems.$.status" : status} },
-            { new: true }
+          { orderId, userId, "orderedItems._id": orderedItemsId },
+          { $set: { "orderedItems.$.status": status, "orderedItems.$.returnDeadline": deadline } },
+          { new: true }
         );
-    
+        
         if (!updateResult) {
             return res.status(404).json({ success: false, message: "Order not found." });
         }
@@ -91,11 +94,13 @@ const updateStatus = async (req, res) => {
         return res.status(500).json({ success: false, message: "Internal server error." });
     }
 };
+
 function generateTransactionId() {
     const timestamp = Date.now().toString();  // Current timestamp in milliseconds
     const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
     return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
 }
+
 const updateRequestStatus = async(req,res)=>{
     try {
 
@@ -410,6 +415,32 @@ const returnRequest = async (req, res) => {
     try {
         const { orderId, userId, productId, orderedItemId,productQty , productPrice, reason } = req.body;
         console.log("body:", req.body);
+
+        const order = await Order.findOne({
+            orderId,
+            userId,
+            "orderedItems._id": orderedItemId,
+            "orderedItems.status": "delivered"
+        });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found or already returned." });
+        }
+
+        // Get the return deadline
+        const orderedItem = order.orderedItems.find(item => item._id.toString() === orderedItemId);
+
+        const currentDate = new Date();
+        const returnDeadline = new Date(orderedItem.returnDeadline);
+
+        // Check if the deadline has passed
+        if (currentDate > returnDeadline) {
+            return res.status(400).json({
+                success: false,
+                message: "Return request deadline has passed. You cannot request a return."
+            });
+        }
+
 
         const request = new ReturnRequest({
             productId,

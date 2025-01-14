@@ -49,6 +49,14 @@ const orderSchema = new Schema({
             enum:["pending","proccessing","shipped","delivered","canceled","return requested","returned"],
             default:"pending"
         },
+        returnDeadline:{
+            type:Date,
+        },
+        returnRequest:{
+            type:Boolean,
+            required:true,
+            default:false,
+        },
     }],
     totalPrice:{
         type:Number,

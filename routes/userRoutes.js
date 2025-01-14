@@ -74,6 +74,7 @@ userRoutes.get("/reset-password",profileController.loadNewPass);
 userRoutes.get("/profile",userauth,profileController.loadProfile);       
 userRoutes.get("/address",userauth,profileController.loadAddress);       
 userRoutes.post("/addAddress",userauth,profileController.addNewAddress);                     
+userRoutes.get("/addNewAddress",userauth,profileController.addAddress);                     
 userRoutes.get("/edit-address",userauth,profileController.editAddress);                     
 userRoutes.get("/edit-addressInCheckout",userauth,profileController.editAddressOfCheckout);                     
 userRoutes.post("/edit-addressInCheckout",userauth,profileController.editedAddressInChekout);                     

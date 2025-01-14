@@ -13,7 +13,7 @@ const razorpayInstance = require("../config/razorpay");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const env=require("dotenv").config();
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const express = require("express");
 const ParentCategory = require('../model/parentCategorySchema');
@@ -247,6 +247,7 @@ const resendOtp = async (req, res) => {
 const loadlogin = async(req,res)=>{
     try {
         if(req.session.user){
+            localStorage.clear(); 
             res.redirect("/user")
         }else{
             res.render("login");
@@ -260,36 +261,60 @@ const loadlogin = async(req,res)=>{
 
 const login = async (req, res) => {
     try {
+        // Check if the user is already logged in
         if (req.session.user) {
             return res.redirect("/user");
         }
 
+        // Destructure the email and password from the request body
         const { email, password } = req.body;
+
+        // Find the user from the database
         const findUser = await User.findOne({ email: email, isAdmin: 0 });
 
+        // If user not found
         if (!findUser) {
             return res.render("login", { message: "The User is Not found" });
         }
 
+        // If user is blocked
         if (findUser.isBlocked) {
             return res.render("login", { message: "Admin Blocked the User" });
         }
 
+        // Log the password received from the form and the stored hashed password for debugging
+        console.log("Password received from form:", password);
+        console.log("Hashed password from DB:", findUser.password);
+
+        // Check if the hashed password exists
+        if (!findUser.password) {
+            return res.render("login", { message: "No password found for this user" });
+        }
+
+        // Compare the plaintext password with the hashed password stored in the DB
         const MatchPassword = await bcrypt.compare(password, findUser.password);
 
+        // If the passwords do not match
         if (!MatchPassword) {
             return res.render("login", { message: "Invalid Password" });
         }
-        
-        req.session.user =findUser._id; 
+
+        // If login successful, set the session user to the user ID
+        req.session.user = findUser._id;
+
         // Define breadcrumbs or pass an empty array if not needed
         const breadcrumbs = [
             { text: "Home", url: "/" }
-        ]; 
-        return res.render("home", { user:findUser , breadcrumbs });
+        ];
+
+        // Redirect the user to the home page with user and breadcrumbs data
+        return res.render("home", { user: findUser, breadcrumbs });
 
     } catch (error) {
+        // Log any errors for debugging
         console.log("Error occurred in login: ", error);
+
+        // Send an error message back to the login page
         return res.render("login", { message: "Failed login, please try again" });
     }
 };
@@ -536,12 +561,13 @@ const loadCheckoutPage = async (req, res) => {
         const coupons = await Coupen.find({ isActive: true, expiredAt: { $gte: new Date() } });
         const address = addressDoc ? addressDoc.addresses : []; // Fallback to empty array if no addresses
         // console.log(address)
-        res.render("checkout", { user, address ,cart,coupons}); // Pass addresses to the view
+        res.render("checkout", { user, address ,cart:cart||{totalPrice:0},coupons}); // Pass addresses to the view
     } catch (error) {
         console.error("Error loading checkout page:", error);
         res.status(500).send("Error loading checkout page.");
-    }
+    } 
 };
+
 function generateTransactionId() {
     const timestamp = Date.now().toString();  // Current timestamp in milliseconds
     const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
@@ -937,7 +963,7 @@ const verifyOnlinePayment = async (req, res) => {
 const loadWhishlist = async (req, res) => {
     try {
         let page = parseInt(req.query.page) || 1;
-        let limit = 3;
+        let limit = 10;
         let skip = (page - 1) * limit;
 
         const userId = req.session.user;

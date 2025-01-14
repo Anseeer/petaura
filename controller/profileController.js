@@ -219,7 +219,6 @@ const loadAddress = async (req, res) => {
         const addressDoc = await Address.findOne({ userId: user });
         console.log("addressDoc:", addressDoc);
 
-
         // Extract the address array
         const address = addressDoc?.addresses || []; 
 
@@ -292,6 +291,15 @@ const addNewAddress = async (req, res) => {
     }
 };
 
+const addAddress = async(req,res)=>{
+    try {
+        const user= req.session.user;
+        res.render("addAddress",{user});
+    } catch (error) {
+        res.status(404).json({success:false,message:"Can not found the AddAddress page"})
+    }
+}
+ 
 const editAddress = async(req,res)=>{
     try {
         const id = req.query.id;  
@@ -525,5 +533,6 @@ module.exports = {
     editPassword,
     editAddressOfCheckout,
     editedAddressInChekout,
-    loadReferral
+    loadReferral,
+    addAddress
 } 

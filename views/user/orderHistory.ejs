@@ -260,7 +260,9 @@
                         <td><%= item.status %></td>
                         <td>
                             <% if(item.status == "delivered"){ %>
-                                <button class="btn btn-warning btn-sm btn-custom" onclick="returnOrderRequest(event, '<%= order.orderId %>', '<%= order.userId %>', '<%= item.product._id %>','<%= item._id %>','<%= item.quantity %>','<%= item.totalPrice %>')">Return request</button>
+                                <% if (item.returnDeadline && new Date(item.returnDeadline) >= new Date()) { %>
+                                <button class="btn btn-warning btn-sm btn-custom" onclick="returnOrderRequest(event, '<%= order.orderId %>', '<%= order.userId %>', '<%= item.product._id %>','<%= item._id %>','<%= item.quantity %>','<%= item.totalPrice %>')">Return request(in 14 days)</button>
+                                <% } %>
                             <%} else if(item.status == "pending"){ %>
                                 <button class="btn btn-danger btn-sm btn-custom" onclick="orderCancel(event, '<%= order.orderId %>', '<%= item.quantity %>', '<%= item._id %>','<%= item.product._id %>')">Cancel Order</button>
                             <%}%>
@@ -379,6 +381,7 @@ function returnOrderRequest(event, orderId, userId, productId, orderedItemId ,pr
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
+
             Swal.fire({
                 title: 'Reason for Return',
                 input: 'text',

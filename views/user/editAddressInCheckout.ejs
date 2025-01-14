@@ -1,111 +1,237 @@
 <div class="floating-container">
-    <div class="floating-card">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0 justify-content-between d-flex align-items-center">Edit Address</h5>
-        <button class="close-btn" onclick="closeEditAddress()">&times;</button>
+  <div class="floating-card">
+    <div class="card shadow-lg rounded-lg">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center rounded-top">
+        
+        <h5 class="mb-0">Edit Address</h5>
+        <button class="close-btn text-white" onclick="closeEditAddress()">&times;</button>
       </div>
-      <div class="card-body">
-        <form action="/user/edit-addressInCheckout" method="POST">
+      <div class="card-body p-4">
+        <form id="editAddressForm" action="/user/edit-addressInCheckout" method="POST">
           <input type="hidden" name="id" value="<%= address._id %>">
-  
-          <div class="form-group">
-            <label for="addressType">Address Type</label>
-            <input type="text" class="form-control" id="addressType" name="addressType" value="<%= address.addressType %>" required>
+
+          <div class="row">
+            <!-- Left Section -->
+            <div class="col-md-6 form-group">
+              <label for="addressType">Address Type</label>
+              <input type="text" class="form-control" id="addressType" name="addressType" value="<%= address.addressType %>" placeholder="Enter Address Type">
+              <small id="addressTypeError" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 form-group">
+              <label for="country">Country</label>
+              <input type="text" class="form-control" id="country" name="country" value="<%= address.country %>" placeholder="Enter Country">
+              <small id="countryError" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 form-group">
+              <label for="pincode">Pincode</label>
+              <input type="text" class="form-control" id="pincode" name="pincode" value="<%= address.pincode %>" placeholder="Enter Pincode">
+              <small id="pincodeError" class="text-danger"></small>
+            </div>
+
+            <!-- Right Section -->
+            <div class="col-md-6 form-group">
+              <label for="name">Name</label>
+              <input type="text" class="form-control" id="name" name="name" value="<%= address.name %>" placeholder="Enter Name">
+              <small id="nameError" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 form-group">
+              <label for="state">State</label>
+              <input type="text" class="form-control" id="state" name="state" value="<%= address.state %>" placeholder="Enter State">
+              <small id="stateError" class="text-danger"></small>
+            </div>
+
+            <div class="col-md-6 form-group">
+              <label for="phone">Phone</label>
+              <input type="text" class="form-control" id="phone" name="phone" value="<%= address.phone %>" placeholder="Enter Phone">
+              <small id="phoneError" class="text-danger"></small>
+            </div>
           </div>
-  
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" class="form-control" id="name" name="name" value="<%= address.name %>" required>
-          </div>
-  
-          <div class="form-group">
-            <label for="country">Country</label>
-            <input type="text" class="form-control" id="country" name="country" value="<%= address.country %>" required>
-          </div>
-  
-          <div class="form-group">
-            <label for="state">State</label>
-            <input type="text" class="form-control" id="state" name="state" value="<%= address.state %>" required>
-          </div>
-  
-          <div class="form-group">
-            <label for="pincode">Pincode</label>
-            <input type="text" class="form-control" id="pincode" name="pincode" value="<%= address.pincode %>" required>
-          </div>
-  
-          <div class="form-group">
-            <label for="phone">Phone</label>
-            <input type="text" class="form-control" id="phone" name="phone" value="<%= address.phone %>" required>
-          </div>
-  
-          <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-primary">Update Address</button>
-            <button type="button" class="btn btn-secondary ml-2" onclick="closeEditAddress()">Cancel</button>
+
+          <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">Update Address</button>
           </div>
         </form>
       </div>
     </div>
   </div>
-  
-  <style>
-    .floating-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-    }
-  
+</div>
+
+<!-- Styling -->
+<style>
+  .floating-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+  }
+
+  .floating-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 700px;
+    padding: 2rem;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f7d231;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .card-header h5 {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+
+  .close-btn {
+    font-size: 1.5rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-control {
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    padding: 12px;
+    font-size: 1rem;
+    width: 100%;
+  }
+
+  .form-control:focus {
+    border-color: #f7d231;
+    box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5);
+  }
+
+  small {
+    display: block;
+    font-size: 0.875rem;
+  }
+
+  .text-danger {
+    color: red;
+    font-size: 0.9rem;
+  }
+
+  /* Buttons */
+  .btn-lg {
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 5px;
+  }
+
+  .btn-primary {
+    background-color: #f7d231;
+    border: 1px solid #f7d231;
+  }
+
+  /* Layout for the form */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+
+  .col-md-6 {
+    width: 48%;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
     .floating-card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      width: 90%;
-      max-width: 500px;
-      overflow: hidden;
+      width: 95%;
     }
-  
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
+    .col-md-6 {
+      width: 100%;
     }
-  
-    .close-btn {
-      border: none;
-      background: transparent;
-      font-size: 1.5rem;
-      color: white;
-      cursor: pointer;
+  }
+</style>
+
+
+<!-- JavaScript for Form Validation -->
+<script>
+  function closeEditAddress() {
+    window.history.back();
+  }
+
+  document.getElementById("editAddressForm").addEventListener("submit", function(event) {
+    let isValid = true;
+
+    // Clear previous error messages
+    document.querySelectorAll("small.text-danger").forEach(error => error.innerText = "");
+
+    // Get input values
+    const addressType = document.getElementById("addressType").value.trim();
+    const name = document.getElementById("name").value.trim();
+    const country = document.getElementById("country").value.trim();
+    const state = document.getElementById("state").value.trim();
+    const pincode = document.getElementById("pincode").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+
+    // Validation patterns
+    const textPattern = /^[A-Za-z\s]+$/;
+    const pincodePattern = /^\d{6}$/;
+    const phonePattern = /^\d{10}$/;
+
+    // Address Type validation
+    if (!textPattern.test(addressType)) {
+      document.getElementById("addressTypeError").innerText = "Please enter a valid address type.";
+      isValid = false;
     }
-  
-    .card-body {
-      padding: 1rem;
+
+    // Name validation
+    if (!textPattern.test(name)) {
+      document.getElementById("nameError").innerText = "Please enter a valid name.";
+      isValid = false;
     }
-  
-    .form-group {
-      margin-bottom: 1rem;
+
+    // Country validation
+    if (!textPattern.test(country)) {
+      document.getElementById("countryError").innerText = "Please enter a valid country.";
+      isValid = false;
     }
-  
-    .btn {
-      padding: 0.5rem 1rem;
+
+    // State validation
+    if (!textPattern.test(state)) {
+      document.getElementById("stateError").innerText = "Please enter a valid state.";
+      isValid = false;
     }
-  
-    .btn-secondary {
-      background-color: #6c757d;
-      border: none;
+
+    // Pincode validation
+    if (!pincodePattern.test(pincode)) {
+      document.getElementById("pincodeError").innerText = "Please enter a valid 6-digit pincode.";
+      isValid = false;
     }
-  </style>
-  
-  <script>
-    function closeEditAddress() {
-      window.history.back(); // Go back to the previous page
+
+    // Phone validation
+    if (!phonePattern.test(phone)) {
+      document.getElementById("phoneError").innerText = "Please enter a valid 10-digit phone number.";
+      isValid = false;
     }
-  </script>
-  
+
+    if (!isValid) event.preventDefault();
+  });
+</script>

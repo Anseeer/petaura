@@ -108,16 +108,21 @@
                     <!-- <div class="invalid-feedback">Please enter a valid 10-digit phone number.</div> -->
                     <div id="error3" class="error-message"></div>
                 </div>
-                <div class="mb-3">
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password"  minlength="6">
-                    <!-- <div class="invalid-feedback">Password must be at least 6 characters.</div> -->
+                <div class="mb-3 position-relative">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" minlength="6">
+                    <span id="togglePassword" class="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer">
+                      <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    </span>
                     <div id="error4" class="error-message"></div>
-                </div>
-                <div class="mb-3">
-                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password"  minlength="6">
-                    <!-- <div class="invalid-feedback">Password must be at least 6 characters.</div> -->
+                  </div>
+                  
+                  <div class="mb-3 position-relative">
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" minlength="6">
+                    <span id="toggleConfirmPassword" class="position-absolute top-50 end-0 translate-middle-y me-3 cursor-pointer">
+                      <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                    </span>
                     <div id="error5" class="error-message"></div>
-                </div>
+                  </div>
                 <div>
                     <input type="hidden" name="refCode" id="refCode">
                 </div>
@@ -151,6 +156,33 @@
             <img src="../../style/img/homeBannerImg.jpg" alt="Pet Supplies Logo">
         </div>
     </div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        // Function to toggle password visibility
+        function togglePasswordVisibility(passwordInputId, toggleIconId) {
+          const passwordInput = document.getElementById(passwordInputId);
+          const toggleIcon = document.getElementById(toggleIconId).querySelector("i");
+          
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            toggleIcon.classList.remove("fa-eye-slash");
+            toggleIcon.classList.add("fa-eye");
+          } else {
+            passwordInput.type = "password";
+            toggleIcon.classList.remove("fa-eye");
+            toggleIcon.classList.add("fa-eye-slash");
+          }
+        }
+      
+        // Attach event listeners for both password fields
+        document.getElementById("togglePassword").addEventListener("click", () => {
+          togglePasswordVisibility("password", "togglePassword");
+        });
+      
+        document.getElementById("toggleConfirmPassword").addEventListener("click", () => {
+          togglePasswordVisibility("confirmPassword", "toggleConfirmPassword");
+        });
+      </script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
