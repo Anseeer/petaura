@@ -337,7 +337,7 @@ const loadCatSupplies = async (req, res) => {
       res.render("catSupplies", {
           user: userData,
           category: categoreiesWithId,
-          product: products,
+          // product: [],
           parent:ParentCat._id,
           currentPage:page,
           totalPage: Math.ceil(totalProduct/limit),
@@ -363,6 +363,7 @@ const fillterCategoryOfCat = async (req, res) => {
     const user = req.session.user;
     const category = req.query.category || ""; 
     const search = req.query.search || ""; 
+    console.log("hey")
     console.log("category", category);
     console.log("sort", sort);
     console.log("search", search);
@@ -400,6 +401,8 @@ const fillterCategoryOfCat = async (req, res) => {
       sorted = { name: 1 };
     } else if (sort === "z-a") {
       sorted = { name: -1 };
+    }else{
+      sorted = {createdAt:-1};
     }
 
     // Fetch and sort products
@@ -524,7 +527,7 @@ const loadDogSupplies = async (req, res) => {
         res.render("dogSupplies", {
             user: userData,
             category: categoreiesWithId,
-            product: products,
+            // product: products,
             currentPage:page,
             parent:ParentDog._id,
             totalPage:Math.ceil(totalPage/limit),
@@ -582,6 +585,8 @@ const fillterCategoryOfDog = async (req, res) => {
           sorted = { name: 1 };
       } else if (sort === "z-a") {
           sorted = { name: -1 };
+      }else{
+        sorted = {createdAt:-1};
       }
 
       const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
@@ -686,7 +691,7 @@ const loadSmallPetsSupplies = async (req, res) => {
         res.render("smallPetsSupplies", {
             user: userData,
             category: categoreiesWithId,
-            product: products,
+            // product: products,
             parent:ParentSmallPets._id ,
             totalPage:Math.ceil(totalProducts/limit),
             currentPage:page,
@@ -849,7 +854,7 @@ const loadPetBirdSupplies = async (req, res) => {
         res.render("petBirdsSupplies", {
             user: userData,
             category: categoreiesWithId,
-            product: products,
+            // product: products,
             currentPage:page,
             parent:ParentPetBird._id,
             totalPage:Math.ceil(totalProducts/limit),
@@ -908,6 +913,8 @@ const fillterCategoryOfPetBird = async (req, res) => {
         sorted = { name: 1 };
     } else if (sort === "z-a") {
         sorted = { name: -1 };
+    }else{
+      sorted = {createdAt:-1};
     }
 
     const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
@@ -1011,7 +1018,7 @@ const loadFishSupplies = async (req, res) => {
         res.render("fishSupplies", {
             user: userData,
             category: categoreiesWithId,
-            product: products,
+            // product: products,
             currentPage:page,
             parent:ParentFish._id ,
             totalPage:Math.ceil(totalProducts/limit),
@@ -1070,6 +1077,8 @@ const fillterCategoryOfFish = async (req, res) => {
         sorted = { name: 1 };
     } else if (sort === "z-a") {
         sorted = { name: -1 };
+    }else{
+      sorted = {createdAt:-1};
     }
 
     const findProducts = await Product.find(query).sort(sorted).skip(skip).limit(limit).lean();
@@ -1188,7 +1197,7 @@ const fillterCategoryOfFish = async (req, res) => {
         res.render("accessories", {
             user: userData,
             category: categoriesWithId,
-            product: products,
+            // product: products,
             allProduct:categoryIds,
             totalPage:Math.ceil(totalProducts/limit),
             currentPage:page,
@@ -1244,6 +1253,8 @@ const fillterCategoryOfAccessories = async (req, res) => {
       sorted = { name: 1 };
     } else if (sort === "z-a") {
       sorted = { name: -1 };
+    }else{
+      sorted = {createdAt:-1};
     }
 
     if (categoryIds.length > 0) {
@@ -1383,7 +1394,7 @@ const loadTreats = async (req, res) => {
      res.render("treat", {
          user: userData,
          category: categoriesWithId,
-         product: products,
+        //  product: products,
          currentPage:page,
          allProduct:categoryIds,
          totalPage:Math.ceil(totalProducts/limit),
@@ -1439,6 +1450,8 @@ const fillterCategoryOfTreats = async (req, res) => {
       sorted = { name: 1 };
     } else if (sort === "z-a") {
       sorted = { name: -1 };
+    }else{
+      sorted = {createdAt:-1};
     }
 
     if (categoryIds.length > 0) {
@@ -1577,7 +1590,7 @@ const loadToys = async (req, res) => {
      res.render("toys", {
          user: userData,
          category: categoriesWithId,
-         product: products,
+        //  product: products,
          allProduct:categoryIds,
          totalPage:Math.ceil(totalProducts/limit),
          currentPage:page,
@@ -1633,6 +1646,8 @@ const fillterCategoryOfToys = async (req, res) => {
       sorted = { name: 1 };
     } else if (sort === "z-a") {
       sorted = { name: -1 };
+    }else{
+      sorted = {createdAt:-1};
     }
 
     if (categoryIds.length > 0) {
@@ -1768,7 +1783,7 @@ const loadFood = async (req, res) => {
      res.render("food", {
          user: userData,
          category: categoriesWithId,
-         product: products,
+        //  product: products,
          allProduct:categoryIds,
          totalPage:Math.ceil(totalProducts/limit),
          currentPage:page,
@@ -1824,6 +1839,8 @@ const fillterCategoryOfFood = async (req, res) => {
       sorted = { name: 1 };
     } else if (sort === "z-a") {
       sorted = { name: -1 };
+    }else{
+      sorted = {createdAt:-1};
     }
 
     if (categoryIds.length > 0) {
@@ -1910,49 +1927,49 @@ const ProuctDetailsOfFood = async(req, res) => {
   }
 };
 
-const filterCatSupplies = async (req, res) => {
-  try {
-    const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
+// const filterCatSupplies = async (req, res) => {
+//   try {
+//     const searchTerm = req.query.search;
+//     console.log("Filter:", searchTerm);
 
-    const userId = req.session.user;
-    const userData = await User.findById(userId); // Correcting the query to find user by ID
-    const ParentCat = await ParentCategory.findOne({ name: "Cat" });
+//     const userId = req.session.user;
+//     const userData = await User.findById(userId); // Correcting the query to find user by ID
+//     const ParentCat = await ParentCategory.findOne({ name: "Cat" });
 
-    if (!ParentCat) {
-      console.log("Cannot find the ParentCategory");
-      return res.status(404).json({ message: "ParentCategory not found" });
-    }
+//     if (!ParentCat) {
+//       console.log("Cannot find the ParentCategory");
+//       return res.status(404).json({ message: "ParentCategory not found" });
+//     }
 
-    const categories = await Category.find({ isListed: true, parent: ParentCat._id });
-    const categoryIds = categories.map((category) => category._id.toString());
-    const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
+//     const categories = await Category.find({ isListed: true, parent: ParentCat._id });
+//     const categoryIds = categories.map((category) => category._id.toString());
+//     const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
 
 
-    const products = await Product.find({
-      isBlocked: false,
-      category: { $in: categoryIds },
-      quantity: { $gte: 0 },
-      name:{$regex:searchTerm,$options:"i"}, // Apply the search condition here
-    }).sort({ createdAt: -1 }); // Apply your sorting logic here if needed
+//     const products = await Product.find({
+//       isBlocked: false,
+//       category: { $in: categoryIds },
+//       quantity: { $gte: 0 },
+//       name:{$regex:searchTerm,$options:"i"}, // Apply the search condition here
+//     }).sort({ createdAt: -1 }); // Apply your sorting logic here if needed
 
-    console.log("Products:", products);
+//     console.log("Products:", products);
 
-    res.status(200).json({
-      user: userData,
-      category: categoreiesWithId,
-      product: products,
-      breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "CatSupplies", url: "/user/cat-supplies" },
-      ],
-    });
+//     res.status(200).json({
+//       user: userData,
+//       category: categoreiesWithId,
+//       product: products,
+//       breadcrumbs: [
+//         { text: "Home", url: "/user/" },
+//         { text: "CatSupplies", url: "/user/cat-supplies" },
+//       ],
+//     });
 
-  } catch (error) {
-    console.error("ERROR in filterCatSupplies", error);
-    res.status(500).json({ message: "An error occurred in filterCatSupplies" });
-  }
-};
+//   } catch (error) {
+//     console.error("ERROR in filterCatSupplies", error);
+//     res.status(500).json({ message: "An error occurred in filterCatSupplies" });
+//   }
+// };
 
 const filterDogSupplies = async(req,res)=>{
   try {
@@ -2394,7 +2411,7 @@ module.exports = {
     loadFood,
     fillterCategoryOfFood,
     ProuctDetailsOfFood,
-    filterCatSupplies,
+    // filterCatSupplies,
     filterDogSupplies,
     filterFishSupplies,
     filterPetBirdSupplies,
