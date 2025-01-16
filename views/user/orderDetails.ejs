@@ -200,6 +200,33 @@ svg {
   svg:hover {
     color: #ffffff; /* Darker blue on hover */
   }
+  
+
+/* 
+.product-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+} */
+
+.product-actions button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-danger {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.btn-warning {
+  background-color: #ffffff;
+  color: #000;
+}
+
     </style>
 </head>
 
@@ -250,29 +277,32 @@ svg {
     <div class="receipt-details">
       <h3>Receipt</h3>
       <p>Receipt Voucher: <span><%=order.orderId%></span> </p>
-      <% if(orderedItem.status === 'delivered') { %>
+      <% if(order.status === 'delivered') { %>
         <p onclick="getInvoice(event, '<%= order.orderId %>')" style="font-weight: bold; text-decoration: none; color: white; cursor: pointer;">Invoice</p> 
     <% } %>
     
     </div>
-    <div class="product-details">
-      <img src="<%= product.image %>" >
-      <div class="product-info">
-        <h2><%= product.name %></h2>
-        <p><span></span></p>
-        <p>Quantity: <span><%= product.quantity %></span></p>
-        <p>Price: ₹<%= product.price %>  </p>
-        <p>Status:<%= orderedItem.status %>  </p>
+    <% order.orderedItems.forEach((item) => { %>
+      <div class="product-details">
+        <img src="<%= item.image %>" alt="<%= item.name %>">
+        <div class="product-info">
+          <h2><%= item.name %></h2>
+          <p>Quantity: <span><%= item.quantity %></span></p>
+          <p>Price: ₹<%= item.price %></p>
+          <p>Status: <%= item.status %></p>
+        </div>
+        <div class="product-actions">
+          <% if (item.status === "pending") { %>
+            <button class="btn btn-danger" onclick="SingleorderCancel(event,'<%= item._id %>','<%= order.orderId %>')">Cancel</button>
+          <% } else if (item.status === "delivered") { %>
+            <button class="btn btn-warning" onclick="returnOrder('<%= item._id %>')">Return</button>
+          <% } %>
+        </div>
       </div>
-    </div>
-    <div class="actions">
-      <% if(orderedItem.status == "delivered"){ %>
-      <button class="btn btn-secondary" onclick="returnOrderRequest(event, '<%= order.orderId %>', '<%= order.userId %>', '<%= product.product %>','<%= product._id %>','<%=  product.quantity %>','<%=  product.totalPrice %>')" >Return Order</button>
-      <% } else if(orderedItem.status == "pending"){ %>
-      <button class=" btn btn-secondary"  onclick="orderCancel(event, '<%= order.orderId %>', '<%= product.quantity %>', '<%= product._id %>','<%= product.product %>')">Cancel Order</button>
-      <% } %>
-      <button class=" btn btn-secondary" disabled>Write a Review</button>
-    </div>
+    <% }) %>
+    
+    
+
     <div class="order-summary">
       <h3>Order Details</h3>
       <p>Payment Method: <span><%= order.paymentMethod %></span></p>
@@ -282,8 +312,8 @@ svg {
     
           <div class="cost-details">
         <p>Delivery Charges: ₹<%= order.deliveryFee %></p>
-        <p>Coupen Discount: ₹ <%= product.coupenDiscount %></p>
-        <p>Total: ₹<%= product.totalPrice %></p>
+        <p>Coupen Discount: ₹ <%= order.discount %></p>
+        <p>Total: ₹<%= order.finalPrice %></p>
       </div>
     </div>
   </div>
@@ -350,10 +380,8 @@ function getInvoice(e, orderId) {
 }
 
   
-function orderCancel(event, orderId, productQyt, orderedItemId , productId) {
+function SingleorderCancel(event,itemId,orderId) {
     event.preventDefault(); // Prevent default form behavior
-
-    console.log("parameters",orderId, productQyt, orderedItemId , productId); 
 
     Swal.fire({
         icon: "warning",
@@ -365,10 +393,10 @@ function orderCancel(event, orderId, productQyt, orderedItemId , productId) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch("/user/order-cancel", {
+            fetch("/user/single-order-cancel", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId, productQyt, orderedItemId, productId})
+                body: JSON.stringify({itemId,orderId})
             })
             .then(response => response.json())
             .then(data => {

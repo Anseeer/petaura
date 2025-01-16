@@ -69,69 +69,65 @@
     <table class="table table-border-top">
         <thead>
             <tr>
-                <th>Product</th>
+                <th>OrderId</th>
+                <th>Items</th>
                 <th>Date</th>
                 <th>Price</th>
-                <th>Quantity</th>
                 <th>Status</th>
             </tr>
         </thead>
         <tbody>
             <% if (orders && orders.length > 0) { %>
                 <% for (let i = 0; i < orders.length; i++) { %>
-                    <% for (let j = 0; j < orders[i].orderedItems.length; j++) { %>
-                        <tr >
-                            <td onclick="location.href='/admin/order-details?productId=<%= orders[i].orderedItems[j].product._id %>&orderId=<%= orders[i].orderId %>&orderedItemId=<%=  orders[i].orderedItems[j]._id %>'">
-                                <img src="<%= orders[i].orderedItems[j].product.Image[0] %>" alt="Product Image" class="img-fluid" width="50">
-                                <%= orders[i].orderedItems[j].product.name %>
-                            </td>
-                            <td>
-                                <%= new Date(orders[i].createdAT).toLocaleDateString('en-GB', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric'
-                                }) %>
-                            </td>
-                            <td><%= orders[i].orderedItems[j].price %></td>
-                            <td><%= orders[i].orderedItems[j].quantity %></td>
-                            <td>
-                                <select 
-                                    name="status" 
-                                    class="form-select" 
-                                    <% if (orders[i].orderedItems[j].status === 'delivered' || orders[i].orderedItems[j].status === 'canceled' || orders[i].orderedItems[j].status === 'approved' || orders[i].orderedItems[j].status === 'rejected' ) { %>
-                                        disabled
-                                    <% } %> 
-                                    onchange="updateStatus(this, '<%= orders[i].orderId %>', '<%= orders[i].userId %>', '<%= orders[i].orderedItems[j]._id %>', '<%= orders[i].orderedItems[j].product ? orders[i].orderedItems[j].product._id : null %>', '<%= orders[i].orderedItems[j].quantity %>', this.value); this.disabled = true;">
-
-                                    <option value="<%= orders[i].orderedItems[j].status %>" selected="selected">
-                                        <%= orders[i].orderedItems[j].status.charAt(0).toUpperCase() + orders[i].orderedItems[j].status.slice(1) %>
-                                    </option>
-
-                                    <% if (orders[i].orderedItems[j].status !== "delivered") { %>
-                                        <option value="delivered">Delivered</option>
-                                    <% } %>
-                                    <% if (orders[i].orderedItems[j].status !== "canceled") { %>
-                                        <option value="canceled">Canceled</option>
-                                    <% } %>
-                                    <% if (orders[i].orderedItems[j].status !== "pending") { %>
-                                        <option value="pending">Pending</option>
-                                    <% } %>
-                                    
-
-                                </select>
-
-
-                            </td>
-                        </tr>
+                    <% const order = orders[i]; %>
+                    <% const orderedItem = order.orderedItems[0]; // Assuming you only want the first item in orderedItems %>
+                    <tr>
+                        <!-- Order ID -->
+                        <td><%= order.orderId %></td>
+                        <td>(<%= order.orderedItems.length %>)</td>
+        
+                        <!-- Order Date -->
+                        <td>
+                            <%= new Date(order.createdAT).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric'
+                            }) %>
+                        </td>
+        
+                        <!-- Final Price -->
+                        <td>₹<%= order.finalPrice %></td>
+        
+                        <!-- Status Dropdown -->
+                        <td>
+                        <select 
+                    name="status" 
+                    class="form-select" 
+                    <% if (['delivered', 'canceled', 'rejected', 'approved'].includes(order.status)) { %> 
+                        disabled 
                     <% } %>
+                    onchange="updateStatus('<%= order.orderId %>', this.value);">
+                    
+                    <!-- Default Selected Status -->
+                    <option value="<%= order.status %>" selected>
+                        <%= order.status.charAt(0).toUpperCase() + order.status.slice(1) %>
+                    </option>
+                    <!-- Options for Pending Status -->
+                    <% if (order.status === 'pending') { %>
+                        <option value="delivered">Delivered</option>
+                        <option value="canceled">Canceled</option>
+                    <% } %>
+                </select>
+                        </td>
+                    </tr>
                 <% } %>
-                
             <% } else { %>
                 <tr>
                     <td colspan="6" class="text-center">No orders found.</td>
                 </tr>
             <% } %>
         </tbody>
+        
     </table>
 
     <div class="pagination">
@@ -162,13 +158,14 @@
 
 <script>
 
-function updateStatus(select, orderId, userId, orderedItemsId , productId , productQty,status){
+function updateStatus(orderId,status){
+    console.log(orderId,status);
     fetch("/admin/edit-order-status",{
         method:"POST",
         headers:{
             'Content-Type':'application/json',
         },
-        body:JSON.stringify({orderId, userId, orderedItemsId , productId ,productQty, status})
+        body:JSON.stringify({orderId,status})
     })
     .then((response)=> response.json())
     .then((response)=>{
@@ -181,9 +178,7 @@ function updateStatus(select, orderId, userId, orderedItemsId , productId , prod
                 showCancelButton:false,
                 showConfirmButton:false
             }).then(()=>{
-                select.disabled =true;
-                // location.reload();
-                
+                select.disabled =true;                
             });
         }else{
             Swal.fire({

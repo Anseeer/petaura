@@ -303,18 +303,23 @@ a.active {
 </div>
 
 <script>
-let filterState = {
-  category: "<%= parent %>", 
+  let filterState = {
+  category: "<%= parent %>",
   sort: "",
   search: "",
 };
 
-// Load the filter state from localStorage when the page loads
+// Load the filter state from the URL when the page loads
 document.addEventListener("DOMContentLoaded", () => {
-  const savedState = localStorage.getItem("filterState");
-  if (savedState) {
-    filterState = JSON.parse(savedState); // Load saved filter state
-  }
+  const urlParams = new URLSearchParams(window.location.search);
+  const savedCategory = urlParams.get('category');
+  const savedSort = urlParams.get('sort');
+  const savedSearch = urlParams.get('search');
+
+  // Update the filterState from the URL
+  if (savedCategory) filterState.category = savedCategory;
+  if (savedSort) filterState.sort = savedSort;
+  if (savedSearch) filterState.search = savedSearch;
 
   // Apply the saved filter state to the UI
   if (filterState.search) {
@@ -338,7 +343,7 @@ function Search(event) {
   event.preventDefault();
   let searchValue = document.getElementById("search").value;
   filterState.search = searchValue;
-  localStorage.setItem("filterState", JSON.stringify(filterState)); // Save to localStorage
+  updateUrl();
   fetchProducts(1);
 }
 
@@ -349,7 +354,7 @@ function category(event, categoryValue) {
   links.forEach(link => link.classList.remove('active'));
   event.currentTarget.classList.add('active');
   filterState.category = categoryValue;
-  localStorage.setItem("filterState", JSON.stringify(filterState)); // Save to localStorage
+  updateUrl();
   fetchProducts(1);
 }
 
@@ -357,8 +362,17 @@ function category(event, categoryValue) {
 function Sort(event, sortValue) {
   event.preventDefault();
   filterState.sort = sortValue;
-  localStorage.setItem("filterState", JSON.stringify(filterState)); // Save to localStorage
+  updateUrl();
   fetchProducts(1);
+}
+
+// Update the URL with the current filter state using History API
+function updateUrl() {
+  const url = new URL(window.location);
+  url.searchParams.set('category', filterState.category);
+  url.searchParams.set('sort', filterState.sort);
+  url.searchParams.set('search', filterState.search);
+  history.replaceState(null, '', url); // Replace the current URL without reloading
 }
 
 function fetchProducts(page) {
@@ -443,6 +457,7 @@ function renderProducts(products, totalPage, currentPage) {
   }
 `;
 }
+
 
   function addToWishlist(e, id) {
   e.preventDefault();

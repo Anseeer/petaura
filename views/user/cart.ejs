@@ -301,8 +301,8 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 200px;
-        padding-left: 302px;
+        height: 220px;
+        padding-left: 90px;
         
     }
     </style>
@@ -313,76 +313,19 @@
         <div class="text-center cart-title">CART <i class="fas fa-shopping-cart"></i></div>
         
         <!-- Main Content -->
-        <div class="row">
+        <div id="cart-container" class="row">
             <!-- Product List -->
            <!-- Product List -->
 <div id="cart-products" class="col-md-8">
-    <%if(cart.items.length > 0 ){%>
-    <% for (let i = 0; i < cart.items.length; i++) { %>
-      <div class="cart-item">
-        <button class="remove-btn" onclick="return removeFromCart(event, '<%= cart.items[i].productId._id %>')">&times;</button>
-        <!-- Product Image -->
-        <img src="<%= cart.items[i].productId.Image[0] %>" alt="<%= cart.items[i].productId.name %>" class="product-img">
-        <!-- Product Name -->
-        <div>
-          <div class="fw-bold"><%= cart.items[i].productId.name %></div>
-          <a href="/user/viewMoreDetails?id=<%=cart.items[i].productId._id %>" class="text-primary text-decoration-none">VIEW MORE DETAILS</a>
-        </div>
-        <!-- Product Price -->
-        <div class="ms-auto text-warning fw-bold">₹<%= cart.items[i].productId.finalPrice %></div>
-        <!-- Quantity -->
-        <div class="quantity-control">
-            <button class="decrease" id="decrease" onclick="decreaseQty(event, '<%= cart.items[i]._id %>', '<%= cart.items[i].productId.quantity %>')">-</button>
-            <input type="number" id="quantity-<%= cart.items[i]._id %>" value="<%= cart.items[i].quantity %>" class="quantity-input" readonly>
-            <button class="increase" id="increase" onclick="increaseQty(event, '<%= cart.items[i]._id %>', '<%= cart.items[i].productId.quantity %>')">+</button>
-        </div>
-        
-        
-      </div>
-    <% } %>
-    <%}else{%>
-        <p class="empty">Your Cart is empty. <a href="/user/">Shop now</a> to add items.</p>
-        <%}%>
+   
   </div>
   
-        <% if(cart.items.length >0 ){%>
+       
             <!-- Order Summary -->
             <div id="cart-summury" class="col-md-4">
-                <div class="order-summary">
-                    <h5 class="fw-bold">Order Summary</h5>
-                    <div class="d-flex justify-content-between">
-                        <span>Subtotal</span>
-                        <span id="subTotal">₹<%= cart.totalPrice.toFixed(2) %></span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <% if (cart.totalPrice < 500) { %>
-                            <span>Delivery:</span>
-                            <span id="deliveryFee">₹ 40</span>
-                        <% } else { %>
-                            <span>Delivery:</span>
-                            <span id="deliveryFee">Free</span>
-                        <% } %>
-                    </div>
-                    
-                    
-                    <hr />
-                    <div class="d-flex justify-content-between fw-bold">
-                        <span>Total</span>
-                        <% if(cart.totalPrice < 500){ %>
-                            <span id="totalPrice">₹<%= (cart.totalPrice + 40).toFixed(2) %> </span>
-                            <%} else {%>
-                            <span id="totalPrice">₹<%= cart.totalPrice.toFixed(2)  %> </span>
-                            <% } %>
-                    </div>
-                    <a href="/user/checkout-page"><button class="btn checkout-btn mt-3">Checkout</button></a>
-                    <div class="text-center mt-2">
-                        <a href="/user/" class="text-dark text-decoration-none"><u>Continue Shopping</u></a>
-                    </div>
-                </div>
+                
             </div>
-            <%}else{%>
-
-                <%}%>
+            
         </div>
     </div>
 
@@ -391,6 +334,114 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 
     <script>
+        
+        document.addEventListener("DOMContentLoaded",()=>{
+           fetchCart();
+        })
+
+       function fetchCart(){
+            fetch("/user/fetchCart",{
+                method:"GET",
+                headers:{
+                    'Content-Type':'application',
+                }
+            })
+            .then((res)=> res.json())
+            .then((res)=>{
+                if(res.success){
+                    console.log("res:",res)
+                    renderCart(res.cart);
+                }else{
+                    Swal.fire({
+                        icon:"error",
+                        title:"Faild To Fetch  Cart Data`s ",
+                        showCancelButton:false,
+                        showConfirmButton:false,
+                        timer:1200,
+                    })
+                }
+            })
+            .catch(()=>{
+                Swal.fire({
+                        icon:"error",
+                        title:"Error In Fetch  Cart Data`s ",
+                        showCancelButton:false,
+                        showConfirmButton:false,
+                        timer:1200,
+                    })
+            })
+        }
+
+    function renderCart(cart) {
+    const product = document.getElementById("cart-products");
+    const summury = document.getElementById("cart-summury");
+    const cartContainer = document.getElementById("cart-container"); // Make sure cart-container is the parent container
+
+    product.innerHTML = "";
+    summury.innerHTML = "";
+
+    if (cart.items.length === 0) {
+        cartContainer.innerHTML = `
+            <div class="empty-cart ">
+                <p class="empty">Your cart is empty.<a href="/user/" class="btn shop-btn">Shop Now</a></p>
+                
+            </div>
+        `;
+        return; // Exit the function if cart is empty
+    }
+
+    cart.items.forEach((item) => {
+        let productData = ` 
+            <div class="cart-item">
+                <button class="remove-btn" onclick="return removeFromCart(event, '${item.productId._id}')">&times;</button>
+                <!-- Product Image -->
+                <img src="${item.productId.Image[0]}" alt="${item.productId.name}" class="product-img">
+                <!-- Product Name -->
+                <div>
+                    <div class="fw-bold">${item.productId.name}</div>
+                    <a href="/user/viewMoreDetails?id=${item.productId._id}" class="text-primary text-decoration-none">VIEW MORE DETAILS</a>
+                </div>
+                <!-- Product Price -->
+                <div class="ms-auto text-warning fw-bold">₹${item.productId.finalPrice}</div>
+                <!-- Quantity -->
+                <div class="quantity-control">
+                    <button class="decrease" id="decrease" onclick="decreaseQty(event, '${item._id}', '${item.productId.quantity}')">-</button>
+                    <input type="number" id="quantity-${item._id}" value="${item.quantity}" class="quantity-input" readonly>
+                    <button class="increase" id="increase" onclick="increaseQty(event, '${item._id}', '${item.productId.quantity}')">+</button>
+                </div>
+            </div>
+        `;
+        product.innerHTML += productData;
+    });
+
+    // Calculate delivery fee and total price dynamically
+    const deliveryFee = cart.totalPrice < 500 ? 40 : 0;
+    const totalPrice = cart.totalPrice + deliveryFee;
+
+    summury.innerHTML = `
+        <div class="order-summary">
+            <h5 class="fw-bold">Order Summary</h5>
+            <div class="d-flex justify-content-between">
+                <span>Subtotal</span>
+                <span id="subTotal">₹${cart.totalPrice.toFixed(2)}</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>Delivery:</span>
+                <span id="deliveryFee">₹${deliveryFee > 0 ? deliveryFee : 'Free'}</span>
+            </div>
+            <hr />
+            <div class="d-flex justify-content-between fw-bold">
+                <span>Total</span>
+                <span id="totalPrice">₹${totalPrice.toFixed(2)}</span>
+            </div>
+            <a href="/user/checkout-page"><button class="btn checkout-btn mt-3">Checkout</button></a>
+            <div class="text-center mt-2">
+                <a href="/user/" class="text-dark text-decoration-none"><u>Continue Shopping</u></a>
+            </div>
+        </div>
+    `;
+}
+
 
 function decreaseQty(event, productId, quantity) {
     const input = document.getElementById(`quantity-${productId}`);
@@ -449,6 +500,7 @@ function updateCart(productId,currentQty ,quantity) {
                 Subtotal.textContent = `₹${data.cart.totalPrice}`
                 totalPrice.textContent = data.cart.totalPrice > "500" ? `₹${data.cart.totalPrice}`:`₹${data.cart.totalPrice + 40}`;
                 deliveryFee.textContent = data.cart.totalPrice > "500" ? "Free" : "₹40";
+                fetchCart();
             } else {
                 Swal.fire({
                     icon:"error",
@@ -464,7 +516,6 @@ function updateCart(productId,currentQty ,quantity) {
         // .then(()=> window.location.reload())
         .catch((error) => console.error("Error updating cart:", error));
 }
-
 
     //  removeFromCart 
         function removeFromCart(event, productId) {
@@ -487,7 +538,7 @@ function updateCart(productId,currentQty ,quantity) {
                         showConfirmButton: false,
                         timer: 1500,
                     })
-                    location.reload();
+                    fetchCart();
 
                 } else {
                     Swal.fire({
@@ -511,96 +562,6 @@ function updateCart(productId,currentQty ,quantity) {
                 });
             });
         }
-
-//         document.addEventListener("DOMContentLoaded",()=>{
-//             fetch("/user/fetchCart",{
-//                 method:"GET",
-//                 headers:{
-//                     'Content-Type':'application',
-//                 }
-//             })
-//             .then((res)=> res.json())
-//             .then((res)=>{
-//                 if(res.success){
-//                     console.log("res:",res)
-//                     fetchCartData(res.cart);
-//                 }else{
-//                     Swal.fire({
-//                         icon:"error",
-//                         title:"Faild To Fetch  Cart Data`s ",
-//                         showCancelButton:false,
-//                         showConfirmButton:false,
-//                         timer:1200,
-//                     })
-//                 }
-//             })
-//             .catch(()=>{
-//                 Swal.fire({
-//                         icon:"error",
-//                         title:"Error In Fetch  Cart Data`s ",
-//                         showCancelButton:false,
-//                         showConfirmButton:false,
-//                         timer:1200,
-//                     })
-//             })
-//         })
-//         function fetchCartData(cart) {
-//     const product = document.getElementById("cart-products");
-//     const summury = document.getElementById("cart-summury");
-//     product.innerHTML = "";
-//     summury.innerHTML = "";
-
-//     cart.items.forEach((item) => {
-//         let productData = ` 
-//             <div class="cart-item">
-//                 <button class="remove-btn" onclick="return removeFromCart(event, '${item.productId._id}')">&times;</button>
-//                 <!-- Product Image -->
-//                 <img src="${item.productId.Image[0]}" alt="${item.productId.name}" class="product-img">
-//                 <!-- Product Name -->
-//                 <div>
-//                     <div class="fw-bold">${item.productId.name}</div>
-//                     <a href="/user/viewMoreDetails?id=${item.productId._id}" class="text-primary text-decoration-none">VIEW MORE DETAILS</a>
-//                 </div>
-//                 <!-- Product Price -->
-//                 <div class="ms-auto text-warning fw-bold">₹${item.productId.finalPrice}</div>
-//                 <!-- Quantity -->
-//                 <div class="quantity-control">
-//                     <button class="decrease" id="decrease" onclick="decreaseQty(event, '${item._id}', '${item.productId.quantity}')">-</button>
-//                     <input type="number" id="quantity-${item._id}" value="${item.quantity}" class="quantity-input" readonly>
-//                     <button class="increase" id="increase" onclick="increaseQty(event, '${item._id}', '${item.productId.quantity}')">+</button>
-//                 </div>
-//             </div>
-//         `;
-//         product.innerHTML += productData;
-//     });
-
-//     // Calculate delivery fee and total price dynamically
-//     const deliveryFee = cart.totalPrice < 500 ? 40 : 0;
-//     const totalPrice = cart.totalPrice + deliveryFee;
-
-//     summury.innerHTML = `
-//         <div class="order-summary">
-//             <h5 class="fw-bold">Order Summary</h5>
-//             <div class="d-flex justify-content-between">
-//                 <span>Subtotal</span>
-//                 <span id="subTotal">₹${cart.totalPrice.toFixed(2)}</span>
-//             </div>
-//             <div class="d-flex justify-content-between">
-//                 <span>Delivery:</span>
-//                 <span id="deliveryFee">₹${deliveryFee > 0 ? deliveryFee : 'Free'}</span>
-//             </div>
-//             <hr />
-//             <div class="d-flex justify-content-between fw-bold">
-//                 <span>Total</span>
-//                 <span id="totalPrice">₹${totalPrice.toFixed(2)}</span>
-//             </div>
-//             <a href="/user/checkout-page"><button class="btn checkout-btn mt-3">Checkout</button></a>
-//             <div class="text-center mt-2">
-//                 <a href="/user/" class="text-dark text-decoration-none"><u>Continue Shopping</u></a>
-//             </div>
-//         </div>
-//     `;
-// }
 
         
     </script>

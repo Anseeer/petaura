@@ -29,68 +29,64 @@ const  loadOrder = async(req,res)=>{
 
 const updateStatus = async (req, res) => {
     try {
-        const { orderId, userId, orderedItemsId , productId ,productQty, status} = req.body;
+        const { orderId,status} = req.body;
 
-        if (!orderId || !userId || !orderedItemsId || !productId || !status) {
-            return res.status(400).json({ success: false, message: "Invalid request parameters." });
-        }
-
-        // Log the request body only for valid requests
-        console.log("Request Body:", req.body);
-
-        // If the status is "canceled", revert the stock quantity of ordered items
-        if (status === "canceled" ) {
-           await Product.findOneAndUpdate(
-            {_id:productId},
-            {$inc:{quantity:productQty}},
-            {new:true}
-           );
-        }
-        const order = await Order.findOne({orderId});
-        if(status == "canceled"){
+        if (status === 'canceled') {
+            const order = await Order.findOne({ orderId });
+        
+            // Update order and items status to "canceled"
+            order.status = "canceled";
+            order.orderedItems.forEach((item) => {
+                item.status = "canceled";
+            });
+            await order.save();
+        
+            // Handle refund if payment was made
             if (order.paymentStatus === "PAID") {
-                const wallet = await Wallet.findOne({ userId: userId });
-    
+                const wallet = await Wallet.findOne({ userId: order.userId });
+        
                 if (!wallet) {
                     return res.status(400).json({
                         success: false,
                         message: "Wallet not found for the user",
                     });
                 }
-    
-                console.log("WALLET:", wallet);
-    
-                // Update balance and add transaction history
+        
+                const transactionId = generateTransactionId();
+        
+                // Update wallet balance and history
                 wallet.balance += order.finalPrice;
                 wallet.history.push({
+                    transactionId,
                     type: "CREDIT",
                     amount: order.finalPrice,
                     description: "Refund for order cancellation",
                     date: new Date(),
                 });
-    
+        
                 await wallet.save();
-            }    
+            }
+        
+            // Restock canceled products
+            for (const item of order.orderedItems) {
+                const product = await Product.findById(item.product);
+                if (product) {
+                    product.quantity += item.quantity;
+                    await product.save();
+                }
+            }
+        } else if (status === 'delivered') {
+            const order = await Order.findOne({ orderId });
+        
+            // Update order and items status to "delivered"
+            order.status = "delivered";
+            order.orderedItems.forEach((item) => {
+                item.status = "delivered";
+            });
+            await order.save();
+        
         }
-
-        
-        const deadline = new Date();
-        deadline.setDate(deadline.getDate() + 14);
-        
-        const updateResult = await Order.findOneAndUpdate(
-          { orderId, userId, "orderedItems._id": orderedItemsId },
-          { $set: { "orderedItems.$.status": status, "orderedItems.$.returnDeadline": deadline } },
-          { new: true }
-        );
-        
-        if (!updateResult) {
-            return res.status(404).json({ success: false, message: "Order not found." });
-        }
-
-        console.log("Order Updated:", updateResult);
-
-
-        return res.status(200).json({ success: true, message: "Order status updated successfully." });
+        res.status(200).json({success:true,mesage:"Updated !"});
     } catch (error) {
         console.error("Error in updateStatus:", error);
         return res.status(500).json({ success: false, message: "Internal server error." });
@@ -204,25 +200,24 @@ const updateRequestStatus = async(req,res)=>{
 
 const orderDetails = async(req,res)=>{
     try {
-        const {productId,orderId,orderedItemsId} = req.query;
-        console.log("orderedItemsId",orderedItemsId);
+        const {orderId} = req.query;
+        console.log("orderedItemsId",orderId);
         const userId = req.session.user;
         const user = await User.findById(userId);
         const order = await Order.findOne({orderId}); 
-        const product = await order.orderedItems.find((item)=>{
-          return   item.product.toString() == productId.toString()
-        })
-        const orderedItem = order.orderedItems.find((item) => {
-            return item._id.toString() === orderedItemsId.toString();
-        });
+        // const product = await order.orderedItems.find((item)=>{
+        //   return   item.product.toString() == productId.toString()
+        // })
+        // const orderedItem = order.orderedItems.find((item) => {
+        //     return item._id.toString() === orderedItemsId.toString();
+        // });
         
         const address = order.address;
         
         console.log("order:",order);
-        console.log("product:",product);
         console.log("address:",address);
         
-        res.render("orderDetails",{order,user,orderedItem,product,address});  
+        res.render("orderDetails",{order,user,address});  
 
     } catch (error) {
         res.status(400).json({success:false,message:"Error in the order detail loading"});
@@ -261,34 +256,33 @@ function generateTransactionId() {
     const timestamp = Date.now().toString();  // Current timestamp in milliseconds
     const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
     return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
-}
+};
+
 const orderCancel = async (req, res) => {
     try {
-        const {orderId, productQyt, orderedItemId ,productId} = req.body; 
+        const {orderId} = req.body; 
         const user = req.session.user; 
-        
-        console.log("Order ID , quantiyt , productId to cancel:", req.body);
 
+        console.log("Order ID :", req.body);
         // Set the order status to "canceled"
         const orderCancel = await Order.updateOne(
-            { orderId,"orderedItems._id": orderedItemId}, 
-            { $set: { "orderedItems.$.status": "canceled" } }
+            { userId:user,orderId}, 
+            { $set: { status: "canceled" } }
         );
-
-        console.log("Set orderedItems status Canceld",orderCancel);
-
-        // Find the specific order and its ordered items
-        const order = await Order.findOne({ userId: user, orderId });
+        console.log("set  status Canceld",orderCancel);
+        const order = await Order.findOne({ userId:user, orderId });
         if (!order) {
             return res.status(404).json({
                 success: false,
                 message: "Order not found for the given user and order ID",
             });
         }
-        
+        order.orderedItems.forEach((item)=>{
+            item.status = "canceled";
+        }) 
+        order.save();
+
         console.log("Order to cancel:", order);
-
-
         if (order.paymentStatus === "PAID") {
             const wallet = await Wallet.findOne({ userId: user });
 
@@ -300,8 +294,6 @@ const orderCancel = async (req, res) => {
             }
 
             console.log("WALLET:", wallet);
-           
-            
             // Example usage:
             const transactionId = generateTransactionId();
 
@@ -317,16 +309,15 @@ const orderCancel = async (req, res) => {
 
             await wallet.save();
         }
-
         // Iterate over each product in orderedItems
-       const productIncrement = await Product.updateOne(
-        {_id:productId},
-        {$inc:{quantity:productQyt}},
-        {new:true},
-       );
-
-       console.log("incremented ",productIncrement);
-
+        for (const item of order.orderedItems) {
+            const product = await Product.findById(item.product);
+            if (product) {
+              product.quantity += item.quantity;
+              await product.save();
+            }
+          }
+          
         // Respond to the client
         res.status(200).json({ 
             success: true, 
@@ -335,6 +326,76 @@ const orderCancel = async (req, res) => {
     } catch (error) {
         console.error("Error in OrderCancel:", error);
         res.status(400).json({ success: false, message: "Error in OrderCancel" });
+    }
+};
+
+const SingleorderCancel = async (req, res) => {
+    try {
+        const { itemId, orderId } = req.body;
+
+        // Find the order and the specific ordered item
+        const order = await Order.findOne({ orderId });
+        if (!order) {
+            return res.status(404).json({ success: false, message: "Order not found" });
+        }
+
+        const orderedItem = order.orderedItems.find((item) => item._id.toString() === itemId.toString());
+        if (!orderedItem) {
+            return res.status(404).json({ success: false, message: "Ordered item not found" });
+        }
+
+        // Update the item's status in the order
+        await Order.findOneAndUpdate(
+            { orderId, 'orderedItems._id': itemId },
+            { $set: { 'orderedItems.$.status': 'canceled' } }
+        );
+
+        // If the payment is completed, refund to wallet
+        if (order.paymentStatus === "PAID") {
+            const wallet = await Wallet.findOne({ userId: order.userId });
+            if (!wallet) {
+                return res.status(400).json({ success: false, message: "Wallet not found for the user" });
+            }
+
+            // Generate a transaction ID
+            const transactionId = generateTransactionId();
+
+            // Update the wallet balance and add to history
+            wallet.balance += orderedItem.totalPrice;
+            wallet.history.push({
+                transactionId,
+                type: "CREDIT",
+                amount: orderedItem.totalPrice,
+                description: "Refund for order cancellation",
+                date: new Date(),
+            });
+
+            await wallet.save();
+        }
+
+        // Update the product stock
+        const product = await Product.findById(orderedItem.product);
+        if (!product) {
+            return res.status(404).json({ success: false, message: "Product not found" });
+        }
+
+        product.quantity += orderedItem.quantity;
+        await product.save();
+
+        const updatedOrder = await Order.findOne({ orderId });
+        const allItemsCanceled = updatedOrder.orderedItems.every((item) => item.status === "canceled");
+
+        // If all items are canceled, update the order status
+        if (allItemsCanceled) {
+            await Order.findOneAndUpdate(
+                { orderId },
+                { $set: { status: "canceled" } }
+            );
+        }
+        return res.status(200).json({ success: true, message: "Order item canceled successfully" });
+    } catch (error) {
+        console.error("Error in SingleOrderCancel:", error);
+        res.status(500).json({ success: false, message: "Error in the SingleOrderCancel", error });
     }
 };
 
@@ -418,31 +479,22 @@ const returnRequest = async (req, res) => {
         const { orderId, userId, productId, orderedItemId,productQty , productPrice, reason } = req.body;
         console.log("body:", req.body);
 
-        const order = await Order.findOne({
-            orderId,
-            userId,
-            "orderedItems._id": orderedItemId,
-            "orderedItems.status": "delivered"
-        });
+        const order = await Order.findOne({orderId});
 
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found or already returned." });
         }
-
         // Get the return deadline
-        const orderedItem = order.orderedItems.find(item => item._id.toString() === orderedItemId);
+        // const currentDate = new Date();
+        // const returnDeadline = new Date(order.returnDeadline);
 
-        const currentDate = new Date();
-        const returnDeadline = new Date(orderedItem.returnDeadline);
-
-        // Check if the deadline has passed
-        if (currentDate > returnDeadline) {
-            return res.status(400).json({
-                success: false,
-                message: "Return request deadline has passed. You cannot request a return."
-            });
-        }
-
+        // // Check if the deadline has passed
+        // if (currentDate > returnDeadline) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "Return request deadline has passed. You cannot request a return."
+        //     });
+        // }
 
         const request = new ReturnRequest({
             productId,
@@ -653,5 +705,6 @@ module.exports = {
     orderDetailsPage,
     updatePendingOrder,
     pendingOrderDetails,
-    generateSalesInvoice
+    generateSalesInvoice,
+    SingleorderCancel
 }

@@ -120,6 +120,9 @@ const orderSchema = new Schema({
     coupenApplied:{
         type:Boolean,
         default:false
+    },
+    returnDeadline:{
+        type:Date,
     }
 });
 

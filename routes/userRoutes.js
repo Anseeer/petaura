@@ -85,7 +85,7 @@ userRoutes.post("/change-password",userauth,profileController.editPassword);
 
 // cart management 
 userRoutes.get("/cart",userauth,userController.loadCart)
-userRoutes.get("/fetchCart",userauth,userController.fetchCart)
+userRoutes.get("/fetchCart", userauth, userController.fetchCart);
 userRoutes.get("/add-to-cart",userauth,userController.addToCart);
 userRoutes.get("/remove-from-cart",userauth, userController.removeFromCart);
 userRoutes.get("/viewMoreDetails",userauth,userController.laodDetails);
@@ -96,6 +96,7 @@ userRoutes.post("/place-order",userauth,userController.placeOrder)
 userRoutes.get("/order-details",userauth,orderController.orderDetails);
 userRoutes.get("/pending-order-details",userauth,orderController.pendingOrderDetails);
 userRoutes.post("/order-cancel",userauth,orderController.orderCancel);       
+userRoutes.post("/single-order-cancel",userauth,orderController.SingleorderCancel);       
 userRoutes.post("/order-return",userauth,orderController.orderReturn);       
 userRoutes.post("/order-return-request",userauth,orderController.returnRequest);
 userRoutes.get("/orderHistory",userauth,profileController.loadOrderHistory);       
@@ -103,6 +104,7 @@ userRoutes.post("/updatePendingOrder",userauth,orderController.updatePendingOrde
 
 // WhishList
 userRoutes.get("/whishlist",userauth,userController.loadWhishlist);
+userRoutes.get("/fetchWhishlist",userauth,userController.fetchWhishlist);
 userRoutes.post("/add-to-whishlist",userauth,userController.addToWishlist);
 userRoutes.post("/delete-from-whishlist",userauth,userController.removeFromWishlist);
 

@@ -352,26 +352,27 @@ const loadCart = async(req,res)=>{
     if(!cart){
         res.render("cart",{user,cart:{items:[]}});
     }
-    res.render("cart",{user,cart});
+    res.render("cart",{user});
   } catch (error) {
     console.log("ERROE occures in loadCart ");
     res.status(400).send("ERROR occures in loadCart ");
   }
 }
 
-const fetchCart = async(req,res)=>{
-  try {
-    const user= await User.findById(req.session.user);
-    const cart = await Cart.findOne({userId:user._id}).populate('items.productId','name salePrice Status Image quantity _id finalPrice'); 
-    if(!cart){
-        res.status(200).json({user,cart:{items:[]}});
+const fetchCart = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.user);
+        const cart = await Cart.findOne({ userId: user._id }).populate('items.productId', 'name salePrice Image quantity finalPrice');
+        if (!cart) {
+            return res.status(200).json({ success: true, cart: { items: [], totalPrice: 0 } });
+        }
+        res.status(200).json({ success: true, cart });
+    } catch (error) {
+        console.error("Error in fetchCart:", error);
+        res.status(500).json({ success: false, message: "Failed to load cart." });
     }
-    res.status(200).json({success:true,cart});
-  } catch (error) {
-    console.log("ERROE occures in loadCart ");
-    res.status(400).send("ERROR occures in loadCart ");
-  }
-}
+};
+
 const addToCart = async (req, res) => {
     try {
         const { productId } = req.query; 
@@ -960,6 +961,7 @@ const verifyOnlinePayment = async (req, res) => {
         });
     }
 };
+
 const loadWhishlist = async (req, res) => {
     try {
         let page = parseInt(req.query.page) || 1;
@@ -989,7 +991,7 @@ const loadWhishlist = async (req, res) => {
 
         res.render("whishlist", {
             user,
-            whishlist: paginatedProducts,
+            // whishlist: paginatedProducts,
             currentPage: page,
             totalPage: Math.ceil(total / limit),
         });
@@ -999,6 +1001,49 @@ const loadWhishlist = async (req, res) => {
         res.status(400).json({ success: false, message: "ERROR in the loadWishlist" });
     }
 };
+const fetchWhishlist = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+        const userId = req.session.user;
+        const user = await User.findById(userId);
+
+        const wishlist = await Wishlist.findOne({ userId })
+            .populate({
+                path: "products.productId",
+                select: "name salePrice Image description regularPrice Status _id quantity",
+            });
+
+        if (!wishlist || !wishlist.products || wishlist.products.length === 0) {
+            return res.status(200).json({
+                success: true,
+                whishlist: [],
+                message: "Your wishlist is empty.",
+                currentPage: 0,
+                totalPage: 0,
+            });
+        }
+
+        const paginatedProducts = wishlist.products.slice(skip, skip + limit);
+        const total = wishlist.products.length;
+
+        res.status(200).json({
+            success: true,
+            whishlist: paginatedProducts,
+            currentPage: page,
+            totalPage: Math.ceil(total / limit),
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Error fetching wishlist. Please try again later.",
+        });
+    }
+};
+
 
 
 
@@ -1216,5 +1261,6 @@ module.exports = {
     loadWallet,
     addToWallet,
     WalletVerifyPayment,
-    fetchCart 
+    fetchCart ,
+    fetchWhishlist,
 }  
