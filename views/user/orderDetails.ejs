@@ -295,7 +295,7 @@ svg {
           <% if (item.status === "pending") { %>
             <button class="btn btn-danger" onclick="SingleorderCancel(event,'<%= item._id %>','<%= order.orderId %>')">Cancel</button>
           <% } else if (item.status === "delivered") { %>
-            <button class="btn btn-warning" onclick="returnOrder('<%= item._id %>')">Return</button>
+            <button class="btn btn-warning" onclick="returnOrderRequest(event,'<%= item._id %>','<%= order.orderId %>')">Return</button>
           <% } %>
         </div>
       </div>
@@ -435,7 +435,7 @@ function SingleorderCancel(event,itemId,orderId) {
 }
     
 
-function returnOrderRequest(event, orderId, userId, productId, orderedItemId ,productQty , productPrice) {
+function returnOrderRequest(event,itemId,orderId) {
     event.preventDefault(); // Prevent default form behavior
 
     Swal.fire({
@@ -459,7 +459,7 @@ function returnOrderRequest(event, orderId, userId, productId, orderedItemId ,pr
                     return fetch("/user/order-return-request", {
                         method: "POST",
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ orderId, userId, productId, orderedItemId,productQty , productPrice, reason })
+                        body: JSON.stringify({itemId, orderId,reason})
                     })
                     .then(response => response.json())
                     .then(data => {

@@ -29,13 +29,13 @@
                                 <%= requestedItem[i].productId.name %>
                             </td>
                             <td><%= new Date(requestedItem[i].createdAt).toLocaleDateString('en-GB') %></td>
-                            <td>Damaged Item</td>
+                            <td><%= requestedItem[i].reason %></td>
                             <td>
                             <select  
                             <% if (requestedItem[i].status === 'approved' ||requestedItem[i].status === 'rejected') { %>
                                 disabled
                             <% } %> 
-                                name="status" class="form-select" onchange="updateStatus('<%= requestedItem[i]._id %>', '<%= requestedItem[i].productId._id %>', '<%= requestedItem[i].orderId %>', '<%= requestedItem[i].quantity %>','<%= requestedItem[i].price %>' , this.value)">
+                                name="status" class="form-select" onchange="updateStatus('<%= requestedItem[i].productId._id %>', '<%= requestedItem[i].orderId %>',this.value)">
                                 <option value="requested" <%= requestedItem[i].status === "requested" ? "selected='selected'" : "" %>>Requested</option>
                                 <option value="approved" <%= requestedItem[i].status === "approved" ? "selected='selected'" : "" %>>Aproved</option>
                                 <option value="rejected"<%= requestedItem[i].status === "rejected" ? "selected='selected'" : "" %>>Rejected</option>
@@ -57,15 +57,14 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function updateStatus( requestedItemId, productId, orderId, productQty , productPrice, status){
-        console.log("requestedItem:",requestedItemId,"productId", productId,"orderID", orderId,"productQutyti", productQty , "productPrice",productPrice, status)
+    function updateStatus( productId,orderId,status){
         console.log("status:",status);
         fetch("/admin/update-returnRequest-status",{
             method:"POST",
             headers:{
                 'Content-Type':'application/json'
             },
-            body:JSON.stringify({requestedItemId, productId, orderId, productQty , productPrice, status})
+            body:JSON.stringify({productId,orderId,status})
         })
         .then((res)=> res.json())
         .then((res)=>{
@@ -80,8 +79,9 @@
             location.reload()
             }else{
                 Swal.fire({
-                icon:"Error",
-                title:`${status}`,
+                icon:"error",
+                title:` Error In ${status}`,
+                text:res.message,
                 showConfirmButton:false,
                 showCancelButton:false,
                 timer:1500

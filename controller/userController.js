@@ -71,6 +71,7 @@ async function sendVerificationEmail(email,otp){
         if (!email || email.length === 0) {
             throw new Error("Invalid email provided");
         }
+        console.log(process.env.NODEMAILER_EMAIL,process.env.NODEMAILER_PASSWORD)
 
         const transporter = nodemailer.createTransport({
             service:"gmail",
@@ -646,7 +647,7 @@ const placeOrder = async (req, res) => {
             try {
                
                 const razorPayOrder = await razorpayInstance.orders.create({
-                  amount: totalPrice * 100,
+                  amount: Math.round(totalPrice * 100),
                   currency: 'INR',
                   receipt: orderId,
                 });

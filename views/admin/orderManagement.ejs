@@ -179,6 +179,7 @@ function updateStatus(orderId,status){
                 showConfirmButton:false
             }).then(()=>{
                 select.disabled =true;                
+                location.reload();
             });
         }else{
             Swal.fire({

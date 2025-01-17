@@ -98,105 +98,127 @@ function generateTransactionId() {
     const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
     return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
 }
-
-const updateRequestStatus = async(req,res)=>{
+const updateRequestStatus = async (req, res) => {
     try {
+        const { productId, orderId, status } = req.body;
 
-
-    const {requestedItemId, productId, orderId, productQty , productPrice, status} = req.body;
-    console.log("Req.body",req.body);
-        if(status == "approved"){
-            const productIncrement = await Product.findOneAndUpdate(
-                {_id:productId},
-                {$inc:{quantity:productQty}},
-                {new:true},
-            );
-        
-            const requestStatus = await ReturnRequest.findOneAndUpdate(
-                {_id:requestedItemId,orderId},
-                {$set:{status}},
-                {new:true}
-            ); 
-        
-            const orderStatus = await Order.findOneAndUpdate(
-                {orderId,"orderedItems.product":productId},
-                {$set:{"orderedItems.$.status":"approved"}},
-                {new:true}
-            );
-        
-        
-            if(orderStatus){
-                console.log("update status of the orderedItem");
-            }
-            
-            if(requestStatus){
-                console.log("Update status of the requstedItem");
-            }
-        
-            if(productIncrement){
-                console.log("increment the ProductQty");
-            }
-        
-            const order = await Order.findOne({orderId});
-            const user = order.userId;
-             if (order.paymentStatus === "PAID") {
-                    const wallet = await Wallet.findOne({ userId: user });
-        
-                    if (!wallet) {
-                        return res.status(400).json({
-                            success: false,
-                            message: "Wallet not found for the user",
-                        });
-                    }
-                    
-                    
-                    // Example usage:
-                    const transactionId = generateTransactionId();
-                    console.log("WALLET:", wallet);
-        
-                    // Update balance and add transaction history
-                    wallet.balance += order.finalPrice;
-                    wallet.history.push({
-                        transactionId,
-                        type: "CREDIT",
-                        amount: order.finalPrice,
-                        description: "Refund for order returned",
-                        date: new Date(),
-                    });
-        
-                    await wallet.save();
-                } 
-        
-                res.status(200).json({success:true,message:"Approved"});
-        }else if( status == "rejected"){
-            const requestStatus = await ReturnRequest.findOneAndUpdate(
-                {_id:requestedItemId,orderId},
-                {$set:{status}},
-                {new:true}
-            ); 
-        
-            const orderStatus = await Order.findOneAndUpdate(
-                {orderId,"orderedItems.product":productId},
-                {$set:{"orderedItems.$.status":"rejected"}},
-                {new:true}
-            );
-            if(orderStatus){
-                console.log("update status of the orderedItem");
-            }
-            
-            if(requestStatus){
-                console.log("Update status of the requstedItem");
-            }
-
-    res.status(200).json({success:true,message:"Rejected"});
-
+        // Validate request data
+        if (!productId || !orderId || !status) {
+            return res.status(400).json({
+                success: false,
+                message: "Missing required fields: productId, orderId, or status.",
+            });
         }
-   
-        
+
+        console.log("Request Body:", req.body);
+
+        const requestedOrder = await ReturnRequest.findOne({ orderId ,productId});
+        if (!requestedOrder) {
+            return res.status(404).json({
+                success: false,
+                message: "Return request not found.",
+            });
+        }
+
+        // Handle approval logic
+        if (status === "approved") {
+            const productIncrement = await Product.findOneAndUpdate(
+                { _id: productId },
+                { $inc: { quantity: requestedOrder.quantity } },
+                { new: true }
+            );
+
+            const requestStatus = await ReturnRequest.findOneAndUpdate(
+                { orderId ,productId},
+                { $set: { status } },
+                { new: true }
+            );
+
+            const orderStatus = await Order.findOneAndUpdate(
+                { orderId, "orderedItems.product": productId },
+                { $set: { "orderedItems.$.status": "approved" } },
+                { new: true }
+            );
+
+            // Log updates
+            if (orderStatus) console.log("Order item status updated.");
+            if (requestStatus) console.log("Return request status updated.");
+            if (productIncrement) console.log("Product quantity incremented.");
+
+            // Handle wallet refund if payment status is PAID
+            const order = await Order.findOne({ orderId });
+            const user = order.userId;
+            if (order.paymentStatus === "PAID") {
+                const wallet = await Wallet.findOne({ userId: user });
+                if (!wallet) {
+                    return res.status(404).json({
+                        success: false,
+                        message: "Wallet not found for the user.",
+                    });
+                }
+
+                const transactionId = generateTransactionId();
+                wallet.balance += requestedOrder.price;
+                wallet.history.push({
+                    transactionId,
+                    type: "CREDIT",
+                    amount: requestedOrder.price,
+                    description: "Refund for order returned",
+                    date: new Date(),
+                });
+
+                await wallet.save();
+            }
+
+            // Check if all items in the order are approved
+            const updatedOrder = await Order.findOne({ orderId });
+            const allItemsApproved = updatedOrder.orderedItems.every(
+                (item) => item.status === "approved"
+            );
+
+            if (allItemsApproved) {
+                await Order.findOneAndUpdate(
+                    { orderId },
+                    { $set: { status: "approved" } },
+                    { new: true }
+                );
+                console.log("All items approved. Order status updated to 'approved'.");
+            }
+
+            return res.status(200).json({ success: true, message: "Request approved successfully." });
+        }
+
+        // Handle rejection logic
+        if (status === "rejected") {
+            const requestStatus = await ReturnRequest.findOneAndUpdate(
+                { orderId },
+                { $set: { status } },
+                { new: true }
+            );
+
+            const orderStatus = await Order.findOneAndUpdate(
+                { orderId, "orderedItems.product": productId },
+                { $set: { "orderedItems.$.status": "rejected" } },
+                { new: true }
+            );
+
+            if (orderStatus) console.log("Order item status updated.");
+            if (requestStatus) console.log("Return request status updated.");
+
+            return res.status(200).json({ success: true, message: "Request rejected successfully." });
+        }
+
+        // Invalid status
+        return res.status(400).json({ success: false, message: "Invalid status provided." });
     } catch (error) {
-        res.status(400).json({success:false,message:"Faild To Approve The Request !"})
+        console.error("Error updating request status:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update request status. Please try again.",
+        });
     }
-}
+};
+
 
 const orderDetails = async(req,res)=>{
     try {
@@ -476,38 +498,27 @@ const orderReturn = async(req,res)=>{
 
 const returnRequest = async (req, res) => {
     try {
-        const { orderId, userId, productId, orderedItemId,productQty , productPrice, reason } = req.body;
+        const {itemId,orderId,reason } = req.body;
         console.log("body:", req.body);
 
         const order = await Order.findOne({orderId});
-
+        const orderedItem = await order.orderedItems.find((item)=> item._id.toString() == itemId.toString() );
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found or already returned." });
         }
-        // Get the return deadline
-        // const currentDate = new Date();
-        // const returnDeadline = new Date(order.returnDeadline);
-
-        // // Check if the deadline has passed
-        // if (currentDate > returnDeadline) {
-        //     return res.status(400).json({
-        //         success: false,
-        //         message: "Return request deadline has passed. You cannot request a return."
-        //     });
-        // }
 
         const request = new ReturnRequest({
-            productId,
+            productId:orderedItem.product,
             orderId,
-            userId,
+            userId:order.userId,
             reason,
-            quantity:productQty,
-            price:productPrice,
+            quantity:orderedItem.quantity,
+            price:orderedItem.price,
         });
         await request.save();
 
         const productStatus = await Order.findOneAndUpdate(
-            { orderId, "orderedItems._id": orderedItemId },
+            { orderId, "orderedItems._id": itemId },
             { $set: { "orderedItems.$.status": "requested" } },
             { new: true }
         );
