@@ -251,13 +251,13 @@ svg {
         <a href="/user/orderHistory" class="active">
             <i class="fas fa-clock"></i> Order History
         </a>
-        <a href="#">
+        <a href="/user/wallet">
             <i class="fas fa-wallet"></i> Wallet
         </a>
         <a href="/user/cart">
             <i class="fas fa-shopping-cart"></i> Shopping Cart
         </a>
-        <a href="#">
+        <a href="/user/whishlist">
             <i class="fas fa-heart"></i> Wishlist
         </a>
         <a href="/user/address">
@@ -347,36 +347,6 @@ function getInvoice(e, orderId) {
     })
     .catch(err => console.error('Error fetching PDF:', err));
 
-    // .then((res) => res.json())
-    // .then((res) => {
-    //   if (res.success) {
-    //     Swal.fire({
-    //       icon: "success",
-    //       title: "Downloading",
-    //       timer: 1200,
-    //       showCancelButton: false,
-    //       showConfirmButton: false,
-    //     });
-    //   } else {
-    //     Swal.fire({
-    //       icon: "error",
-    //       title: "Failed to Download",
-    //       timer: 1200,
-    //       showCancelButton: false,
-    //       showConfirmButton: false,
-    //     });
-    //   }
-    // })
-    // .catch((err) => {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Error in getInvoice",
-    //     text:err.message,
-    //     timer:1500,
-    //     showCancelButton: false,
-    //     showConfirmButton: false,
-    //   });
-    // });
 }
 
   

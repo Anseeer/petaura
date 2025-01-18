@@ -209,7 +209,7 @@
                 </thead>
                 <tbody>
                     <% pending.forEach((pending)=>{ %>
-                        <tr onclick="location.href='/user/pending-order-details'">
+                        <tr onclick="location.href='/user/pending-order-details?orderId=<%= pending.orderId %>'">
                             <td><%= pending.orderId %></td>
                             <td>(<%= pending.orderedItems.length %>)</td>
                             <td><%= new Date(pending.createdAT).toLocaleDateString("en-GB") %></td>

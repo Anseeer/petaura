@@ -212,10 +212,9 @@ svg {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
                     <path d="M12 3l7 6v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9l7-6zm5 7.586V19h-3v-4H10v4H7v-8.414L12 5.414l5 5.172z" />
                 </svg>
-                
             </a>
         </div>
-            </div>
+        </div>
 
     <div class="sidebar d-flex flex-column col-md-3 gap-2">
         <a href="/user/profile" class="">
@@ -224,13 +223,13 @@ svg {
         <a href="/user/orderHistory" class="active">
             <i class="fas fa-clock"></i> Order History
         </a>
-        <a href="#">
+        <a href="/user/wallet">
             <i class="fas fa-wallet"></i> Wallet
         </a>
         <a href="/user/cart">
             <i class="fas fa-shopping-cart"></i> Shopping Cart
         </a>
-        <a href="#">
+        <a href="/user/wallet">
             <i class="fas fa-heart"></i> Wishlist
         </a>
         <a href="/user/address">
@@ -249,32 +248,34 @@ svg {
     <h2 class="text-center" style="color:red;">Payment Failed</h2>
     <p class="text-center text-red" style="color:red;">Unfortunately, your payment could not be processed. Please try again.</p>    <div class="receipt-details">
       <h3>Receipt</h3>
-      <p>Receipt Voucher: <span><%=order.orderId%></span></p>
+      <p>Receipt Voucher: <span><%=pendingOrder.orderId%></span></p>
     </div>
-    <div class="product-details">
-      <img src="<%= product.image %>" >
-      <div class="product-info">
-        <h2><%= product.name %></h2>
-        <p><span></span></p>
-        <p>Quantity: <span><%= product.quantity %></span></p>
-        <p>Price: ₹<%= product.price %>  </p>
-        <p>Status:<%= orderedItem.status %>  </p>
+    <% pendingOrder.orderedItems.forEach((item)=>{ %>
+      <div class="product-details">
+        <img src="<%= item.image %>" >
+        <div class="product-info">
+          <h2><%= item.name %></h2>
+          <p><span></span></p>
+          <p>Quantity: <span><%= item.quantity %></span></p>
+          <p>Price: ₹<%= item.price %>  </p>
+          <p>Status:<%= item.status %>  </p>
+        </div>
       </div>
-    </div>
+    <% }) %>
     <div class="actions">
-     <button class="btn btn-secondary" onclick="rePayment(event,'<%= order.razorPayOrderId %>')">Retry</button>
+     <button class="btn btn-secondary" onclick="rePayment(event,'<%= pendingOrder.razorPayOrderId %>')">Retry</button>
     </div>
     <div class="order-summary">
       <h3>Order Details</h3>
       <p>Payment Method: <span style="color:red;">Payemnt Faild</span> </p>
       <p>Address: <span>
-        <%= `${order.address[0].name}, ${order.address[0].state}, ${order.address[0].country}, ${order.address[0].pincode}, Phone: ${order.address[0].phone}` %>
+        <%= `${pendingOrder.address[0].name}, ${pendingOrder.address[0].state}, ${pendingOrder.address[0].country}, ${pendingOrder.address[0].pincode}, Phone: ${pendingOrder.address[0].phone}` %>
     </span></p>
     
           <div class="cost-details">
-        <p>Delivery Charges: ₹<%= order.deliveryFee %></p>
-        <p>Coupen Discount: ₹ <%= product.coupenDiscount %></p>
-        <p>Total: ₹<%= product.totalPrice %></p>
+        <p>Delivery Charges: ₹<%= pendingOrder.deliveryFee %></p>
+        <p>Coupen Discount: ₹ <%= pendingOrder.discount %></p>
+        <p>Total: ₹<%= pendingOrder.totalPrice %></p>
       </div>
     </div>
   </div>

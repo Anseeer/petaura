@@ -363,7 +363,7 @@ const loadCart = async(req,res)=>{
 const fetchCart = async (req, res) => {
     try {
         const user = await User.findById(req.session.user);
-        const cart = await Cart.findOne({ userId: user._id }).populate('items.productId', 'name salePrice Image quantity finalPrice');
+        const cart = await Cart.findOne({ userId: user._id }).populate('items.productId', 'name salePrice Image quantity finalPrice').sort({createdAt:-1});
         if (!cart) {
             return res.status(200).json({ success: true, cart: { items: [], totalPrice: 0 } });
         }
@@ -973,6 +973,7 @@ const loadWhishlist = async (req, res) => {
         const user = await User.findById(userId);
 
         const whishlist = await Wishlist.findOne({ userId })
+            .sort({createdAt:-1})
             .populate({
                 path: "products.productId",
                 select: "name salePrice Image description regularPrice Status _id quantity",
@@ -1015,7 +1016,8 @@ const fetchWhishlist = async (req, res) => {
             .populate({
                 path: "products.productId",
                 select: "name salePrice Image description regularPrice Status _id quantity",
-            });
+            })
+            .sort({createdAt:-1});
 
         if (!wishlist || !wishlist.products || wishlist.products.length === 0) {
             return res.status(200).json({

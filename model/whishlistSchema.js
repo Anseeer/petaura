@@ -17,7 +17,13 @@ const wishlistSchema = new Schema({
             type: Date,
             default: Date.now
         }
-    }]
+    }],
+    createdAt: {
+        type: Date,
+        default: () => new Date(), // Use a function to get the current date at the time of document creation
+        required: true,
+    }
+    
 });
 
 const Wishlist = mongoose.model("Wishlist", wishlistSchema);

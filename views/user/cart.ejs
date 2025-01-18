@@ -497,9 +497,21 @@ function updateCart(productId,currentQty ,quantity) {
                 const Subtotal = document.getElementById("subTotal");
                 const totalPrice = document.getElementById("totalPrice");
                 const deliveryFee = document.getElementById("deliveryFee");
-                Subtotal.textContent = `₹${data.cart.totalPrice}`
-                totalPrice.textContent = data.cart.totalPrice > "500" ? `₹${data.cart.totalPrice}`:`₹${data.cart.totalPrice + 40}`;
-                deliveryFee.textContent = data.cart.totalPrice > "500" ? "Free" : "₹40";
+                // Round total price to 2 decimal places
+                const roundedTotalPrice = Math.round(data.cart.totalPrice * 100) / 100;
+
+                // Update Subtotal
+                Subtotal.textContent = `₹${roundedTotalPrice.toFixed(2)}`;
+
+                // Calculate and Update Total Price
+                const finalTotalPrice = roundedTotalPrice > 500 
+                    ? roundedTotalPrice 
+                    : Math.round((roundedTotalPrice + 40) * 100) / 100;
+                totalPrice.textContent = `₹${finalTotalPrice.toFixed(2)}`;
+
+                // Update Delivery Fee
+                deliveryFee.textContent = roundedTotalPrice > 500 ? "Free" : "₹40";
+
                 fetchCart();
             } else {
                 Swal.fire({

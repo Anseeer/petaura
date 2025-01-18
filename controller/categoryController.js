@@ -666,10 +666,10 @@ const loadSmallPetsSupplies = async (req, res) => {
       
         const user = req.session.user;
         const userData = await User.findById(user); // Correcting the query to find user by ID
-        const ParentSmallPets = await ParentCategory.findOne({name:"SmallPets"});
+        const ParentSmallPets = await ParentCategory.findOne({name:"SmallPets "});
         
         if(!ParentSmallPets){
-            console.log("Cant ind the The ParentCategory");
+            console.log("Cant Find the The ParentCategory");
         }
        
 
@@ -1162,8 +1162,8 @@ const fillterCategoryOfFish = async (req, res) => {
         const accessoryCategories = [
             "CatAccessories",
             "DogAccessories",
-            "SmallPetAccessories ",
-            "PetBirdAccessories ",
+            "SmallPets Accessories",
+            "PetBirds Accessories",
             "FishAccessories "  
         ];
             
@@ -1275,9 +1275,9 @@ const fillterCategoryOfAccessories = async (req, res) => {
     const accessoryCategories = [
       "CatAccessories",
       "DogAccessories",
-      "SmallPetAccessories",
-      "PetBirdAccessories",
-      "FishAccessories",
+      "SmallPets Accessories",
+      "PetBirds Accessories",
+      "FishAccessories " 
     ];
 
     const categories = await Category.find({
@@ -1359,9 +1359,9 @@ const loadTreats = async (req, res) => {
      const treatCategories = [
          "CatTreat",
          "DogTreat",
-         "SmallPets Treat",
+         "SmallPets Treat ",
          "PetBirds Treat",
-         "Fish Treat"  
+         "FishTreat"  
      ];
          
      // Fetch categories matching the accessory names and ensure they are listed
@@ -1470,11 +1470,11 @@ const fillterCategoryOfTreats = async (req, res) => {
 
     // Fetch accessory categories
     const accessoryCategories = [     
-"CatTreat",
-"DogTreat",
-"SmallPets Treat",
-"PetBirds Treat",
-"Fish Treat"
+      "CatTreat",
+      "DogTreat",
+      "SmallPets Treat ",
+      "PetBirds Treat",
+      "FishTreat"  
 
     ];
 
@@ -1557,7 +1557,7 @@ const loadToys = async (req, res) => {
          "CatToys",
          "DogToys ",
          "SmallPets Toys",
-         "PetBird Toys"  
+         "PetBirds Toys"  
      ];
          
      // Fetch categories matching the accessory names and ensure they are listed
@@ -1667,9 +1667,9 @@ const fillterCategoryOfToys = async (req, res) => {
     // Fetch accessory categories
     const ToysCategories = [
       "CatToys",
-    "DogToys ",
-    "SmallPets Toys",
-    "PetBird Toys"
+      "DogToys ",
+      "SmallPets Toys",
+      "PetBirds Toys"  
 
     ];
 
@@ -1750,8 +1750,8 @@ const loadFood = async (req, res) => {
          "CatFood",
          "DogFood",
          "SmallPets Food ",
-         "PetBird Food ",
-         "Fish Food"  
+         "PetBirds Food",
+         "FishFood"  
      ];
          
      // Fetch categories matching the accessory names and ensure they are listed
@@ -1861,9 +1861,9 @@ const fillterCategoryOfFood = async (req, res) => {
     const FoodCategories = [
       "CatFood",
       "DogFood",
-      "SmallPets Food",
-      "PetBird Food",
-      "Fish Food",
+      "SmallPets Food ",
+      "PetBirds Food",
+      "FishFood"  
     ];
 
     const categories = await Category.find({

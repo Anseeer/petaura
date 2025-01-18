@@ -233,12 +233,7 @@ const orderDetails = async(req,res)=>{
         const userId = req.session.user;
         const user = await User.findById(userId);
         const order = await Order.findOne({orderId}); 
-        // const product = await order.orderedItems.find((item)=>{
-        //   return   item.product.toString() == productId.toString()
-        // })
-        // const orderedItem = order.orderedItems.find((item) => {
-        //     return item._id.toString() === orderedItemsId.toString();
-        // });
+        
         
         const address = order.address;
         
@@ -255,25 +250,19 @@ const orderDetails = async(req,res)=>{
 
 const pendingOrderDetails = async(req,res)=>{
     try {
-        const {productId,orderId,orderedItemsId} = req.query;
-        console.log("orderedItemsId",orderedItemsId);
+        const {orderId} = req.query;
+        console.log("orderedItemsId",orderId);
         const userId = req.session.user;
         const user = await User.findById(userId);
-        const order = await PendingOrder.findOne({orderId}); 
-        const product = await order.orderedItems.find((item)=>{
-          return   item.product.toString() == productId.toString()
-        })
-        const orderedItem = order.orderedItems.find((item) => {
-            return item._id.toString() === orderedItemsId.toString();
-        });
+        const pendingOrder = await PendingOrder.findOne({orderId}); 
         
-        const address = order.address;
         
-        console.log("order:",order);
-        console.log("product:",product);
+        const address = pendingOrder.address;
+        
+        console.log("order:",pendingOrder);
         console.log("address:",address);
         
-        res.render("pendingOrderDetails",{order,user,orderedItem,product,address});  
+        res.render("pendingOrderDetails",{pendingOrder,user,address});   
 
     } catch (error) {
         res.status(400).json({success:false,message:"Error in the order detail loading"});
@@ -586,6 +575,7 @@ const updatePendingOrder = async(req,res)=>{
         res.status(400).json({success:false,message:"Error in the updatePendingOrder Function"});
     }
 }
+
 const generateSalesInvoice = async (req, res) => {
     try {
         const orderId = req.params.orderId;
