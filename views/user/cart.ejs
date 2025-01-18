@@ -305,9 +305,37 @@
         padding-left: 90px;
         
     }
+    
+
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  body.loading #wishlist-container {
+    pointer-events: none;
+    opacity: 0.5;
+  }
     </style>
 </head>
 <body>
+
+    
+   <div id="loading-overlay" style="display: none;">
+              <div class="ring">
+                  Loading
+                  <span></span>
+              </div>
+              </div>
+  
     <div class="container cart-container">
         <!-- Cart Title -->
         <div class="text-center cart-title">CART <i class="fas fa-shopping-cart"></i></div>
@@ -335,11 +363,24 @@
 
     <script>
         
+  function toggleLoading(show) {
+      const overlay = document.getElementById('loading-overlay');
+      if (show) {
+          overlay.style.display = 'flex';
+      } else {
+          overlay.style.display = 'none';
+      }
+    }
+        
         document.addEventListener("DOMContentLoaded",()=>{
+            const footer = document.getElementById("footer");
+            footer.style.display="none";
            fetchCart();
         })
 
        function fetchCart(){
+        footer.style.display="none";
+        toggleLoading(true);
             fetch("/user/fetchCart",{
                 method:"GET",
                 headers:{
@@ -348,6 +389,8 @@
             })
             .then((res)=> res.json())
             .then((res)=>{
+                toggleLoading(false);
+                footer.style.display="block";
                 if(res.success){
                     console.log("res:",res)
                     renderCart(res.cart);
@@ -362,6 +405,8 @@
                 }
             })
             .catch(()=>{
+                toggleLoading(false);
+                footer.style.display="block";
                 Swal.fire({
                         icon:"error",
                         title:"Error In Fetch  Cart Data`s ",
@@ -579,5 +624,7 @@ function updateCart(productId,currentQty ,quantity) {
     </script>
 </body>
 </html>
+<footer id="footer">
+    <%- include("../partials/user/footer.ejs") %>  
 
-<%- include("../partials/user/footer.ejs") %>  
+</footer>
