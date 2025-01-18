@@ -77,8 +77,14 @@ const updateStatus = async (req, res) => {
             }
         } else if (status === 'delivered') {
             const order = await Order.findOne({ orderId });
+
+            const now = new Date();
+            const deadline = new Date(now); 
+             deadline.setDate(now.getDate() + 14); 
+
         
-            // Update order and items status to "delivered"
+            order.returnDeadline = deadline;
+            
             order.status = "delivered";
             order.orderedItems.forEach((item) => {
                 item.status = "delivered";

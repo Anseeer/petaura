@@ -157,50 +157,53 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-
-function updateStatus(orderId,status){
-    console.log(orderId,status);
-    fetch("/admin/edit-order-status",{
-        method:"POST",
-        headers:{
-            'Content-Type':'application/json',
+function updateStatus(orderId, status) {
+    console.log(orderId, status);
+    fetch("/admin/edit-order-status", {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
         },
-        body:JSON.stringify({orderId,status})
+        body: JSON.stringify({ orderId, status })
     })
-    .then((response)=> response.json())
-    .then((response)=>{
-        if(response.success){
+        .then((response) => response.json())
+        .then((response) => {
+            if (response.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Update Status Successfully",
+                    text: response.message,
+                    timer: 1500,
+                    showCancelButton: false,
+                    showConfirmButton: false
+                }).then(() => {
+                    // If `select` is required, ensure it's defined
+                    const select = document.querySelector(`[data-order-id="${orderId}"]`); // Example: Get select element dynamically
+                    if (select) {
+                        select.disabled = true; // Disable the dropdown
+                    }
+                    window.location.reload(); // Reload the page
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Update Status Failed",
+                    text: response.message,
+                    timer: 1500,
+                    showCancelButton: false,
+                    showConfirmButton: false
+                });
+            }
+        })
+        .catch(() => {
             Swal.fire({
-                icon:"success",
-                title:"UpdateStatus SuccessFully",
-                text:response.message,
-                timer:1500,
-                showCancelButton:false,
-                showConfirmButton:false
-            }).then(()=>{
-                select.disabled =true;                
-                location.reload();
+                icon: "error",
+                title: "Error In Update Status",
+                timer: 1500,
+                showCancelButton: false,
+                showConfirmButton: false
             });
-        }else{
-            Swal.fire({
-                icon:"error",
-                title:"UpdateStatus Faild",
-                text:response.message,
-                timer:1500,
-                showCancelButton:false,
-                showConfirmButton:false
-            });
-        }
-    })
-    .catch(()=>{
-        Swal.fire({
-                icon:"error",
-                title:"Error In UpdateStatus ",
-                timer:1500,
-                showCancelButton:false,
-                showConfirmButton:false
-            });
-    });
+        });
 }
 
 function orderCancel(ordersId,itemsId) {

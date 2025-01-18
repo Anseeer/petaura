@@ -294,7 +294,7 @@ svg {
         <div class="product-actions">
           <% if (item.status === "pending") { %>
             <button class="btn btn-danger" onclick="SingleorderCancel(event,'<%= item._id %>','<%= order.orderId %>')">Cancel</button>
-          <% } else if (item.status === "delivered") { %>
+          <% } else if (item.status === "delivered" && order.returnDeadline &&  new Date(order.returnDeadline) > new Date()) { %>
             <button class="btn btn-warning" onclick="returnOrderRequest(event,'<%= item._id %>','<%= order.orderId %>')">Return</button>
           <% } %>
         </div>

@@ -199,32 +199,28 @@
             <table class="table table-hover">
                 <thead class="thead-dark">
                     <tr>
-                        <th>Product</th>
-                        <th> Discount</th>
+                        <th>OrderId</th>
+                        <th>Items</th>
+                        <th>Date</th>
                         <th>Price</th>
-                        <th>Quantity</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <% pending.forEach((pending)=>{ %>
-                        <% pending.orderedItems.forEach(item => { %>
-
-                        <tr>
-                            <td  onclick="location.href='/user/pending-order-details?productId=<%= item.product._id %>&orderId=<%= pending.orderId %>&orderedItemsId=<%= item._id %>'">
-                                <img src="<%= item.product.Image[0] %>" alt="Product Image" class="product-image" style="width: 50px; height: auto; margin-right: 10px;">
-                                <%= item.name %>
-                            </td>
-                            <td><%= item.coupenDiscount || 0 %></td>
-                        <td>₹<%= item.totalPrice.toFixed(2) %></td>
-                        <td><%= item.quantity %></td>
-                        <td><%= item.status %></td>
+                        <tr onclick="location.href='/user/pending-order-details'">
+                            <td><%= pending.orderId %></td>
+                            <td>(<%= pending.orderedItems.length %>)</td>
+                            <td><%= new Date(pending.createdAT).toLocaleDateString("en-GB") %></td>
+                            <td>₹<%= Number(pending.finalPrice).toFixed(2) %></td>
+                            <td><%= pending.status %></td>
                             <td>
-                                <button class="btn btn-success btn-sm" onclick="rePayment(event,'<%= pending.razorPayOrderId %>')" >Retry</button>
+                                <button class="btn btn-success btn-sm" onclick=" event.stopPropagation(); rePayment(event,'<%= pending.razorPayOrderId %>')" >Retry</button>
+
                             </td>
                         </tr>
-                   <% }) %>
+                        
                    <% }) %>
                  
                 </tbody>
@@ -247,23 +243,26 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% orders.forEach(order => { %>
-                      <tr onclick="window.location.href='/user/order-details?orderId=<%= order.orderId %>'">
-                        <td><%= order.orderId %></td>
-                        <td>(<%= order.orderedItems.length %>)</td>
-                        <td><%= order.createdAT.toLocaleDateString("en-GB") %></td>
-                        <td>₹<%= order.finalPrice.toFixed(2) %></td>
-                        <td><%= order.status %></td>
-                        <td>
-                          <% if (order.status === "delivered") { %>
-                            <button class="btn btn-warning btn-sm btn-custom" >Return request in 14 days</button>
-                          <% } else if (order.status === "pending") { %>
-                            <button class="btn btn-danger btn-sm btn-custom" onclick="event.stopPropagation(); orderCancel(event,'<%= order.orderId %>')">Cancel Order</button>
-                          <% } %>
-                        </td>
-                      </tr>
+                    <% orders.forEach(order => { 
+                        const hasRejectedItems = order.orderedItems.some(item => item.status === 'rejected'); // Check if any item is rejected
+                    %>
+                        <tr onclick="window.location.href='/user/order-details?orderId=<%= order.orderId %>'">
+                            <td><%= order.orderId %></td>
+                            <td>(<%= order.orderedItems.length %>)</td>
+                            <td><%= new Date(order.createdAT).toLocaleDateString("en-GB") %></td>
+                            <td>₹<%= Number(order.finalPrice).toFixed(2) %></td>
+                            <td><%= order.status %></td>
+                            <td>
+                                <% if (order.status === "delivered" && !hasRejectedItems && new Date(order.returnDeadline) > new Date()) { %>
+                                    <span>Return request in 14 days</span>
+                                <% } else if (order.status === "pending") { %>
+                                    <button class="btn btn-danger btn-sm btn-custom" onclick="event.stopPropagation(); orderCancel(event, '<%= order.orderId %>')">Cancel Order</button>
+                                <% } %>
+                            </td>
+                        </tr>
                     <% }) %>
-                  </tbody>
+                </tbody>
+                
                   
             </table>
             <div class="pagination">
