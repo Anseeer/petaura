@@ -127,37 +127,41 @@ svg {
 
 </style>
 <div class="content">
-    <div class="order-container">
-      <div class="receipt-details">
-        <h3>Receipt</h3>
-        <p>Receipt Voucher: <span><%= order.orderId %></span></p>
-      </div>
+  <div class="order-container">
+    <div class="receipt-details">
+      <h3>Receipt</h3>
+      <p>Receipt Voucher: <span><%=order.orderId%></span> </p>
+    </div>
+    <% order.orderedItems.forEach((item) => { %>
       <div class="product-details">
-        <img src="<%= product.Image[0] %>" >
+        <img src="<%= item.image %>" alt="<%= item.name %>">
         <div class="product-info">
-          <h2><%= product.name %></h2>
-          <p><span></span></p>
-          <p>Quantity: <span><%= orderedItem.quantity %></span></p>
-          <p>Price: ₹<%= orderedItem.price %></p>
-          <p>Status:<%= orderedItem.status %> </p>
+          <h2><%= item.name %></h2>
+          <p>Quantity: <span><%= item.quantity %></span></p>
+          <p>Price: ₹<%= item.price %></p>
+          <p>Discount: ₹<%= item.discount %></p>
+          <p>Status: <%= item.status %></p>
         </div>
+        
       </div>
-      <div class="actions">
-      </div>
-      <div class="order-summary">
-        <h3>Order Details</h3>
-        <p>Payment Method: <span><%= order.paymentMethod %></span></p>
-        <p>Address: <span>
-            <%= `${order.address[0].name}, ${order.address[0].state}, ${order.address[0].country}, ${order.address[0].pincode}, Phone: ${order.address[0].phone}` %>
-        </span></p>
-      
-            <div class="cost-details">
-              <p>Delivery Charges: ₹<%= order.deliveryFee %></p>
-              <p>Coupen Discount: ₹ <%= orderedItem.coupenDiscount %></p>
-          <p>Total: ₹ <%= orderedItem.totalPrice %></p>
-        </div>
+    <% }) %>
+    
+    
+
+    <div class="order-summary">
+      <h3>Order Details</h3>
+      <p>Payment Method: <span><%= order.paymentMethod %></span></p>
+      <p>Address: <span>
+        <%= `${order.address[0].name}, ${order.address[0].state}, ${order.address[0].country}, ${order.address[0].pincode}, Phone: ${order.address[0].phone}` %>
+    </span></p>
+    
+          <div class="cost-details">
+        <p>Delivery Charges: ₹<%= order.deliveryFee %></p>
+        <p>Coupen Discount: ₹ <%= order.discount %></p>
+        <p>Total: ₹<%= order.finalPrice %></p>
       </div>
     </div>
+  </div>
   
   </div>
 

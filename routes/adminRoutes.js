@@ -16,6 +16,7 @@ const {adminauth} = require("../middlwares/auth");
 router.get("/login",adminController.loadLogin);
 router.post("/login",adminController.login);
 router.get("/dashboard",adminauth,adminController.loadDashboard);
+router.get("/fetchDashboard",adminauth,adminController.fetchDashboard);
 router.get("/logout",adminauth,adminController.logout);
 // Customer management 
 router.get("/list-customer",adminauth,customerController.loadCustomerList);

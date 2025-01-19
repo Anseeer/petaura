@@ -478,7 +478,7 @@ function renderProducts(products, totalPage, currentPage) {
             <div class="Ccard-body" style="text-align: left;">
               <h5 class="Ccard-title">Name: ${product.name}</h5>
               <p class="Ccard-text">Brand</p>
-              <p class="Ccard-text">Price: ₹${product.salePrice} <strike>₹${product.regularPrice}</strike></p>
+              <p class="Ccard-text">Price: ₹${product.finalPrice} <strike>₹${product.salePrice}</strike></p>
               ${product.Status === "Out of Stock" || product.quantity <= 0
                 ? `<p style="color: red;">Out of Stock</p>`
                 : `<span onclick="event.stopPropagation(); return addToCart(event, '${product._id}', '${index}')">

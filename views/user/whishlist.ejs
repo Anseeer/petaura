@@ -353,7 +353,6 @@ body.loading #wishlist-container {
             </div>
             </div>
             <div id="wishlist-container" class="container mt-4">
-                
             </div>
     
  <div id="pagination" class="pagination">
@@ -445,7 +444,7 @@ function toggleLoading(show) {
                         <strike>₹${product.regularPrice}</strike>
                     </p>
                     <p>Status: ${product.Status || "Available"}</p>
-                    <a href="/user/ProductDetails?product=${product._id}" class="text-primary text-decoration-none">View More Details</a>
+                    <a href="/user/ProuctDetails?product=${product._id}" class="text-primary text-decoration-none">View More Details</a>
                     ${product.Status !== "Out of Stock" && product.quantity > 0
                         ? `<a onclick="addToCart('${product._id}')" ><i class="fas fa-cart-plus cart-icon"></i></a>`
                         : ''}

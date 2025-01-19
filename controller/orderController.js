@@ -508,7 +508,7 @@ const returnRequest = async (req, res) => {
             userId:order.userId,
             reason,
             quantity:orderedItem.quantity,
-            price:orderedItem.price,
+            price:orderedItem.totalPrice,
         });
         await request.save();
 
@@ -542,20 +542,20 @@ const returnRequestPage = async(req,res)=>{
 
 const orderDetailsPage = async(req,res)=>{
     try {
-        const {productId,orderId,orderedItemId} = req.query;
-        console.log(req.query);
-
-        const product = await Product.findById(productId);
-        console.log("product",product);
-        const order = await Order.findOne({orderId});
-        const orderedItem = await order.orderedItems.find((item)=>{
-            return item._id.toString() === orderedItemId.toString()
-        });
+        const {orderId} = req.query;
+        console.log("orderedItemsId",orderId);
+        const userId = req.session.user;
+        const user = await User.findById(userId);
+        const order = await Order.findOne({orderId}); 
+        
+        
+        const address = order.address;
+        
         console.log("order:",order);
-        console.log("orderedItem:",orderedItem);
+        console.log("address:",address);
+        
+        res.render("orderDetailsPage",{order,user,address});  
 
-
-        res.render("orderDetailsPage",{product,order,orderedItem});
     } catch (error) {
         res.status(400).json({success:false,message:"ERROR in the orderDetailsPage"});
     }
@@ -630,7 +630,7 @@ function generateInvoice(order, res) {
         .moveDown(2)
         .fontSize(10)
         .text(`Invoice Number: ${order.orderId}`, 50, 200)
-        .text(`Order Date: ${new Date(order.createdAt).toLocaleDateString() || 'N/A'}`, 50, 215);
+        .text(`Order Date: ${new Date(order.createdAT).toLocaleDateString() || 'N/A'}`, 50, 215);
 
     // Product Table Header
     const tableTop = 270;
@@ -679,8 +679,8 @@ function generateInvoice(order, res) {
 
     doc
         .text('Final Price:', 300, position + 40)
-        .fontSize(16)
-        .text(finalPrice.toFixed(2), 450, position + 40, { width: 50, align: 'right' });
+        .fontSize(14)
+        .text(finalPrice.toFixed(2), 450, position + 40, { width: 55, align: 'right' });
 
     // Footer
     doc

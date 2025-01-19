@@ -10,6 +10,7 @@ const passport = require("passport");
 const {userauth} = require("../middlwares/auth");
 
 userRoutes.get("/",userController.loadHome);
+userRoutes.get("/latest-products",userController.getLatestProducts);
 userRoutes.get("/signup",userController.loadsignup);
 userRoutes.post("/signup",userController.signup);
 userRoutes.post("/verify-Otp",userController.verifyOtp);

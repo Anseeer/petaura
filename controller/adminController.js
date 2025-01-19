@@ -57,7 +57,7 @@ if (filterValue === "year") {
         const product = await Product.find({}).sort({saleCount:-1}).limit(5);
         const category = await Category.find({}).sort({saleCount:-1}).limit(5);
         const users = await User.countDocuments({});
-        
+        console.log("start:",startDate,"end:",endDate);
         const totalSales = await Order.aggregate([
             {
                 $match:{
@@ -113,6 +113,85 @@ if (filterValue === "year") {
         
 
         res.render("admin-dashboard",{product,category,users,totalSales:sales,revenue});
+    } catch (error) {
+        console.log(error,"Faild to load home");
+        res.render("admin-login",{message:"Please try again "});
+    }
+}
+
+const fetchDashboard = async(req,res)=>{
+    try {
+    let filterValue = req.query.filter || 'year';
+    console.log(filterValue);
+    let currentDate = new Date();
+    let startDate, endDate;
+
+if (filterValue === "year") {
+    startDate = new Date(currentDate.getFullYear(), 0, 1); // January 1st of current year
+    endDate = new Date(currentDate.getFullYear() + 1, 0, 1); // January 1st of next year
+} else if (filterValue === "month") {
+    startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // First day of current month
+    endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); // First day of next month
+}
+        const product = await Product.find({}).sort({saleCount:-1}).limit(5);
+        const category = await Category.find({}).sort({saleCount:-1}).limit(5);
+        const users = await User.countDocuments({});
+        console.log("start:",startDate,"end:",endDate);
+        const totalSales = await Order.aggregate([
+            {
+                $match:{
+                    "orderedItems.status":"delivered",
+                    "createdAT":{
+                        $gte:startDate,
+                        $lte:endDate,
+                    },
+                },
+            },
+            {
+                $group:{
+                    _id:null,
+                    total:{$sum:"$finalPrice"},
+                }
+            }
+        ]);
+
+        let sales = totalSales.length > 0 ? totalSales[0].total : 0;
+        console.log("totoalSales:",sales)
+
+        const totalRevenue = await Order.aggregate([
+            {
+                $unwind: "$orderedItems", // Unwind the orderedItems array
+            },
+            {
+                $match: {
+                    "orderedItems.status": "delivered", // Filter for delivered items
+                    "paymentStatus": "PAID",
+                    "createdAT":{
+                        $gte:startDate,
+                        $lte:endDate,
+                    },
+                },
+            },
+            {
+                $project: {
+                    revenuePerItem: { $round: [{ $multiply: ["$orderedItems.totalPrice", 0.05] }, 2] },
+                },
+            },
+            {
+                $group: {
+                    _id: null, // Aggregate into a single result
+                    revenue: { $sum: "$revenuePerItem" }, // Sum the revenue
+                },
+            },
+        ]);
+        
+        let revenue = totalRevenue.length > 0 ? totalRevenue[0].revenue : 0;
+        console.log("Total Revenue (5)% of totalPrice):", revenue);
+        
+        
+        console.log("Iam fetch ");
+
+        res.status(200).json({product,category,users,totalSales:sales,revenue});
     } catch (error) {
         console.log(error,"Faild to load home");
         res.render("admin-login",{message:"Please try again "});
@@ -210,6 +289,7 @@ module.exports = {
     loadLogin,
     login,
     loadDashboard,
+    fetchDashboard,
     logout,
     loadSalesReport,
     filterSalesReport

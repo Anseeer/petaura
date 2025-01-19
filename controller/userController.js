@@ -52,6 +52,21 @@ const loadHome = async (req,res)=>{
     }
 };
 
+// In your backend route (e.g., in a controller or route file)
+
+const getLatestProducts = async (req, res) => {
+    try {
+      // Fetch the latest 4 products, sorted by creation date (or any other criteria)
+      const latestProducts = await Product.find().sort({ createdAT: -1 }).limit(4); // Sort by latest (descending)
+      
+      res.status(200).json({ success: true, products: latestProducts });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ success: false, message: 'Failed to fetch latest products.' });
+    }
+  };
+  
+
 const loadsignup = async (req,res)=>{
     try {
         res.render("signup");
@@ -585,11 +600,17 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({ success: false, message: "All fields are required" });
         }
 
+        
+
         const parsedOrderItems = JSON.parse(orderItem);
         const order = await Order.findOne({ userId });
 
-
+        parsedOrderItems.forEach((item) => {
+            const itemTotal = item.price * item.quantity; 
+            const itemShare = (itemTotal / totalPrice) * discount; 
         
+            item.discount = itemShare.toFixed(2); 
+        });
         const product = await Product.findById(orderItem.productId);
         
         for (const item of parsedOrderItems) {
@@ -616,10 +637,12 @@ const placeOrder = async (req, res) => {
                     name: product.name, // Now this works because 'product' is properly fetched
                     quantity: item.quantity > 1 ? item.quantity : 1,
                     price: item.price,
-                    coupenDiscount: discount,
+                    discount:item.discount,
                     deliveryFee,
-                    totalPrice: deliveryFee ? (item.price + Number(deliveryFee) ) - discount: item.price - discount,
-                    image: product.Image[0],
+                    totalPrice: deliveryFee 
+                    ? Math.round((item.price + Number(deliveryFee)) - item.discount) 
+                    : Math.round(item.price - item.discount),
+                                    image: product.Image[0],
                     status: "pending",
                 };
             })
@@ -669,10 +692,12 @@ const placeOrder = async (req, res) => {
                       name: item.name,
                       quantity: item.quantity,
                       price: item.price,
-                      coupenDiscount: discount,
+                      discount: item.discount,
                       deliveryFee,
-                      totalPrice: deliveryFee ? (item.price + Number(deliveryFee) ) - discount: item.price - discount,
-                      image: item.image,
+                      totalPrice: deliveryFee 
+                      ? Math.round((item.price + Number(deliveryFee)) - item.discount) 
+                      : Math.round(item.price - item.discount),
+                        image: item.image,
                       status: item.status,
                     };
                   }),
@@ -746,9 +771,11 @@ const placeOrder = async (req, res) => {
                     name: item.name,
                     quantity: item.quantity,
                     price: item.price,
-                    coupenDiscount:discount,
-                    totalPrice: deliveryFee ? (item.price + Number(deliveryFee) ) - discount: item.price - discount,
-                    image: item.image,
+                    discount:item.discount,
+                    totalPrice: deliveryFee 
+                    ? Math.round((item.price + Number(deliveryFee)) - item.discount) 
+                    : Math.round(item.price - item.discount),
+                                    image: item.image,
                     status:item.status,
                 })),
                 totalPrice: subTotal,
@@ -784,10 +811,12 @@ const placeOrder = async (req, res) => {
                         name: item.name,
                         quantity: item.quantity,
                         price: item.price,
-                        coupenDiscount:discount,
+                        discount:item.discount,
                         deliveryFee,
-                        totalPrice: deliveryFee ? (item.price + Number(deliveryFee) ) - discount : item.price - discount,
-                        image: item.image,
+                        totalPrice: deliveryFee 
+                        ? Math.round((item.price + Number(deliveryFee)) - item.discount) 
+                        : Math.round(item.price - item.discount),
+                                            image: item.image,
                         status:item.status,
                     })),
                     totalPrice: subTotal,
@@ -1243,6 +1272,7 @@ const WalletVerifyPayment = async (req, res) => {
 module.exports = {
     loadHome,
     loadsignup,
+    getLatestProducts,
     signup,
     verifyOtp,
     resendOtp,

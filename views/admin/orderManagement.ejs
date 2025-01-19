@@ -81,7 +81,7 @@
                 <% for (let i = 0; i < orders.length; i++) { %>
                     <% const order = orders[i]; %>
                     <% const orderedItem = order.orderedItems[0]; // Assuming you only want the first item in orderedItems %>
-                    <tr>
+                    <tr onclick=" event.stopPropagation(); window.location.href='/admin/order-details?orderId=<%= order.orderId %>'; ">
                         <!-- Order ID -->
                         <td><%= order.orderId %></td>
                         <td>(<%= order.orderedItems.length %>)</td>
@@ -100,13 +100,15 @@
         
                         <!-- Status Dropdown -->
                         <td>
-                        <select 
+                        <select
                     name="status" 
                     class="form-select" 
                     <% if (['delivered', 'canceled', 'rejected', 'approved'].includes(order.status)) { %> 
                         disabled 
                     <% } %>
-                    onchange="updateStatus('<%= order.orderId %>', this.value);">
+                    onchange="updateStatus('<%= order.orderId %>', this.value);"
+                    onclick="event.stopPropagation();"
+                    >
                     
                     <!-- Default Selected Status -->
                     <option value="<%= order.status %>" selected>

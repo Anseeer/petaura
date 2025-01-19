@@ -33,7 +33,7 @@ const pendingOrderSchema = new Schema({
             type:Number,
             default:0
         },
-        coupenDiscount:{
+        discount:{
             type:Number,
             default:0
         },

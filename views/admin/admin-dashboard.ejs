@@ -99,7 +99,8 @@
     </style>
 </head>
 <body>
-<div class="summary-cards">
+
+<div id="summury-cards" class="summary-cards">
     <div class="summary-card">
         <div class="icon"><i class="fas fa-chart-line"></i></div>
         <h4>Total Sales</h4>
@@ -211,23 +212,69 @@ new Chart(ctx, {
         event.preventDefault();
         console.log(filter);
         filter = filter ? filter : "year";
-        fetch(`/admin/dashboard?filter=${filter}`,{
-            method:"GET",
-            headers:{
-                'Content-Type':'application/json',
-            }
-        })
-        .then((res)=>{
-            if(!res.ok){
-                throw new Error;
-            }else{
-                console.log(`filtered :${filter}`);
-            }
-        })
-        .catch((err)=>{
-            console.log(err)
-        })
+        fetch(`/admin/fetchDashboard?filter=${filter}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+    .then((res) => {
+        if (!res.ok) {
+            throw new Error("Failed to fetch data from the server");
+        }
+        return res.json(); // Parse the response as JSON
+    })
+    .then((data) => {
+        console.log("Filtered data:", data); // Correctly log the response data
+        updateDashboard(data); // Call your update function with the received data
+    })
+    .catch((err) => {
+        console.error("Error:", err);
+    });
+}
+
+    function updateDashboard(data) {
+    // Update Total Revenue
+    const revenueElement = document.querySelector('.summary-cards .summary-card:nth-child(2) p');
+    revenueElement.textContent = `₹${data.revenue.toFixed(2)}`;
+
+    // Update Total Sales
+    const totalSalesElement = document.querySelector('.summary-cards .summary-card:nth-child(1) p');
+    totalSalesElement.textContent = data.totalSales;
+
+    // // Update Top 5 Products
+    // const topProductsElement = document.querySelector('.card .list-group:nth-child(2)');
+    // topProductsElement.innerHTML = ''; // Clear existing content
+    // data.topProducts.forEach((product) => {
+    //     const li = document.createElement('li');
+    //     li.className = 'list-group-item';
+    //     li.textContent = product.name;
+    //     topProductsElement.appendChild(li);
+    // });
+
+    // // Update Top 5 Categories
+    // const topCategoriesElement = document.querySelector('.card .list-group:nth-child(4)');
+    // topCategoriesElement.innerHTML = ''; // Clear existing content
+    // data.topCategories.forEach((category) => {
+    //     const li = document.createElement('li');
+    //     li.className = 'list-group-item';
+    //     li.textContent = category.name;
+    //     topCategoriesElement.appendChild(li);
+    // });
+
+    // Update Revenue Chart
+    updateRevenueChart(data.revenue); // Call the function to update the chart
+}
+
+// Function to update the chart
+function updateRevenueChart(newRevenue) {
+    const chart = Chart.getChart("revenueBarChart"); // Get existing chart instance
+    if (chart) {
+        chart.data.datasets[0].data = [newRevenue]; // Update the data
+        chart.update(); // Re-render the chart
     }
+}
+
 </script>
 <%- include("../partials/admin/footer.ejs") %>
 </body>

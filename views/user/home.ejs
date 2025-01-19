@@ -179,12 +179,65 @@
 }
 
 .dropdown-menu a:hover {
-  background-color: #f0f0f0;
+  background-color: #d4d4d4;
 }
 
 .dropdown-container.active .dropdown-menu {
   display: block; /* Show dropdown */
 }
+#latest-products {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center; /* Center the items */
+  border: 2px solid rgb(131, 131, 131); /* Black border around the container */
+  padding: 20px; /* Padding inside the border */
+  border-radius: 8px; /* Optional: rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow around the container */
+  background-color: #fff; /* Background color for contrast */
+}
+
+
+.product-card {
+  width: 22%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: rgb(248, 221, 169);
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  transition: transform 0.3s ease; /* Smooth hover effect */
+}
+
+.product-card:hover {
+  transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+.product-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.product-name {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.product-price {
+  color: green;
+  font-size: 1.2em;
+}
+
+.view-more {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+  margin-top: 10px;
+  display: inline-block;
+}
+
 
             </style>
         </div>
@@ -291,6 +344,14 @@
             </div>
         </div>
       </div>
+      <div>
+        <h3 style="padding-left: 35px;margin-top: 50px;font-family: Arial, Helvetica, sans-serif;font-size: larger;font-weight: bold;">Latest Products</h3>
+        <div id="latest-products" class="mb-5 mx-3" >
+            <!-- Latest products will be inserted here dynamically -->
+        </div>
+      </div>
+      
+    
       <!-- buy_category end  -->
       <script>
         // Toggle Dropdown Functionality
@@ -310,6 +371,56 @@
        }
    });
    
+   document.addEventListener("DOMContentLoaded", () => {
+  // Fetch the latest products when the page loads
+  fetchLatestProducts();
+});
+
+function fetchLatestProducts() {
+  fetch("/user/latest-products")  // Ensure this URL matches your backend route
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        renderLatestProducts(data.products);
+      } else {
+        console.error("Failed to load latest products.");
+      }
+    })
+    .catch((err) => {
+      console.error("Error fetching products:", err);
+    });
+}
+
+function renderLatestProducts(products) {
+  const productContainer = document.getElementById("latest-products");
+  
+  // Clear the container before rendering
+  productContainer.innerHTML = "";
+
+  // Check if we have any products
+  if (products.length === 0) {
+    productContainer.innerHTML = "<p>No products available.</p>";
+    return;
+  }
+
+  // Loop through the products and create HTML content
+  products.forEach((product) => {
+    const productHTML = `
+
+      <div class="product-card">
+                
+        <img src="${product.Image[0]}" alt="${product.name}" class="product-image">
+        <h3 class="product-name">${product.name}</h3>
+        <p class="product-price">₹${product.finalPrice}</p>
+        <a href="/user/ProuctDetails?product=${product._id}" class="view-more">View Details</a>
+      </div>
+    `;
+
+    productContainer.innerHTML += productHTML;
+  });
+}
+
+
     </script>
                
                    <%- include("../partials/user/footer.ejs") %>
