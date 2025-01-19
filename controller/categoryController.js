@@ -19,10 +19,10 @@ const categoryInfo = async (req, res) => {
                     { description: { $regex: searchTerm, $options: "i" } },
                 ],
             };
-
+            const totalCount =  await Category.countDocuments({});
             const category = await Category.find(query).populate('parent', 'name'); // Only get the 'name' field
 
-            res.render("category", { category });
+            res.render("category", { category ,currentPage:page,totalPage:Math.ceil(totalCount/limit)});
         } else {
             const totalCount =  await Category.countDocuments({});
             const category = await Category.find({}).populate('parent', 'name').skip(skip).limit(limit).sort({createdAt:-1}); // Only get the 'name' field

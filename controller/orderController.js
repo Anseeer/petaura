@@ -11,7 +11,7 @@ const PDFDocument = require('pdfkit');
 const  loadOrder = async(req,res)=>{
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 5;
+        const limit = 10;
         const skip = (page - 1) * limit ;
         const total = await Order.countDocuments({});
         const orders = await Order.find()

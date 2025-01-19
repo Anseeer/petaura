@@ -375,18 +375,18 @@
         document.addEventListener("DOMContentLoaded",()=>{
             const footer = document.getElementById("footer");
             footer.style.display="none";
+            toggleLoading(true);
            fetchCart();
         })
 
        function fetchCart(){
-        footer.style.display="none";
-        toggleLoading(true);
             fetch("/user/fetchCart",{
                 method:"GET",
                 headers:{
                     'Content-Type':'application',
                 }
             })
+            
             .then((res)=> res.json())
             .then((res)=>{
                 toggleLoading(false);
@@ -395,6 +395,7 @@
                     console.log("res:",res)
                     renderCart(res.cart);
                 }else{
+                    toggleLoading(false);
                     Swal.fire({
                         icon:"error",
                         title:"Faild To Fetch  Cart Data`s ",
@@ -527,6 +528,7 @@ function increaseQty(event, productId, quantity) {
     }
 }
 
+
 function updateCart(productId, currentQty, quantity) {
     console.log("Update", "productId", productId, "currentQty:", currentQty, "quan:", quantity);
     fetch('/user/update-cart', {
@@ -584,8 +586,53 @@ function updateCart(productId, currentQty, quantity) {
         });
 }
 
+function updateCart(productId,currentQty ,quantity) {
+    console.log("Update","productId",productId,"currentQty:",currentQty,"quan:",quantity);
+    fetch('/user/update-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, currentQty }),
+    })
+        .then((response) => response.json()) 
+        .then((data) => {
 
-    //  removeFromCart 
+            if (data.success) {
+                console.log("Cart updated successfully.")
+                const Subtotal = document.getElementById("subTotal");
+                const totalPrice = document.getElementById("totalPrice");
+                const deliveryFee = document.getElementById("deliveryFee");
+                // Round total price to 2 decimal places
+                const roundedTotalPrice = Math.round(data.cart.totalPrice * 100) / 100;
+
+                // Update Subtotal
+                Subtotal.textContent =` ₹${roundedTotalPrice.toFixed(2)}`;
+
+                // Calculate and Update Total Price
+                const finalTotalPrice = roundedTotalPrice > 500 
+                    ? roundedTotalPrice 
+                    : Math.round((roundedTotalPrice + 40) * 100) / 100;
+                totalPrice.textContent =` ₹${finalTotalPrice.toFixed(2)}`;
+
+                // Update Delivery Fee
+                deliveryFee.textContent = roundedTotalPrice > 500 ? "Free" : "₹40";
+
+                fetchCart();
+            } else {
+                Swal.fire({
+                    icon:"error",
+                    title:data.message || "Failed to update cart",
+                    showCancelButton:false,
+                    showConfirmButton:false,
+                    timer:1500
+                })
+                const input = document.getElementById(`quantity-${productId}`);
+                input.value = quantity > quantity ? quantity : 1;
+            }
+        })
+        // .then(()=> window.location.reload())
+        .catch((error) => console.error("Error updating cart:", error));
+}
+
         function removeFromCart(event, productId) {
             event.preventDefault(); // Prevent default form submission
         

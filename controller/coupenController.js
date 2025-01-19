@@ -1,16 +1,23 @@
 const Coupen = require("../model/coupenSchema");
 
-
-const loadCoupen = async(req,res)=>{
+const loadCoupen = async (req, res) => {
     try {
-        const coupen = await Coupen.find().sort({createdAt:-1});
-
-        res.render("coupen",{coupen});
+      // Fetch search term from the query string
+      const search = req.query.searchTerm || '';
+      
+      // Use a case-insensitive regex to filter coupons by name or other fields
+      const coupen = await Coupen.find({
+        code: { $regex: search, $options: 'i' } // Filters coupons with names that match the search term
+      }).sort({ createdAt: -1 });
+  
+      // Render the page with the filtered coupons
+      res.render("coupen", { coupen });
     } catch (error) {
-        res.status(400).json({success:true , message:"error in the loadCoupen"});
-        console.log(error);
+      res.status(400).json({ success: false, message: "Error in loadCoupen" });
+      console.log(error);
     }
-}
+  };
+  
 
 const loadAddCoupen = async(req,res)=>{
     try {

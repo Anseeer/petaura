@@ -110,6 +110,7 @@ function downloadPDF() {
 
   // Table
   const tableYStart = 30;
+  let tableFinalY; // To store the Y position where the table ends
   doc.autoTable({
     html: "#salesReportTable",
     startY: tableYStart,
@@ -126,6 +127,9 @@ function downloadPDF() {
       5: { cellWidth: 40 }, // Total
     },
     margin: { right: 20 }, // Adding margin-right
+    didDrawPage: (data) => {
+      tableFinalY = data.cursor.y; // Get the position where the table ends
+    },
   });
 
   // Summary section
@@ -144,21 +148,31 @@ function downloadPDF() {
     totalSales += sales;
   });
 
+  const summaryHeight = 25; // Estimated height of the summary section
+  if (tableFinalY + summaryHeight > pageHeight - 20) {
+    // If the table ends too close to the bottom, add a new page
+    doc.addPage();
+    tableFinalY = 10; // Reset starting Y for the new page
+  }
+
   doc.setFontSize(10);
-  doc.text("Summary:", leftMargin, pageHeight - 40); // Above the footer
-  doc.text(`Total Quantity Sold: ${totalQuantity}`, leftMargin, pageHeight - 35);
-  doc.text(`Total Discount: ${totalDiscount}`, leftMargin, pageHeight - 30);
-  doc.text(`Total Sales: ${totalSales}`, leftMargin, pageHeight - 25);
+  doc.text("Summary:", leftMargin, tableFinalY + 10); // Start 10px below the table end
+  doc.text(`Total Quantity Sold: ${totalQuantity}`, leftMargin, tableFinalY + 15);
+  doc.text(`Total Discount: ${totalDiscount}`, leftMargin, tableFinalY + 20);
+  doc.text(`Total Sales: ${totalSales}`, leftMargin, tableFinalY + 25);
 
   // Footer
   const date = new Date();
   const dateString = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   const footerText = `Report Generated on: ${dateString}`;
-  doc.text(footerText, leftMargin, pageHeight - 10, null, null, "left");
+  const footerY = pageHeight - 10; // Fixed footer position
+
+  doc.text(footerText, leftMargin, footerY);
 
   // Save PDF
   doc.save("Sales_Report.pdf");
 }
+
 
 function downloadExcel() {
   const table = document.getElementById("salesReportTable");
@@ -294,7 +308,7 @@ function downloadExcel() {
               <td>${order.orderedItems.name}</td>
               <td>${order.orderId}</td>
               <td>${order.orderedItems.quantity}</td>
-              <td>${order.orderedItems.coupenDiscount}</td>
+              <td>${order.orderedItems.discount}</td>
               <td>${order.orderedItems.totalPrice}</td>
               <td>${new Date(order.createdAT).toLocaleString("en-GB")}</td>
             </tr>

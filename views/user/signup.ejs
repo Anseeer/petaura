@@ -216,7 +216,7 @@ function nameValidation() {
 
 function emailValidation() {
     const emailval = emailId.value.trim();
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    const emailPattern = /^[a-z0-9._%+-]+@gmail\.com$/;
 
     if (!emailval) {
         error2.style.display = "block";

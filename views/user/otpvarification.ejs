@@ -76,8 +76,9 @@
         // const otpInput = document.getElementById("otp");
 
         let countdown;
+        startTimer();
 
-(function startTimer() {
+function startTimer() {
     clearInterval(countdown); 
     countdown = setInterval(() => {
         if (timeLeft <= 0) {
@@ -90,8 +91,7 @@
             timeLeft--;
         }
     }, 1000);
-})
-();
+};
 
 
  // Validate OTP form logic

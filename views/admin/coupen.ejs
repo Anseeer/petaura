@@ -39,13 +39,23 @@
             <div class="row align-items-center">
               <!-- Search bar (category filter) on the left side -->
               <div class="col-md-4 col-12 me-auto mb-md-0 mb-3">
-                <input type="text" id="couponSearch" class="form-control" placeholder="Search Coupons..." aria-label="Search Coupons">
+                <form  action="/admin/coupen" id="couponSearchForm">
+                  <input
+                    type="text"
+                    id="couponSearch"
+                    class="form-control"
+                    placeholder="Search Coupons..."
+                    aria-label="Search Coupons"
+                    name="searchTerm"
+                  >
+                </form>
               </div>
               <!-- Add Coupon button on the right side -->
               <div class="col-md-4 col-12 text-end">
                 <a href="/admin/add-coupen" class="btn btn-secondary">Add Coupon</a>
               </div>
             </div>
+            
           </header>
       
           <div class="card-body">
@@ -102,6 +112,29 @@
 <!-- SweetAlert2 CSS and JS CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
+function search(e){
+  e.preventDefault();
+  const searchTerm = document.getElementById("couponSearch").value;
+  fetch(`/admin/coupen?searchTerm=${searchTerm}`,{
+    method:"GET",
+    headers:{
+      'Content-Type':'application/json'
+    },
+  })
+  .then((res)=>{
+    if(!res.ok){
+      throw new Error ;
+    }else{
+      res.json()
+    }
+  })
+  .then(()=> console.log("SEARCH ITEM"))
+  .catch((res)=>{
+    console.log("ERROR");
+  })
+}
+
   function deleteCoupen(id) {
   Swal.fire({
     icon: "warning",

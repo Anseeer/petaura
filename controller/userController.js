@@ -606,8 +606,7 @@ const placeOrder = async (req, res) => {
         const order = await Order.findOne({ userId });
 
         parsedOrderItems.forEach((item) => {
-            const itemTotal = item.price * item.quantity; 
-            const itemShare = (itemTotal / totalPrice) * discount; 
+            const itemShare = (item.price / totalPrice) * discount; 
         
             item.discount = itemShare.toFixed(2); 
         });
