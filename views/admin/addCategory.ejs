@@ -103,11 +103,9 @@
     
             // Check if any validation failed
             if (err1.innerHTML || err2.innerHTML || err3.innerHTML) {
-                console.log("Form validation failed.");
                 return; // Do not proceed further
             }
     
-            console.log("Form validation passed.");
             addCategory(); // Call the function to submit the form data
         });
     
@@ -117,7 +115,6 @@
             const offer = document.getElementById("offer").value;
             const description = document.getElementById("description").value;
     
-            console.log(name, parent, offer, description);
     
             fetch("/admin/addCategory", {
                 method: "POST",

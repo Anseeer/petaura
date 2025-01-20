@@ -34,19 +34,38 @@ async function sendVerificationEmail(email,otp){
                 pass:process.env.NODEMAILER_PASSWORD
             }
         });
-
-        const  info = await  transporter.sendMail({
-            from:process.env.NODEMAILER_EMAIL,
-            to:email,
-            subject:"verify your account!",
-            text:`your OTP is ${otp}`,
-            html:`<p>your OTP is :${otp} </p>`
+        const info = await transporter.sendMail({
+            from: `"PetAura Support" <${process.env.NODEMAILER_EMAIL}>`, // Friendly sender name
+            to: email,
+            subject: "Reset Your PetAura Password",
+            text: `Hello, 
+        
+        We received a request to reset your password for your PetAura account. Use the OTP below to reset your password:
+        
+        Your OTP: ${otp}
+        
+        If you didn’t request this, please ignore this email. Your account is safe.
+        
+        Best Regards, 
+        The PetAura Team`,
+            html: `
+            <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                <h2 style="color: #4CAF50;">Reset Your Password</h2>
+                <p>We received a request to reset your password for your PetAura account. Use the OTP below to reset your password:</p>
+                <div style="text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0;">
+                    Your OTP: <span style="color: #4CAF50;">${otp}</span>
+                </div>
+                <p>If you didn’t request this, please ignore this email. Your account is safe.</p>
+                <p>Best Regards,</p>
+                <p><strong>The PetAura Team</strong></p>
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                <p style="font-size: 12px; color: #999;">This is an automated message. Please do not reply to this email.</p>
+            </div>`
         });
-
+        
         return info.accepted.length > 0 ;
 
     } catch (error) {
-        console.log("ERROR SENDING EMAIL ",error);
         res.status(400).render("error",{message:"ERROR SENDING EMAIL "});
         return false;
     }
@@ -54,11 +73,9 @@ async function sendVerificationEmail(email,otp){
 
 const loadForgetEmail = async(req,res)=>{
     try {
-        console.log("load ForgetEmail Page ")
         res.render("forgetPass-email");
     } catch (error) {
         res.json({success:false,message:"ERROR in load forgetEMail"});
-        console.log("error occurece in the load fogetpasss-email ");
         
     }
 }
@@ -69,24 +86,29 @@ const verifyEmail= async(req,res)=>{
         
         const findUser = await User.findOne({email:email});
         if(findUser){
-            console.log("Find the user");
             const otp= await  generateOtp();
             const sentMail = await sendVerificationEmail(email,otp);
             if(sentMail){
                 req.session.userOtp = otp;
                 req.session.email=email;
-                console.log("The OTP for ResetPassword :",otp);
-
-                res.render("forgetPass-Otp");
+                res.status(200).json({success:true,message:"otp sent"});
             }
         }else{
             res.json({success:false,message:"User not Found "});
-            console.log("the invalid email no user found ");
         }
     } catch (error) {
-        
+        res.status(500).json({success:false,message:"Error in the verify email"})
     } 
 }
+
+const loadForgetPassOtp = async(req,res)=>{
+    try {
+        res.render("forgetPass-Otp");
+    } catch (error) {
+        res.json({success:false,message:"Error in load loadForgetPassOtp"});
+    }
+}
+
 const resendOtp = async (req, res) => {
     try {
         if (!req.session.email) {
@@ -105,7 +127,6 @@ const resendOtp = async (req, res) => {
 
         res.status(500).json({ success: false, message: "Failed to resend OTP" });
     } catch (error) {
-        console.error("Error in resendOtp:", error);
         res.status(500).json({ success: false, message: "An error occurred while resending OTP" });
     };
 };
@@ -124,7 +145,6 @@ const resetPass = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid OTP" });
         }
     } catch (error) {
-        console.error("Error in resetPass:", error);
         res.status(500).json({ success: false, message: "An error occurred while verifying OTP" });
     }
 };
@@ -147,7 +167,6 @@ const newPass = async (req, res) => {
         res.status(200).json({ success: true, message: "Password reset successfull"});
     } catch (error) {
         res.status(400).json({ success: false, message: "Error in setting new password." });
-        console.log(error);
     }
 };
 
@@ -175,7 +194,6 @@ const loadProfile = async(req,res)=>{
         });
     } catch (error) {
         res.status(400).send("Error in the loadProfile");
-        console.log(error)
     }
 }
 
@@ -192,7 +210,6 @@ const loadOrderHistory = async(req,res)=>{
         const pending = await PendingOrder.find({userId}).populate("orderedItems.product", ' _id name Image description ').sort({createdAT:-1});
         
         const pendingOrders = pending.orderedItems;
-        console.log("pendingOrders:",pending);
         const orders = await Order.find({userId})
         .skip(skip)
         .limit(limit)
@@ -201,23 +218,19 @@ const loadOrderHistory = async(req,res)=>{
 
         const orderedItems = orders.orderedItems;
 
-        console.log("orders:",orders,"orderedItems:",orderedItems);
 
         res.render("orderHistory",{orders,orderedItems,pendingOrders,pending,currentPage:page,totalPage:Math.ceil(totalOrders/limit)}); 
     } catch (error) {
         res.status(400).send("Error in the loadOrderHistory");
-        console.log(error)
     }
 }
 
 const loadAddress = async (req, res) => {
     try {
         const user = req.session.user;
-        console.log("userId:", user);
 
         // Find the user's address document
         const addressDoc = await Address.findOne({ userId: user });
-        console.log("addressDoc:", addressDoc);
 
         // Extract the address array
         const address = addressDoc?.addresses || []; 
@@ -226,7 +239,6 @@ const loadAddress = async (req, res) => {
         res.render("address", { user, address });
 
     } catch (error) {
-        console.error("Error loading address:", error);
         res.status(400).send("Error in the loadAddress");
     }
 };
@@ -234,7 +246,6 @@ const loadAddress = async (req, res) => {
 const addNewAddress = async (req, res) => {
     try {
         const { userId, typeOfAddress, name, country, state, pincode, phone } = req.body;
-        console.log("data:", userId, typeOfAddress, name, country, state, pincode, phone);
 
         // Check if all required fields are provided
         if (!userId || !typeOfAddress || !name || !country || !state || !pincode || !phone) {
@@ -287,7 +298,6 @@ const addNewAddress = async (req, res) => {
         }
     } catch (error) {
         res.status(400).send("Error in add new address.");
-        console.error("Error in addNewAddress:", error);
     }
 };
 
@@ -304,8 +314,7 @@ const editAddress = async(req,res)=>{
     try {
         const id = req.query.id;  
         const user = req.session.user;
-        console.log("userID:",user)
-        console.log("id:",id);
+       
 
         const findAddress = await Address.findOne({ userId: user });
         
@@ -314,19 +323,16 @@ const editAddress = async(req,res)=>{
         }
 
         const addressToEdit = await findAddress.addresses.find((add)=> add._id.toString() == id);
-        console.log("adddressTOEdit:",addressToEdit);
          return res.render("editAddress",{address:addressToEdit});
 
     } catch (error) {
         res.status(400).json({success:false,message:"ERROR in editAddress"});
-        console.log("ERROR in edit address ",error);
     }
 }
 
 const editedAddress=async(req,res)=>{
     try {
         const {addressId,typeOfAddress,name,country,state,pincode,phone,} = req.body;
-        console.log("EditedDetails:",req.body);
 
         if(!addressId || !typeOfAddress || !name || !country || !state || !pincode || !phone){
             return res.status(500).json({success:false,message:"Something missing in the editform "});
@@ -346,7 +352,6 @@ const editedAddress=async(req,res)=>{
             },
             {new:true},
         );
-        console.log("updateAddress:",updateAddress); 
         if(updateAddress){
             res.status(200).json({success:true,message:"EditAddress Successfull !"});
         }else{
@@ -382,7 +387,6 @@ const deleteAddress = async(req,res)=>{
 const editDetails = async(req,res)=>{
     try {
         const {id,name,phone} = req.body ; 
-        console.log("",id,name,phone);
         const findUser = await User.findByIdAndUpdate(
             id,
             {
@@ -443,8 +447,7 @@ const editAddressOfCheckout = async(req,res)=>{
     try {
         const id = req.query.id;  
         const user = req.session.user;
-        console.log("userID:",user)
-        console.log("id:",id);
+       
 
         const findAddress = await Address.findOne({ userId: user });
         
@@ -453,19 +456,16 @@ const editAddressOfCheckout = async(req,res)=>{
         }
 
         const addressToEdit = await findAddress.addresses.find((add)=> add._id.toString() == id);
-        console.log("adddressTOEdit:",addressToEdit);
          return res.render("editAddressInCheckout",{address:addressToEdit});
 
     } catch (error) {
         res.status(400).json({success:false,message:"ERROR in editAddress"});
-        console.log("ERROR in edit address ",error);
     }
 }
 
 const editedAddressInChekout = async(req,res)=>{
     try {
         const {id,addressType,name,country,state,pincode,phone,} = req.body;
-        console.log("EditedDetails:",req.body);
 
         if(!id || !addressType || !name || !country || !state || !pincode || !phone){
             return res.status(500).json({success:false,message:"Something missing in the editformOfCheckout "});
@@ -485,7 +485,6 @@ const editedAddressInChekout = async(req,res)=>{
             },
             {new:true},
         );
-        console.log("updateAddress:",updateAddress); 
         if(updateAddress){
             res.redirect("/user/checkout-page")
         }else{
@@ -505,12 +504,9 @@ const loadReferral = async(req,res)=>{
             'referredUsers.userId', // Path to populate
             'email name' // Fields to include from User model
         );
-        console.log("Referral:", referral);
         const referredUsers = referral.referredUsers;
-        console.log("reffered:",referredUsers);
         res.render("referral",{referral,referredUsers});
     } catch (error) {
-        console.log(error)
         res.status(400).json({success:false,message:"Error in the loadReferral"});
     }
 }
@@ -534,5 +530,6 @@ module.exports = {
     editAddressOfCheckout,
     editedAddressInChekout,
     loadReferral,
-    addAddress
+    addAddress,
+    loadForgetPassOtp
 } 

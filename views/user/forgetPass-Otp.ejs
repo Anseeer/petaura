@@ -105,8 +105,10 @@
 
         async function resendOtp(event) {
             event.preventDefault();
+            const timerElement = document.getElementById("timer");
             clearInterval(otpTimerInterval);
             timer = 60;
+            timerElement.style.color = "black";
             startOtpTimer();
 
             try {

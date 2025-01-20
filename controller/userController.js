@@ -47,7 +47,6 @@ const loadHome = async (req,res)=>{
             })
         }
     } catch (error) {
-        console.log("ERROR OCCURES IN LOADHOME");
         res.status(500).render("error",{message:"ERROR OCCURES IN LOADHOME"})
     }
 };
@@ -61,7 +60,6 @@ const getLatestProducts = async (req, res) => {
       
       res.status(200).json({ success: true, products: latestProducts });
     } catch (error) {
-      console.log(error);
       res.status(500).json({ success: false, message: 'Failed to fetch latest products.' });
     }
   };
@@ -71,7 +69,6 @@ const loadsignup = async (req,res)=>{
     try {
         res.render("signup");
     } catch (error) {
-        console.log("ERROR OCCURES IN LOADSIGNUP",error);
         res.status(500).render("ERROR OCCURES IN LOADSIGNUP")
     }
 };
@@ -86,7 +83,6 @@ async function sendVerificationEmail(email,otp){
         if (!email || email.length === 0) {
             throw new Error("Invalid email provided");
         }
-        console.log(process.env.NODEMAILER_EMAIL,process.env.NODEMAILER_PASSWORD)
 
         const transporter = nodemailer.createTransport({
             service:"gmail",
@@ -99,18 +95,38 @@ async function sendVerificationEmail(email,otp){
             }
         });
 
-        const  info = await  transporter.sendMail({
-            from:process.env.NODEMAILER_EMAIL,
-            to:email,
-            subject:"verify your account!",
-            text:`your OTP is ${otp}`,
-            html:`<p>your OTP is :${otp} </p>`
+        const info = await transporter.sendMail({
+            from: `"PetAura Support" <${process.env.NODEMAILER_EMAIL}>`, // Include a friendly sender name
+            to: email,
+            subject: "Verify Your PetAura Account",
+            text: `Welcome to PetAura! 
+        
+        Thank you for joining us. To complete your registration, please verify your account using the OTP below:
+        
+        Your OTP: ${otp}
+        
+        If you didn’t request this, please ignore this email.
+        
+        Best Regards, 
+        The PetAura Team`,
+            html: `
+            <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+                <h2 style="color: #4CAF50;">Welcome to PetAura!</h2>
+                <p>Thank you for joining us! To complete your registration, please verify your account using the OTP below:</p>
+                <div style="text-align: center; font-size: 20px; font-weight: bold; margin: 20px 0;">
+                    Your OTP: <span style="color: #4CAF50;">${otp}</span>
+                </div>
+                <p>If you didn’t request this, please ignore this email or contact our support team.</p>
+                <p>Best Regards,</p>
+                <p><strong>The PetAura Team</strong></p>
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                <p style="font-size: 12px; color: #999;">This is an automated message. Please do not reply to this email.</p>
+            </div>`
         });
-
+        
         return info.accepted.length > 0 ;
 
     } catch (error) {
-        console.log("ERROR SENDING EMAIL ",error);
         res.status(400).render("error",{message:"ERROR SENDING EMAIL "});
         return false;
     }
@@ -119,7 +135,6 @@ async function sendVerificationEmail(email,otp){
 const signup = async (req,res)=>{
     try {
         const {name,email,password,phone,refCode} = req.body;
-        // console.log(name,email,password,phone); 
         if (!email || email.trim() === "") {
             return res.render("signup", { message: "Email is required!" });
         }
@@ -127,14 +142,12 @@ const signup = async (req,res)=>{
         const findUser = await User.findOne({email});
 
         if(findUser){
-            console.log("Please check your email it already existing in another account");
             return res.render("signup",{message:"Please check your email !"});
         }
 
         const otp = await generateOtp();
         const emailSend = await sendVerificationEmail(email,otp);
         if(!emailSend){
-            console.log("fail to send email ")
             return res.json({ message: "Failed to send email" });
         }
 
@@ -145,7 +158,6 @@ const signup = async (req,res)=>{
         res.render("otpvarification",{message:"Check your mail,Email successfully send OTP !"});
 
     } catch (error) {
-        console.log("ERROR OCCURES IN SIGNUP",error);
        res.render("login",{message:"Error occures in login"});
     }
 }
@@ -154,7 +166,6 @@ function  securePassword(password){
     const hashed = bcrypt.hash(password,10);
     return hashed ;
    } catch (error) {
-    console.error("Error",error);
    }
 }
 
@@ -176,7 +187,6 @@ const verifyOtp = async (req, res) => {
         console.log("Received OTP:", otp);
 
         if (!req.session.userData) {
-            console.error("User data not found in session");
             return res.status(400).json({ success: false, message: "Session expired. Please try again." });
         }
 
@@ -225,36 +235,29 @@ const verifyOtp = async (req, res) => {
          res.status(400).json({ success: false, message: "Invalid OTP. Please try again!" });
         }
     } catch (error) {
-        console.error("Error verifying OTP:", error);
         return res.status(500).json({ success: false, message: "An error occurred. Please try again later." });
     }
 };
 
 const resendOtp = async (req, res) => {
     try {
-        console.log("start resend otp function");
         const { email } = req.session.userData;
 
         if (!email) {
-            console.log("Email not found in session");
             return res.status(400).json({ success: false, message: "Session expired. Please sign up again." });
         }
-        console.log("email ois correct ");
 
         const otp = generateOtp(); // Generate a new OTP
         req.session.userOtp = otp; // Update session with the new OTP
-        console.log("otp is generate and store in userotp in session");
         const sendMail = await sendVerificationEmail(email, otp);
 
         if (sendMail) {
             console.log("Resent OTP:", otp);
             return res.status(200).json({ success: true, message: "OTP resent successfully!" });
         } else {
-            console.error("Failed to resend email");
             return res.status(500).json({ success: false, message: "Failed to send OTP. Try again later." });
         }
     } catch (error) {
-        console.error("Error occurred in resend OTP:", error);
         return res.status(500).json({ success: false, message: "An unexpected error occurred. Please try again." });
     }
 
@@ -269,7 +272,6 @@ const loadlogin = async(req,res)=>{
             res.render("login");
         }
     } catch (error) {
-        console.log("ERROR OCCURES IN LOGIN",error);
         res.status(400).render("error",{message:"ERROR OCCURES IN LOGIN"})
     }
 }
@@ -299,8 +301,7 @@ const login = async (req, res) => {
         }
 
         // Log the password received from the form and the stored hashed password for debugging
-        console.log("Password received from form:", password);
-        console.log("Hashed password from DB:", findUser.password);
+     
 
         // Check if the hashed password exists
         if (!findUser.password) {
@@ -328,7 +329,6 @@ const login = async (req, res) => {
 
     } catch (error) {
         // Log any errors for debugging
-        console.log("Error occurred in login: ", error);
 
         // Send an error message back to the login page
         return res.render("login", { message: "Failed login, please try again" });
@@ -339,14 +339,12 @@ const logout = async(req,res)=>{
     try {
         req.session.destroy((err)=>{
             if(err){
-                console.log("Session destraction error",err.message);
                 res.send(error.message);
             }
             message = "Logout SuccessFull !";
              res.redirect("/user/login");
         })
     } catch (error) {
-        console.log("Logout Error",error);
         res.render("error",{message:"Logout Error"});
         
     }
@@ -370,7 +368,6 @@ const loadCart = async(req,res)=>{
     }
     res.render("cart",{user});
   } catch (error) {
-    console.log("ERROE occures in loadCart ");
     res.status(400).send("ERROR occures in loadCart ");
   }
 }
@@ -384,7 +381,6 @@ const fetchCart = async (req, res) => {
         }
         res.status(200).json({ success: true, cart });
     } catch (error) {
-        console.error("Error in fetchCart:", error);
         res.status(500).json({ success: false, message: "Failed to load cart." });
     }
 };
@@ -394,7 +390,6 @@ const addToCart = async (req, res) => {
         const { productId } = req.query; 
         const user = req.session.user;
 
-        console.log("user", user);
 
         const findProduct = await Product.findById(productId); 
         if (!findProduct) {
@@ -405,7 +400,6 @@ const addToCart = async (req, res) => {
         const quantity = 1;
         const status = findProduct.Status;
 
-        console.log("id", productId, "price", price, "status", status, "quantity", quantity);
 
         const cart = await Cart.findOne({ userId: user });
 
@@ -427,7 +421,6 @@ const addToCart = async (req, res) => {
             await cart.save();
 
             res.status(200).json({success:true,message:"Added"});
-            console.log("Cart updated:", cart);
         } else {
             // Create a new cart
             const newCart = new Cart({
@@ -441,10 +434,8 @@ const addToCart = async (req, res) => {
             newCart.totalPrice = newCart.items.reduce((total, items) => total + items.price, 0);
             await newCart.save();
 
-            console.log("Cart created:", newCart);
         }
     } catch (error) {
-        console.error("Error adding to cart:", error);
         res.status(400).json({ success: false, message: "Failed to add to cart" });
     }
 };
@@ -478,11 +469,9 @@ const removeFromCart = async (req, res) => {
             return res.status(400).json({ success: false, message: "Failed to remove from cart" });
         }
 
-        console.log("Cart items after removal:", updatedCart.items);
         const datas = await Cart.findOne({ userId:user });
         res.status(200).json({ success: true,datas});
     } catch (error) {
-        console.error("Error in removeFromCart:", error);
         res.status(400).json({ success: false, message: "Error in removeFromCart" });
     }
 };
@@ -518,21 +507,18 @@ const laodDetails = async(req,res)=>{
           ]
         });
     } catch (error) {
-        console.log(error);
         res.status(400).json({success:false,message:"Error in the loadDetails"});
     }
 }
 
 const updateCart = async (req, res) => {
     try {
-        console.log("User ID:", req.session.user);
-        console.log("Product ID:", req.body.productId);
+      
 
         const { productId, currentQty } = req.body;
         const userId = req.session.user;
 
-        console.log("current Destructure quantity:", currentQty);
-        // console.log("Product Destructure ID:", productId);
+      
 
         if (!userId) {
             return res.status(401).json({ success: false, message: "User session not found" });
@@ -565,7 +551,6 @@ const updateCart = async (req, res) => {
 
         return res.status(200).json({ success: true, message: "Successfully updated.",cart });
     } catch (error) {
-        console.error("Error in updateCart:", error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
@@ -577,10 +562,8 @@ const loadCheckoutPage = async (req, res) => {
         const cart = await Cart.findOne({userId:user});
         const coupons = await Coupen.find({ isActive: true, expiredAt: { $gte: new Date() } });
         const address = addressDoc ? addressDoc.addresses : []; // Fallback to empty array if no addresses
-        // console.log(address)
         res.render("checkout", { user, address ,cart:cart||{totalPrice:0},coupons}); // Pass addresses to the view
     } catch (error) {
-        console.error("Error loading checkout page:", error);
         res.status(500).send("Error loading checkout page.");
     } 
 };
@@ -594,7 +577,6 @@ function generateTransactionId() {
 const placeOrder = async (req, res) => {
     try {
         const { userId, addressId, paymentMethod, subTotal, totalPrice, orderItem, discount ,deliveryFee} = req.body;
-        console.log(req.body);
 
         if (!userId || !addressId || !paymentMethod || !subTotal || !totalPrice || !orderItem) {
             return res.status(400).json({ success: false, message: "All fields are required" });
@@ -656,18 +638,12 @@ const placeOrder = async (req, res) => {
         const add = await Address.findOne({ "addresses._id": addressId });
         const address = add.addresses.find((add) => add._id.toString() === addressId);
 
-        console.log("productDetails:", productDetails);
-        console.log("address:", address);
-
-
         const discountValue = discount || 0;
         const delivery = deliveryFee || 0;
         const orderId =  `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
-
         if(paymentMethod == "Razorpay"){
             try {
-               
                 const razorPayOrder = await razorpayInstance.orders.create({
                   amount: Math.round(totalPrice * 100),
                   currency: 'INR',
@@ -675,7 +651,6 @@ const placeOrder = async (req, res) => {
                 });
               
                 if (!razorPayOrder || !razorPayOrder.id) {
-                  console.error("Razorpay order creation failed");
                   return res.status(500).json({ message: 'Failed to create Razorpay order' });
                 }
               
@@ -723,7 +698,6 @@ const placeOrder = async (req, res) => {
                 }
               
                 await Cart.findOneAndDelete({ userId });
-                console.log("Order stored in the Pending Collection");
                  const razorpayKey = process.env.RAZORPAY_KEY;
                 res.status(200).json({
                   success: true,
@@ -734,7 +708,6 @@ const placeOrder = async (req, res) => {
                   finalPrice: pendingOrders.finalPrice,
                 });
               } catch (error) {
-                console.error("Error in saving pending order:", error);
                return  res.status(400).json({ success: false, message: "Error in saving to pending orders" });
               }
               
@@ -793,7 +766,6 @@ const placeOrder = async (req, res) => {
                 paymentStatus:"PAID",
             });
 
-            // console.log("ORDER:", newOrder);
             await newOrder.save();
             await Cart.findOneAndDelete({ userId });
               res.status(200).json({success:true,message:"Successfully place order"});
@@ -838,7 +810,6 @@ const placeOrder = async (req, res) => {
                     return res.status(500).json({success:false,message:"Can not purchase COD above the 1000"})
                 }
     
-                // console.log("ORDER:", newOrder);
                 await newOrder.save();
                 await Cart.findOneAndDelete({ userId });
     
@@ -854,7 +825,6 @@ const placeOrder = async (req, res) => {
                 const product = await Product.findById(productId).populate("category", "saleCount");
         
                 if (!product) {
-                    console.error(`Product not found for ID: ${productId}`);
                     return; // Skip this iteration
                 }
         
@@ -880,32 +850,21 @@ const placeOrder = async (req, res) => {
         
 
     } catch (error) {
-        console.error(error);
         return res.status(500).json({ success: false, message: "Order Failed" });
     }
 };
 
 const verifyOnlinePayment = async (req, res) => {
-    console.log("Starting payment verification...");
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
-    console.log("Body:",req.body)
     const  orderId = req.params.orderId;
-    console.log("orderId:", orderId);
-    console.log("1")
 
     try {
         // Step 1: Verify Signature
-        console.log("2")
-
-        console.log("Generating signature...");
+        
         const generatedSignature = crypto.createHmac('sha256', razorpayInstance.key_secret)
             .update(`${razorpay_order_id}|${razorpay_payment_id}`)
             .digest('hex');
-            console.log("3")
 
-        console.log("Generated Signature:", generatedSignature);
-        console.log("Received Signature:", razorpay_signature);
-        console.log("4")
 
         if (generatedSignature !== razorpay_signature) {
             return res.status(400).json({
@@ -913,23 +872,17 @@ const verifyOnlinePayment = async (req, res) => {
                 message: 'Invalid payment signature',
             });
         }
-        console.log("5")
-
-        console.log("Signature verified.");
-
+       
         // Step 2: Fetch Payment Details
         let paymentDetails;
         try {
             paymentDetails = await razorpayInstance.payments.fetch(razorpay_payment_id);
-            console.log("Payment Details:", paymentDetails);
         } catch (fetchError) {
-            console.error("Error fetching payment details:", fetchError);
             return res.status(500).json({
                 success: false,
                 message: 'Error fetching payment details.',
             });
         }
-        console.log("6")
 
         if (paymentDetails.status !== 'captured') {
             return res.status(400).json({
@@ -937,23 +890,18 @@ const verifyOnlinePayment = async (req, res) => {
                 message: 'Payment not captured. Please try again.',
             });
         }
-        console.log("7")
 
 
-        console.log("Payment captured successfully.");
 
         // Step 3: Retrieve Pending Order
         const pending = await pendingOrder.findOne({orderId});
         if (!pending) {
-            console.error("Order not found:", orderId);
             return res.status(404).json({
                 success: false,
                 message: 'Order not found in pending orders.',
             });
         }
-        console.log("8")
 
-        console.log("Pending order found:", pending);
 
         
         // Step 4: Move to Final Orders
@@ -964,17 +912,11 @@ const verifyOnlinePayment = async (req, res) => {
                 paymentId: razorpay_payment_id,
             });
             await finalOrder.save();
-            console.log("9")
 
-        console.log("Saving final order...");
         await finalOrder.save();
-        console.log("Final order saved.");
 
         // Step 5: Remove Pending Order
-        console.log("Deleting pending order...");
         await pendingOrder.findOneAndDelete({orderId});
-        console.log("Pending order deleted.");
-        console.log("10")
 
         // Step 6: Send Response
         res.status(200).json({
@@ -983,7 +925,6 @@ const verifyOnlinePayment = async (req, res) => {
             orderId: finalOrder._id,
         });
     } catch (error) {
-        console.error('Error during payment verification:', error);
         res.status(500).json({
             success: false,
             message: 'An error occurred during payment verification. Please try again.',
@@ -1027,7 +968,6 @@ const loadWhishlist = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
         res.status(400).json({ success: false, message: "ERROR in the loadWishlist" });
     }
 };
@@ -1067,7 +1007,6 @@ const fetchWhishlist = async (req, res) => {
             totalPage: Math.ceil(total / limit),
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({
             success: false,
             message: "Error fetching wishlist. Please try again later.",
@@ -1119,7 +1058,6 @@ const addToWishlist = async (req, res) => {
   
       res.status(200).json({ success: true, message: "Added to wishlist" });
     } catch (error) {
-      console.error("Error in addToWishlist:", error);
       res.status(500).json({ success: false, message: "Error adding to wishlist" });
     }
   };
@@ -1128,7 +1066,6 @@ const removeFromWishlist = async(req,res)=>{
     try {
         const {id} = req.body;
         const user = req.session.user;
-        console.log("id:",id);
         const removed = await Wishlist.findOneAndUpdate(
             {userId:user , "products.productId":id},
             { $pull: { products: { productId: id } } }, 
@@ -1151,15 +1088,12 @@ const loadWallet = async(req,res)=>{
     try {
         const userId = req.session.user;
         const wallet = await Wallet.findOne({userId});
-        console.log("wallet:",wallet);
         if (wallet && wallet.history) {
             wallet.history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
         const history = wallet.history;
-        console.log("history",history[0]);
         res.render("wallet",{wallet,history});
     } catch (error) {
-        console.log(error)
         res.status(400).json({success:false,message:"Error in load wallet"});
     }
 }
@@ -1176,7 +1110,6 @@ const addToWallet = async (req, res) => {
             return res.status(400).json({ success: false, message: "User not authenticated" });
         }
 
-        console.log("amount:", amount);
 
         // Shorten receipt string to avoid exceeding 40 characters
         const options = {
@@ -1188,7 +1121,6 @@ const addToWallet = async (req, res) => {
 
         // Create Razorpay order
         const order = await razorpayInstance.orders.create(options);
-        console.log(order);  // Log order response
 
         const razorPayOrderId = order.id;
 
@@ -1204,7 +1136,6 @@ const addToWallet = async (req, res) => {
         res.status(200).json({ success: true, razorPayOrderId, razorpayKey });
 
     } catch (error) {
-        console.error("Error adding to wallet:", error);  // Log the entire error
         res.status(500).json({ success: false, message: "Failed to add to wallet", error: error.message });
     }
 };
@@ -1262,7 +1193,6 @@ const WalletVerifyPayment = async (req, res) => {
         res.status(200).json({ success: true, message: 'Payment verified and wallet updated successfully' });
 
     } catch (error) {
-        console.error("Payment verification error:", error.message);
         res.status(500).json({ success: false, message: 'Payment verification failed' });
     }
 };

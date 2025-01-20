@@ -41,7 +41,6 @@
     event.preventDefault();
     const name = document.getElementById("parent_name").value;
     const description = document.getElementById("parent_description").value; 
-    console.log(name,description);
 
     fetch("/admin/addParentCategory",{
         method:"POST",
@@ -134,9 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Prevent form submission if any validation fails
         if (err_1.innerHTML || err_2.innerHTML ) {
             e.preventDefault(); // Prevent form submission
-            console.log("Form validation failed.");
         } else {
-            console.log("Form validation passed.");
         }
     });
 });

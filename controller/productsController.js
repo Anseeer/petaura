@@ -92,7 +92,6 @@ const loadproducts = async (req, res) => {
         // Render the page and pass both products and category details
         res.render("product", { product: products, categories: products.map(p => p.categoryDetails) , totalPage, currentPage:page});
     } catch (error) {
-        console.error("Error in loadProducts:", error.message);
         res.render("error-page", { message: "An error occurred while loading products." });
     }
 };
@@ -105,7 +104,6 @@ const getaddProducts = async(req, res) => {
         return res.render("addProducts", { category });
     } catch (error) {
         // Handle the error and send only one response
-        console.error(error);  // You might want to log the error for debugging purposes
         return res.render("error-page", { message: "Error occurred in loading addProducts" });
     }
 };
@@ -118,7 +116,6 @@ const addProduct = async (req, res) => {
         // Check if the product already exists
         const existingProduct = await Product.findOne({ name: product.name });
         if (existingProduct) {
-            console.log("The product already exists, please try another one");
             return res.status(500).send("ERROR, This Product Is Already Exist Please Try Other!");
         }
 
@@ -137,7 +134,6 @@ const addProduct = async (req, res) => {
             for (let i = 0; i < req.files.length; i++) {
                 try {
                     if (!supportedFormats.includes(req.files[i].mimetype)) {
-                        console.error(`Unsupported file format: ${req.files[i].mimetype}`);
                         res.status(500).send("Unsupported file foemat ");
                     }
                     // Define paths for the original and resized images
@@ -151,7 +147,6 @@ const addProduct = async (req, res) => {
 
 
                 } catch (err) {
-                    console.error("Error processing image:", err.message);
                 }
             }
         
@@ -176,7 +171,6 @@ const addProduct = async (req, res) => {
                 // Redirect to the desired page after saving the product
                 res.redirect("/admin/loadproducts");
             } catch (err) {
-                console.error("Error saving product:", err.message);
                 res.status(500).send("Error saving product.");
             }
         } else {
@@ -184,7 +178,6 @@ const addProduct = async (req, res) => {
         }
         
     } catch (error) {
-        console.error("Error in adding product:", error);
         res.status(500).send("An error occurred while adding the product.");
     }
     };
@@ -203,8 +196,7 @@ const addProduct = async (req, res) => {
             }
             
         } catch (error) {
-            console.log("ERROR occures in load edit");
-            console.log(error);
+         
             res.send(error);
         }
     }  
@@ -258,7 +250,6 @@ const addProduct = async (req, res) => {
     
             res.redirect("/admin/loadproducts");
         } catch (error) {
-            console.log("ERROR in product edit: ", error);
             res.status(500).send(`ERROR: ${error.message}`);
         }
     };
@@ -270,7 +261,6 @@ const addProduct = async (req, res) => {
             await Product.deleteOne({_id:id});
             res.redirect("/admin/loadproducts");
         } catch (error) {
-            console.log("ERROR in product deletion ",error);
             res.status(400).send("ERROR in deleteProduct");
         }
     }
@@ -285,10 +275,8 @@ const addProduct = async (req, res) => {
             // Update the `isBlocked` field to `true` for the specified product
             await Product.findByIdAndUpdate(id, { $set: { isBlocked: true } });
     
-            console.log(`Product with ID ${id} has been blocked.`);
             res.redirect("/admin/loadproducts"); // Redirect to the product page after blocking
         } catch (error) {
-            console.error("ERROR occurs in blockProduct:", error.message);
             res.render("error-page", { message: "An error occurred while blocking the product." });
         }
     };
@@ -303,10 +291,8 @@ const addProduct = async (req, res) => {
             // Update the `isBlocked` field to `true` for the specified product
             await Product.findByIdAndUpdate(id, { $set: { isBlocked: false } });
     
-            console.log(`Product with ID ${id} has been unblocked.`);
             res.redirect("/admin/loadproducts"); // Redirect to the product page after blocking
         } catch (error) {
-            console.error("ERROR occurs in unblockProduct:", error.message);
             res.render("error-page", { message: "An error occurred while unblocking the product." });
         }
     };

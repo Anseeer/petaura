@@ -77,9 +77,9 @@
     <div class="reset-container">
         <h1>Reset Password</h1>
         <p>Enter your email address, and we'll send you an OTP to reset your password.</p>
-        <form id="resetForm" action="/user/forget-pass" method="post">
+        <form id="resetForm" onsubmit="forgetPass(event)" >
             <div class="input-group mb-4">
-                <input type="email" class="form-control" name="email" id="email" required placeholder="Enter your Email">
+                <input type="email" class="form-control" name="email" id="email" placeholder="Enter your Email">
             </div>
             <div class="error" id="emailError">Please enter a valid email address.</div>
             <button class="btn btn-continue" type="submit">Continue</button>
@@ -87,7 +87,49 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
+
+        function forgetPass(e){
+            e.preventDefault();
+            const email = document.getElementById("email").value;
+            console.log("Email:",email);
+            fetch("/user/forget-pass",{
+                method:"POST",
+                headers:{
+                    'Content-Type':'application/json',
+                },
+                body:JSON.stringify({email})
+            })
+            .then((res)=>{
+                if(!res.ok){
+                    throw new Error 
+                }else{
+                    res.json();
+                }
+            })
+            .then((res)=>{
+                Swal.fire({
+                    icon:"success",
+                    title:"OTP SENT",
+                    showCancelButton:false,
+                    showConfirmButton:false,
+                    timer:1200,
+                })
+                window.location.href="/user/loadForgetPassOtp";
+            })
+            .catch(()=>{
+                Swal.fire({
+                    icon:"error",
+                    title:"Error In OTP SENT",
+                    showCancelButton:false,
+                    showConfirmButton:false,
+                    timer:1200,
+                })
+            })
+        }
+
         // Email Validation
         const form = document.getElementById('resetForm');
         const emailInput = document.getElementById('email');
@@ -95,7 +137,7 @@
 
         form.addEventListener('submit', (event) => {
             const email = emailInput.value.trim();
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const emailPattern =  /^[a-z0-9._%+-]+@gmail\.com$/;
 
             if (!emailPattern.test(email)) {
                 event.preventDefault(); // Prevent form submission

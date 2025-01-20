@@ -12,7 +12,6 @@ const categoryInfo = async (req, res) => {
     try {
         if (req.query.search) {
             const searchTerm = req.query.search;
-            console.log(searchTerm);
             query = {
                 $or: [
                     { name: { $regex: searchTerm, $options: "i" } },
@@ -31,7 +30,6 @@ const categoryInfo = async (req, res) => {
             res.render("category", { category, parentCategory ,currentPage:page,totalPage:Math.ceil(totalCount/limit)});
         }
     } catch (error) {
-        console.log("Error occurs in categoryInfo:", error.message);
         res.status(400).send("Error");
     }
 };
@@ -55,7 +53,6 @@ const addCategory = async (req, res) => {
       if (!name || !description || !parent || !offer) {
         return res.status(400).json({ success:false, message: "Name and description are required" });
       }
-      console.log(parent)
   
       // Check if category already exists
       const existingCategory = await Category.findOne(
@@ -82,7 +79,6 @@ const addCategory = async (req, res) => {
       await newCategory.save();
       res.status(200).json({success:true,message:"Added"})
     } catch (error) {
-      console.error("ERROR occurred in addCategory:", error);
       return res.status(500).json({ success:false, message: "Internal Server Error" });
     }
   };
@@ -93,14 +89,11 @@ const addCategory = async (req, res) => {
             let id = req.query.id;
             const del = await Category.deleteOne({_id:id});
             if(del){
-                console.log("DeleteCategory Successfull");
                 res.redirect("/admin/Category");
             }else{
-                console.log("Something error in DeleteCategory");
                 
             }
         }else{
-            console.log("ERROR in delete Category");
         }
     } catch (error) {
         res.status(400).send("ERROR OCCURES IN DELETECTEGORY");
@@ -141,14 +134,11 @@ const loadAddParentCategory = async(req,res)=>{
             let id = req.query.id;
             const del =  await ParentCategory.deleteOne({_id:id});
             if(del){
-                console.log("deleteParentCategory Successfull");
                 res.redirect("/admin/parentCategories");
             }else{
-                console.log("Something error in DeleteParentCategory");
                 
             }
         }else{
-            console.log("ERROR in delete Category");
         }
     } catch (error) {
         res.status(400).send("ERROR OCCURES IN DELETECTEGORY");
@@ -162,7 +152,6 @@ const loadEditCategory = async (req, res) => {
         const parentCategory = await ParentCategory.find(); // Fetch all possible parent categories
         res.render('edit-category', { category, parentCategory });
     } catch (error) {
-        console.log('Error loading edit category:', error.message);
         res.status(500).send('Error loading category data');
     }
 };
@@ -172,7 +161,6 @@ const editCategory =async(req,res)=>{
         await Category.findByIdAndUpdate({_id:req.body._id} ,{$set:{name:req.body.name , description:req.body.description ,parent:req.body.parent ,categoryOffer:req.body.offer }});
         res.redirect("/admin/Category");
     } catch (error) {
-        console.log("ERROR occures in the edit Categoy");
         res.status(400).send("ERROR occures in edit category")
     }
 }
@@ -184,7 +172,6 @@ const unListCategory = async(req,res)=>{
         const findCategory = await Category.updateOne({_id:id},{$set:{isListed:false}});
         res.redirect("/admin/category");
     } catch (error) {
-        console.log("ERROR in unlistCategory");
         res.status(400).send("ERROR in unlist Categoy");
     }
 }
@@ -195,7 +182,6 @@ const unListParentCategory = async(req,res)=>{
         const findCategory = await ParentCategory.updateOne({_id:id},{$set:{isListed:false}});
         res.redirect("/admin/parentCategories");
     } catch (error) {
-        console.log("ERROR in unlistCategory");
         res.status(400).send("ERROR in unlist Categoy");
     }
 }
@@ -206,7 +192,6 @@ const ListCategory = async(req,res)=>{
         const findCategory = await Category.updateOne({_id:id},{$set:{isListed:true}});
         res.redirect("/admin/category");
     } catch (error) {
-        console.log("ERROR in listCategory");
         res.status(400).send("ERROR in list Categoy");
     }
 }  
@@ -217,7 +202,6 @@ const ListParentCategory = async(req,res)=>{
         const findCategory = await ParentCategory.updateOne({_id:id},{$set:{isListed:true}});
         res.redirect("/admin/parentCategories");
     } catch (error) {
-        console.log("ERROR in listCategory");
         res.status(400).send("ERROR in list Categoy");
     }
 }  
@@ -242,12 +226,10 @@ const addParentCategory = async (req, res) => {
   
       await newParent.save();
   
-      console.log("New Parent Category added successfully");
   
       // Redirect after successful save
       res.status(200).json({success:true,message:"Added"});
     } catch (error) {
-      console.error("Error occurred in addParentCategory:", error);
       // Send response with the error message
       return res.status(500).json({success:false,message:"error in the add parent category"})
     }
@@ -263,7 +245,6 @@ const addParentCategory = async (req, res) => {
         const Parent = await ParentCategory.findById(id);
         res.render("edit-parent-category", { Parent  });
     } catch (error) {
-        console.log("Error in loadeditPArentCategory");
         res.status(400).send("ERROR IN LOADEDITPARENTCATEGORY ");
     }
   };
@@ -294,7 +275,6 @@ const editParentCategory = async (req, res) => {
 
         res.redirect("/admin/parentCategories");
     } catch (error) {
-        console.error("Error occurred in editing ParentCategory:", error);
         res.status(500).send("An error occurred while updating the category");
     }
 };
@@ -310,7 +290,6 @@ const loadCatSupplies = async (req, res) => {
       const ParentCat = await ParentCategory.findOne({ name: "Cat" });
 
       if (!ParentCat) {
-          console.log("Cannot find the ParentCategory");
       }
 
 
@@ -332,7 +311,6 @@ const loadCatSupplies = async (req, res) => {
           .sort({ createdAt: -1 });
       
 
-      console.log("Products:", products);
 
       res.render("catSupplies", {
           user: userData,
@@ -348,7 +326,6 @@ const loadCatSupplies = async (req, res) => {
       });
 
   } catch (error) {
-      console.error("ERROR in loadCatSupplies", error);
       res.status(400).render("error", { message: "An error occurred in loadCatSupplies" });
   }
 };
@@ -363,10 +340,7 @@ const fillterCategoryOfCat = async (req, res) => {
     const user = req.session.user;
     const category = req.query.category || ""; 
     const search = req.query.search || ""; 
-    console.log("hey")
-    console.log("category", category);
-    console.log("sort", sort);
-    console.log("search", search);
+    
 
     // Initialize query for products
     const query = {
@@ -443,7 +417,6 @@ const fillterCategoryOfCat = async (req, res) => {
       ],
     });
   } catch (error) {
-    console.error("Error in fillterCategoryOfCat:", error);
     res.status(500).json({ success: false, message: "Error in filtering the category" });
   }
 };
@@ -459,7 +432,6 @@ const fillterCategoryOfCat = async (req, res) => {
       const productOff = product.Offer;
       const categoryOff = category.categoryOffer;
       const offer = productOff > categoryOff ? productOff : categoryOff ; 
-      console.log("productOff:",productOff,"categoryOff",categoryOff,"offer",offer)
       if (!product) {
         // Handle the case where the product is not found
         return res.status(404).send("Product not found");
@@ -485,7 +457,6 @@ const fillterCategoryOfCat = async (req, res) => {
         ]
       });
     } catch (error) {
-      console.log("ERROR occurs in productDetails", error);
       res.status(400).render("error",{message:"ERROR occurs in productDetails"});
     }
   };
@@ -504,7 +475,6 @@ const loadDogSupplies = async (req, res) => {
         const ParentDog = await ParentCategory.findOne({name:"Dog"});
         
         if(!ParentDog){
-            console.log("Cant ind the The ParentCategory");
         }
 
        
@@ -538,7 +508,6 @@ const loadDogSupplies = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("ERROR in loadDogSupplies", error);
         res.status(400).render("error", { message: "An error occurred in loadDogSupplies" });
     }
 };
@@ -553,9 +522,7 @@ const fillterCategoryOfDog = async (req, res) => {
       let sorted;
       let sort = req.query.sort;
       let search = req.query.search;
-      console.log("sort:",sort);
-      console.log("search:",search);
-      console.log("category:",category);
+     
 
       const query = {
           isBlocked: false,
@@ -613,7 +580,6 @@ const fillterCategoryOfDog = async (req, res) => {
           ],
       });
   } catch (error) {
-      console.error("Error in fillterDogegory:", error);
       res.status(500).render("error", { message: "Error in Filtering the category" });
   }
 };
@@ -651,7 +617,6 @@ const fillterCategoryOfDog = async (req, res) => {
         ]
       });
     } catch (error) {
-      console.log("ERROR occurs in productDetails", error);
       res.status(400).render("error",{message:"ERROR occurs in productDetails"});
     }
   };
@@ -669,7 +634,6 @@ const loadSmallPetsSupplies = async (req, res) => {
         const ParentSmallPets = await ParentCategory.findOne({name:"SmallPets "});
         
         if(!ParentSmallPets){
-            console.log("Cant Find the The ParentCategory");
         }
        
 
@@ -702,7 +666,6 @@ const loadSmallPetsSupplies = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("ERROR in loadSmallPetsupplies", error);
         res.status(400).render("error", { message: "An error occurred in loadSmallPetsSupplies" });
     }
 };
@@ -718,10 +681,7 @@ const fillterCategoryOfSmallPets = async (req, res) => {
     let sorted;
     let sort = req.query.sort;
     let search = req.query.search;
-    console.log("sort:",sort);
-    console.log("search:",search);
-    console.log("category:",category);
-
+   
     const query = {
         isBlocked: false,
         quantity: { $gte: 0 },
@@ -776,7 +736,6 @@ const fillterCategoryOfSmallPets = async (req, res) => {
         ],
     });
 } catch (error) {
-    console.error("Error in fillterDogegory:", error);
     res.status(500).render("error", { message: "Error in Filtering the category" });
 }
   };
@@ -814,7 +773,6 @@ const fillterCategoryOfSmallPets = async (req, res) => {
         ]
       });
     } catch (error) {
-      console.log("ERROR occurs in productDetails", error);
       res.status(400).render("error",{message:"ERROR occurs in productDetails"});
     }
   };
@@ -832,7 +790,6 @@ const loadPetBirdSupplies = async (req, res) => {
         const ParentPetBird = await ParentCategory.findOne({name:"PetBirds"});
         
         if(!ParentPetBird){
-            console.log("Cant ind the The ParentCategory");
         }
         
 
@@ -865,7 +822,6 @@ const loadPetBirdSupplies = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("ERROR in loadSmallPetsupplies", error);
         res.status(400).render("error", { message: "An error occurred in loadSmallPetsSupplies" });
     }
 };
@@ -881,10 +837,7 @@ const fillterCategoryOfPetBird = async (req, res) => {
     let sorted;
     let sort = req.query.sort;
     let search = req.query.search;
-    console.log("sort:",sort);
-    console.log("search:",search);
-    console.log("category:",category);
-
+    
     const query = {
         isBlocked: false,
         quantity: { $gte: 0 },
@@ -941,7 +894,6 @@ const fillterCategoryOfPetBird = async (req, res) => {
         ],
     });
 } catch (error) {
-    console.error("Error in fillterDogegory:", error);
     res.status(500).render("error", { message: "Error in Filtering the category" });
 }
   };
@@ -979,7 +931,6 @@ const fillterCategoryOfPetBird = async (req, res) => {
         ]
       });
     } catch (error) {
-      console.log("ERROR occurs in productDetails", error);
       res.status(400).render("error",{message:"ERROR occurs in productDetails"});
     }
   };
@@ -997,7 +948,6 @@ const loadFishSupplies = async (req, res) => {
         const ParentFish = await ParentCategory.findOne({name:"Fish"});
         
         if(!ParentFish){
-            console.log("Cant ind the The ParentCategory");
         }
         
        
@@ -1029,7 +979,6 @@ const loadFishSupplies = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("ERROR in loadFishsupplies", error);
         res.status(400).render("error", { message: "An error occurred in loadFishSupplies" });
     }
 };
@@ -1045,10 +994,7 @@ const fillterCategoryOfFish = async (req, res) => {
     let sorted;
     let sort = req.query.sort;
     let search = req.query.search;
-    console.log("sort:",sort);
-    console.log("search:",search);
-    console.log("category:",category);
-
+    
     const query = {
         isBlocked: false,
         quantity: { $gte: 0 },
@@ -1105,7 +1051,6 @@ const fillterCategoryOfFish = async (req, res) => {
         ],
     });
 } catch (error) {
-    console.error("Error in fillterDogegory:", error);
     res.status(500).render("error", { message: "Error in Filtering the category" });
 }
   };
@@ -1143,7 +1088,6 @@ const fillterCategoryOfFish = async (req, res) => {
         ]
       });
     } catch (error) {
-      console.log("ERROR occurs in productDetails", error);
       res.status(400).render("error",{message:"ERROR occurs in productDetails"});
     }
   };
@@ -1172,7 +1116,6 @@ const fillterCategoryOfFish = async (req, res) => {
             isListed: true,
             name: { $in: accessoryCategories }
         });
-        console.log("Found Categories ",categories); 
        
 
         // Extract category IDs and names for frontend use
@@ -1207,7 +1150,6 @@ const fillterCategoryOfFish = async (req, res) => {
             ]
         });
     } catch (error) {
-        console.error("Error loading accessories:", error);
         res.status(500).send("An error occurred while loading the accessories page.");
     }
 };
@@ -1223,10 +1165,6 @@ const fillterCategoryOfAccessories = async (req, res) => {
     let sort = req.query.sort;
     let sorted;
     let search = req.query.search || ""; // Ensure search defaults to an empty string
-
-    console.log("Sort:", sort);
-    console.log("Category:", category);
-    console.log("Search:", search);
 
     // Convert category string to an array of ObjectIds, if provided
     let categoryIds = [];
@@ -1298,7 +1236,6 @@ const fillterCategoryOfAccessories = async (req, res) => {
       ],
     });
   } catch (error) {
-    console.error("Error in fillterCategoryOfAccessories:", error);
     res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
@@ -1337,7 +1274,6 @@ const ProuctDetailsOfAccessories = async(req, res) => {
       ]
     });
   } catch (error) {
-    console.log("ERROR occurs in productDetails", error);
     res.status(400).render("error",{message:"ERROR occurs in productDetails"});
   }
 };
@@ -1369,7 +1305,6 @@ const loadTreats = async (req, res) => {
          isListed: true,
          name: { $in: treatCategories }
      });
-     console.log("Found Categories ",categories); 
 
      // Extract category IDs and names for frontend use
      const categoryIds = categories.map(category => category._id.toString());
@@ -1404,7 +1339,6 @@ const loadTreats = async (req, res) => {
          ]
      });
   } catch (error) {
-      console.error("ERROR in loadFishTreat", error);
       res.status(400).render("error", { message: "An error occurred in loadFishTreat" });
   }
 };
@@ -1420,10 +1354,6 @@ const fillterCategoryOfTreats = async (req, res) => {
     let sort = req.query.sort;
     let sorted;
     let search = req.query.search || ""; // Ensure search defaults to an empty string
-
-    console.log("Sort:", sort);
-    console.log("Category:", category);
-    console.log("Search:", search);
 
     // Convert category string to an array of ObjectIds, if provided
     let categoryIds = [];
@@ -1496,7 +1426,6 @@ const fillterCategoryOfTreats = async (req, res) => {
       ],
     });
   } catch (error) {
-    console.error("Error in fillterCategoryOfAccessories:", error);
     res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
@@ -1534,7 +1463,6 @@ const ProuctDetailsOfTreats = async(req, res) => {
       ]
     });
   } catch (error) {
-    console.log("ERROR occurs in productDetails", error);
     res.status(400).render("error",{message:"ERROR occurs in productDetails"});
   }
 };
@@ -1565,7 +1493,6 @@ const loadToys = async (req, res) => {
          isListed: true,
          name: { $in: ToysCategories }
      });
-     console.log("Found Categories ",ToysCategories); 
 
      // Extract category IDs and names for frontend use
      const categoryIds = categories.map(category => category._id.toString());
@@ -1600,7 +1527,6 @@ const loadToys = async (req, res) => {
          ]
      });
   } catch (error) {
-      console.error("ERROR in loadFishTreat", error);
       res.status(400).render("error", { message: "An error occurred in loadFishTreat" });
   }
 };
@@ -1616,10 +1542,6 @@ const fillterCategoryOfToys = async (req, res) => {
     let sort = req.query.sort;
     let sorted;
     let search = req.query.search || ""; // Ensure search defaults to an empty string
-
-    console.log("Sort:", sort);
-    console.log("Category:", category);
-    console.log("Search:", search);
 
     // Convert category string to an array of ObjectIds, if provided
     let categoryIds = [];
@@ -1691,7 +1613,6 @@ const fillterCategoryOfToys = async (req, res) => {
       ],
     });
   } catch (error) {
-    console.error("Error in fillterCategoryOfAccessories:", error);
     res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
@@ -1728,7 +1649,6 @@ const ProuctDetailsOfToys = async(req, res) => {
       ]
     });
   } catch (error) {
-    console.log("ERROR occurs in productDetails", error);
     res.status(400).render("error",{message:"ERROR occurs in productDetails"});
   }
 };
@@ -1793,7 +1713,6 @@ const loadFood = async (req, res) => {
          ]
      });
   } catch (error) {
-      console.error("ERROR in loadFishTreat", error);
       res.status(400).render("error", { message: "An error occurred in loadFishTreat" });
   }
 };
@@ -1809,10 +1728,6 @@ const fillterCategoryOfFood = async (req, res) => {
     let sort = req.query.sort;
     let sorted;
     let search = req.query.search || ""; // Ensure search defaults to an empty string
-
-    console.log("Sort:", sort);
-    console.log("Category:", category);
-    console.log("Search:", search);
 
     // Convert category string to an array of ObjectIds, if provided
     let categoryIds = [];
@@ -1884,7 +1799,6 @@ const fillterCategoryOfFood = async (req, res) => {
       ],
     });
   } catch (error) {
-    console.error("Error in fillterCategoryOfAccessories:", error);
     res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
@@ -1922,66 +1836,19 @@ const ProuctDetailsOfFood = async(req, res) => {
       ]
     });
   } catch (error) {
-    console.log("ERROR occurs in productDetails", error);
     res.status(400).render("error",{message:"ERROR occurs in productDetails"});
   }
-};
-
-// const filterCatSupplies = async (req, res) => {
-//   try {
-//     const searchTerm = req.query.search;
-//     console.log("Filter:", searchTerm);
-
-//     const userId = req.session.user;
-//     const userData = await User.findById(userId); // Correcting the query to find user by ID
-//     const ParentCat = await ParentCategory.findOne({ name: "Cat" });
-
-//     if (!ParentCat) {
-//       console.log("Cannot find the ParentCategory");
-//       return res.status(404).json({ message: "ParentCategory not found" });
-//     }
-
-//     const categories = await Category.find({ isListed: true, parent: ParentCat._id });
-//     const categoryIds = categories.map((category) => category._id.toString());
-//     const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
-
-
-//     const products = await Product.find({
-//       isBlocked: false,
-//       category: { $in: categoryIds },
-//       quantity: { $gte: 0 },
-//       name:{$regex:searchTerm,$options:"i"}, // Apply the search condition here
-//     }).sort({ createdAt: -1 }); // Apply your sorting logic here if needed
-
-//     console.log("Products:", products);
-
-//     res.status(200).json({
-//       user: userData,
-//       category: categoreiesWithId,
-//       product: products,
-//       breadcrumbs: [
-//         { text: "Home", url: "/user/" },
-//         { text: "CatSupplies", url: "/user/cat-supplies" },
-//       ],
-//     });
-
-//   } catch (error) {
-//     console.error("ERROR in filterCatSupplies", error);
-//     res.status(500).json({ message: "An error occurred in filterCatSupplies" });
-//   }
-// };
+}
 
 const filterDogSupplies = async(req,res)=>{
   try {
     const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
 
     const userId = req.session.user;
     const userData = await User.findById(userId); // Correcting the query to find user by ID
     const ParentCat = await ParentCategory.findOne({ name: "Dog" });
 
     if (!ParentCat) {
-      console.log("Cannot find the ParentCategory");
       return res.status(404).json({ message: "ParentCategory not found" });
     }
 
@@ -1997,7 +1864,6 @@ const filterDogSupplies = async(req,res)=>{
       name:{$regex:searchTerm,$options:"i"}, // Apply the search condition here
     }).sort({ createdAt: -1 }); // Apply your sorting logic here if needed
 
-    console.log("Products:", products);
 
     res.status(200).json({
       user: userData,
@@ -2010,7 +1876,6 @@ const filterDogSupplies = async(req,res)=>{
     });
 
   } catch (error) {
-    console.error("ERROR in filterDogSupplies", error);
     res.status(500).json({ message: "An error occurred in filterDogSupplies" });
   }
 }
@@ -2018,14 +1883,12 @@ const filterDogSupplies = async(req,res)=>{
 const filterFishSupplies = async(req,res)=>{
   try {
     const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
 
     const userId = req.session.user;
     const userData = await User.findById(userId); // Correcting the query to find user by ID
     const ParentCat = await ParentCategory.findOne({ name: "Fish" });
 
     if (!ParentCat) {
-      console.log("Cannot find the ParentCategory");
       return res.status(404).json({ message: "ParentCategory not found" });
     }
 
@@ -2041,7 +1904,6 @@ const filterFishSupplies = async(req,res)=>{
       name:{$regex:searchTerm,$options:"i"}, // Apply the search condition here
     }).sort({ createdAt: -1 }); // Apply your sorting logic here if needed
 
-    console.log("Products:", products);
 
     res.status(200).json({
       user: userData,
@@ -2054,7 +1916,6 @@ const filterFishSupplies = async(req,res)=>{
     });
 
   } catch (error) {
-    console.error("ERROR in filterDogSupplies", error);
     res.status(500).json({ message: "An error occurred in filterDogSupplies" });
   }
 }
@@ -2062,14 +1923,12 @@ const filterFishSupplies = async(req,res)=>{
 const filterPetBirdSupplies = async(req,res)=>{
   try {
     const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
 
     const userId = req.session.user;
     const userData = await User.findById(userId); // Correcting the query to find user by ID
     const ParentCat = await ParentCategory.findOne({ name: "PetBirds" });
 
     if (!ParentCat) {
-      console.log("Cannot find the ParentCategory");
       return res.status(404).json({ message: "ParentCategory not found" });
     }
 
@@ -2085,7 +1944,6 @@ const filterPetBirdSupplies = async(req,res)=>{
       name:{$regex:searchTerm,$options:"i"}, // Apply the search condition here
     }).sort({ createdAt: -1 }); // Apply your sorting logic here if needed
 
-    console.log("Products:", products);
 
     res.status(200).json({
       user: userData,
@@ -2098,7 +1956,6 @@ const filterPetBirdSupplies = async(req,res)=>{
     });
 
   } catch (error) {
-    console.error("ERROR in filterPetBirdsSupplies", error);
     res.status(500).json({ message: "An error occurred in filterPetBirdsSupplies" });
   }
 }
@@ -2106,14 +1963,12 @@ const filterPetBirdSupplies = async(req,res)=>{
 const filterSmallPetsSupplies = async(req,res)=>{
   try {
     const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
 
     const userId = req.session.user;
     const userData = await User.findById(userId); // Correcting the query to find user by ID
     const ParentCat = await ParentCategory.findOne({ name: "SmallPets" });
 
     if (!ParentCat) {
-      console.log("Cannot find the ParentCategory");
       return res.status(404).json({ message: "ParentCategory not found" });
     }
 
@@ -2129,7 +1984,6 @@ const filterSmallPetsSupplies = async(req,res)=>{
       name:{$regex:searchTerm,$options:"i"}, // Apply the search condition here
     }).sort({ createdAt: -1 }); // Apply your sorting logic here if needed
 
-    console.log("Products:", products);
 
     res.status(200).json({
       user: userData,
@@ -2142,7 +1996,6 @@ const filterSmallPetsSupplies = async(req,res)=>{
     });
 
   } catch (error) {
-    console.error("ERROR in filterSmallPetSupplies", error);
     res.status(500).json({ message: "An error occurred in filterSmallPetsSupplies" });
   }
 }
@@ -2150,7 +2003,6 @@ const filterSmallPetsSupplies = async(req,res)=>{
 const filterAccessories = async(req,res)=>{
   try {
     const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
 
     const user = req.session.user;
     const userData = await User.findById(user);
@@ -2169,7 +2021,6 @@ const filterAccessories = async(req,res)=>{
             isListed: true,
             name: { $in: accessoryCategories }
         });
-        console.log("Found Categories ",categories); 
         
 
         // Extract category IDs and names for frontend use
@@ -2198,7 +2049,6 @@ const filterAccessories = async(req,res)=>{
             ]
         });
   } catch (error) {
-    console.error("ERROR in filterAccessories", error);
     res.status(500).json({ message: "An error occurred in filterAccessories" });
   }
 }
@@ -2206,7 +2056,6 @@ const filterAccessories = async(req,res)=>{
 const filterFood = async(req,res)=>{
    try {
     const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
 
     const user = req.session.user;
     const userData = await User.findById(user);
@@ -2225,7 +2074,6 @@ const filterFood = async(req,res)=>{
             isListed: true,
             name: { $in: FoodCategories }
         });
-        console.log("Found Categories ",categories); 
         
 
         // Extract category IDs and names for frontend use
@@ -2254,7 +2102,6 @@ const filterFood = async(req,res)=>{
             ]
         });
   } catch (error) {
-    console.error("ERROR in filterFoodAccessories", error);
     res.status(500).json({ message: "An error occurred in filterFoodAccessories" });
   }
 }
@@ -2262,7 +2109,6 @@ const filterFood = async(req,res)=>{
 const filterToys =async(req,res)=>{
   try {
     const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
 
     const user = req.session.user;
     const userData = await User.findById(user);
@@ -2280,7 +2126,6 @@ const filterToys =async(req,res)=>{
             isListed: true,
             name: { $in: ToysCategories }
         });
-        console.log("Found Categories ",categories); 
         
 
         // Extract category IDs and names for frontend use
@@ -2309,7 +2154,6 @@ const filterToys =async(req,res)=>{
             ]
         });
   } catch (error) {
-    console.error("ERROR in filterToys", error);
     res.status(500).json({ message: "An error occurred in fillterToys" });
   }
 }
@@ -2317,7 +2161,6 @@ const filterToys =async(req,res)=>{
 const filterTreat =async(req,res)=>{
   try {
     const searchTerm = req.query.search;
-    console.log("Filter:", searchTerm);
 
     const user = req.session.user;
     const userData = await User.findById(user);
@@ -2336,7 +2179,6 @@ const filterTreat =async(req,res)=>{
             isListed: true,
             name: { $in: treatCategories }
         });
-        console.log("Found Categories ",categories); 
         
 
         // Extract category IDs and names for frontend use
@@ -2365,7 +2207,6 @@ const filterTreat =async(req,res)=>{
             ]
         });
   } catch (error) {
-    console.error("ERROR in filterToys", error);
     res.status(500).json({ message: "An error occurred in fillterToys" });
   }
 }

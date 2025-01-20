@@ -68,6 +68,7 @@ userRoutes.get("/food-filter",userauth,categoryController.filterFood);
 // ProfileManagement
 userRoutes.get("/forget-pass",profileController.loadForgetEmail);    
 userRoutes.post("/forget-pass",profileController.verifyEmail);  
+userRoutes.get("/loadForgetPassOtp",profileController.loadForgetPassOtp);  
 userRoutes.post("/resendOtp-ForgetPass",profileController.resendOtp);  
 userRoutes.post("/resetPass",profileController.resetPass);
 userRoutes.post("/reset-password",profileController.newPass);  

@@ -198,7 +198,6 @@ function search(e){
 }
 function inActive(event, code) {
   event.preventDefault();
-  console.log("InActive", code);
 
   fetch(`/admin/inActive?code=${encodeURIComponent(code)}`, {
     method: "GET",
@@ -217,7 +216,6 @@ function inActive(event, code) {
 
 function Active(event, code) {
   event.preventDefault();
-  console.log("Active", code);
 
   fetch(`/admin/Active?code=${encodeURIComponent(code)}`, {
     method: "GET",

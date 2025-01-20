@@ -23,7 +23,6 @@ const  loadOrder = async(req,res)=>{
         res.render("orderManagement",{orders,currentPage:page,totalPage:Math.ceil(total/limit)});
     } catch (error) {
         res.status(400).json({success:false,message:"Error In loadOrder"})
-        console.log(error)
     }
 }
 
@@ -94,7 +93,7 @@ const updateStatus = async (req, res) => {
         }
         res.status(200).json({success:true,mesage:"Updated !"});
     } catch (error) {
-        console.error("Error in updateStatus:", error);
+       
         return res.status(500).json({ success: false, message: "Internal server error." });
     }
 };
@@ -116,7 +115,7 @@ const updateRequestStatus = async (req, res) => {
             });
         }
 
-        console.log("Request Body:", req.body);
+   
 
         const requestedOrder = await ReturnRequest.findOne({ orderId ,productId});
         if (!requestedOrder) {
@@ -146,10 +145,7 @@ const updateRequestStatus = async (req, res) => {
                 { new: true }
             );
 
-            // Log updates
-            if (orderStatus) console.log("Order item status updated.");
-            if (requestStatus) console.log("Return request status updated.");
-            if (productIncrement) console.log("Product quantity incremented.");
+           
 
             // Handle wallet refund if payment status is PAID
             const order = await Order.findOne({ orderId });
@@ -188,7 +184,6 @@ const updateRequestStatus = async (req, res) => {
                     { $set: { status: "approved" } },
                     { new: true }
                 );
-                console.log("All items approved. Order status updated to 'approved'.");
             }
 
             return res.status(200).json({ success: true, message: "Request approved successfully." });
@@ -208,16 +203,12 @@ const updateRequestStatus = async (req, res) => {
                 { new: true }
             );
 
-            if (orderStatus) console.log("Order item status updated.");
-            if (requestStatus) console.log("Return request status updated.");
-
             return res.status(200).json({ success: true, message: "Request rejected successfully." });
         }
 
         // Invalid status
         return res.status(400).json({ success: false, message: "Invalid status provided." });
     } catch (error) {
-        console.error("Error updating request status:", error);
         return res.status(500).json({
             success: false,
             message: "Failed to update request status. Please try again.",
@@ -229,7 +220,6 @@ const updateRequestStatus = async (req, res) => {
 const orderDetails = async(req,res)=>{
     try {
         const {orderId} = req.query;
-        console.log("orderedItemsId",orderId);
         const userId = req.session.user;
         const user = await User.findById(userId);
         const order = await Order.findOne({orderId}); 
@@ -237,21 +227,17 @@ const orderDetails = async(req,res)=>{
         
         const address = order.address;
         
-        console.log("order:",order);
-        console.log("address:",address);
         
         res.render("orderDetails",{order,user,address});  
 
     } catch (error) {
         res.status(400).json({success:false,message:"Error in the order detail loading"});
-        console.log(error)
     }
 }
 
 const pendingOrderDetails = async(req,res)=>{
     try {
         const {orderId} = req.query;
-        console.log("orderedItemsId",orderId);
         const userId = req.session.user;
         const user = await User.findById(userId);
         const pendingOrder = await PendingOrder.findOne({orderId}); 
@@ -259,14 +245,11 @@ const pendingOrderDetails = async(req,res)=>{
         
         const address = pendingOrder.address;
         
-        console.log("order:",pendingOrder);
-        console.log("address:",address);
         
         res.render("pendingOrderDetails",{pendingOrder,user,address});   
 
     } catch (error) {
         res.status(400).json({success:false,message:"Error in the order detail loading"});
-        console.log(error)
     }
 }
 function generateTransactionId() {
@@ -280,13 +263,11 @@ const orderCancel = async (req, res) => {
         const {orderId} = req.body; 
         const user = req.session.user; 
 
-        console.log("Order ID :", req.body);
         // Set the order status to "canceled"
         const orderCancel = await Order.updateOne(
             { userId:user,orderId}, 
             { $set: { status: "canceled" } }
         );
-        console.log("set  status Canceld",orderCancel);
         const order = await Order.findOne({ userId:user, orderId });
         if (!order) {
             return res.status(404).json({
@@ -299,7 +280,6 @@ const orderCancel = async (req, res) => {
         }) 
         order.save();
 
-        console.log("Order to cancel:", order);
         if (order.paymentStatus === "PAID") {
             const wallet = await Wallet.findOne({ userId: user });
 
@@ -310,7 +290,6 @@ const orderCancel = async (req, res) => {
                 });
             }
 
-            console.log("WALLET:", wallet);
             // Example usage:
             const transactionId = generateTransactionId();
 
@@ -341,7 +320,6 @@ const orderCancel = async (req, res) => {
             message: "Order cancellation successful, product quantities updated" 
         });
     } catch (error) {
-        console.error("Error in OrderCancel:", error);
         res.status(400).json({ success: false, message: "Error in OrderCancel" });
     }
 };
@@ -411,7 +389,6 @@ const SingleorderCancel = async (req, res) => {
         }
         return res.status(200).json({ success: true, message: "Order item canceled successfully" });
     } catch (error) {
-        console.error("Error in SingleOrderCancel:", error);
         res.status(500).json({ success: false, message: "Error in the SingleOrderCancel", error });
     }
 };
@@ -421,7 +398,6 @@ const orderReturn = async(req,res)=>{
         const { id } = req.body; // Order ID to cancel
         const user = req.session.user; 
         
-        console.log("Order ID to return:", id);
 
         // Set the order status to "canceled"
         const orderReturn = await Order.updateOne(
@@ -438,7 +414,6 @@ const orderReturn = async(req,res)=>{
             });
         }
         
-        console.log("Order to cancel:", order);
 
 
         if (order.paymentStatus === "PAID") {
@@ -451,7 +426,6 @@ const orderReturn = async(req,res)=>{
                 });
             }
 
-            console.log("WALLET:", wallet);
 
             // Update balance and add transaction history
             wallet.balance += order.finalPrice;
@@ -478,7 +452,6 @@ const orderReturn = async(req,res)=>{
         // Wait for all updates to complete
         await Promise.all(updatePromises);
 
-        console.log("Quantities of all products incremented");
 
         // Respond to the client
         res.status(200).json({ 
@@ -486,7 +459,6 @@ const orderReturn = async(req,res)=>{
             message: "Order return successful, product quantities updated" 
         });
     } catch (error) {
-        console.error("Error in orderReturn:", error);
         res.status(400).json({ success: false, message: "Error in orderReturn" });
     }
 }
@@ -494,7 +466,6 @@ const orderReturn = async(req,res)=>{
 const returnRequest = async (req, res) => {
     try {
         const {itemId,orderId,reason } = req.body;
-        console.log("body:", req.body);
 
         const order = await Order.findOne({orderId});
         const orderedItem = await order.orderedItems.find((item)=> item._id.toString() == itemId.toString() );
@@ -525,7 +496,6 @@ const returnRequest = async (req, res) => {
         }
 
     } catch (error) {
-        console.log(error);
         res.status(500).json({ success: false, message: "Failed to process return request" });
     }
 };
@@ -533,7 +503,6 @@ const returnRequest = async (req, res) => {
 const returnRequestPage = async(req,res)=>{
     try {
         const requestedItem = await ReturnRequest.find({}).populate("productId",'name Image').sort({createdAt:-1});
-        console.log("requested:",requestedItem);
         res.render("returnRequest",{requestedItem});
     } catch (error) {
         
@@ -543,7 +512,6 @@ const returnRequestPage = async(req,res)=>{
 const orderDetailsPage = async(req,res)=>{
     try {
         const {orderId} = req.query;
-        console.log("orderedItemsId",orderId);
         const userId = req.session.user;
         const user = await User.findById(userId);
         const order = await Order.findOne({orderId}); 
@@ -551,8 +519,7 @@ const orderDetailsPage = async(req,res)=>{
         
         const address = order.address;
         
-        console.log("order:",order);
-        console.log("address:",address);
+        
         
         res.render("orderDetailsPage",{order,user,address});  
 
@@ -564,10 +531,8 @@ const orderDetailsPage = async(req,res)=>{
 const updatePendingOrder = async(req,res)=>{
     try {
         const {razorPayOrderId} = req.body;
-        console.log(req.body);
         const findOrder = await PendingOrder.find({razorPayOrderId});
 
-        console.log("PendingOrder:",findOrder);
         const razorpayKey = process.env.RAZORPAY_KEY;
          res.status(200).json({success:true,pendingOrder:findOrder,razorpayKey})
 
@@ -592,7 +557,6 @@ const generateSalesInvoice = async (req, res) => {
         // Generate the invoice
         generateInvoice(order, res);
     } catch (error) {
-        console.error('Error generating invoice:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };

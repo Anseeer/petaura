@@ -17,10 +17,10 @@ const loadOffer = async(req,res)=>{
 const addProductOffer = async(req,res)=>{
     try {
         const {productId,productOff} = req.body;
-        console.log(req.body);
+       
 
         const product = await Product.findById(productId);
-        console.log("The Product:",product);
+      
 
         product.Offer = productOff;
         product.finalPrice = product.salePrice - ( product.salePrice * productOff/100 );
