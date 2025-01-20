@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f7f7f7;
+}
+
+/* Header Styling */
+.header {
+    background: linear-gradient(90deg, #ffa500, #ff7f50);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    width: 100%;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header .logo {
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Sidebar Styling */
+.sidebar {
+    position: fixed;
+    top: 70px; /* Start below the header */
+    left: 0;
+    width: 250px;
+    height: calc(100% - 70px);
+    background: linear-gradient(180deg, #ffa500, #ffd27f);
+    color: white;
+    padding-top: 10px;
+    box-shadow: 3px 0 8px rgba(0, 0, 0, 0.2);
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    color: black;
+    padding: 12px 20px;
+    margin: 5px 15px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.sidebar i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Content Area */
+.content {
+    margin-left: 270px;
+    padding: 20px;
+    padding-top: 100px; /* Push content down to not overlap with the fixed header */
+}
+
+svg {
+    color: #000000;
+    cursor: pointer;
+    transition: color 0.3s;
+    width: 30px;
+}
+
+svg:hover {
+    color: #ffffff;
+}

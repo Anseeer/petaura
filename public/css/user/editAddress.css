@@ -1,0 +1,83 @@
+ body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .header {
+            background-color: #ffa500;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .header .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: black;
+        }
+
+        .sidebar {
+            margin-top: -5px;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 250px;
+            height: calc(100% - 60px);
+            background-color: #ffa500;
+            color: white;
+            padding-top: 15px;
+            box-shadow: 0 0 10px rgba(216, 156, 44, 0.493);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: black;
+            padding: 10px 20px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            color: rgb(0, 0, 0);
+            background-color: #fffefc;
+        }
+
+        .content {
+            margin-left: 270px;
+            padding-top: 100px !important;
+            padding: 20px;
+        }
+
+        /* address */
+        .address-form {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .address-form h5 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-control {
+            margin-bottom: 15px;
+        }
+
+        .address-table {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .address-table th {
+            background-color: #ffa500;
+            color: white;
+        }

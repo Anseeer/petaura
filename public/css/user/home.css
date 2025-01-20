@@ -1,0 +1,130 @@
+.user-container {
+    position: relative;
+    display: inline-block;
+}
+
+.user-info {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    width: 60px; /* Fixed width for consistent alignment */
+}
+
+.user-name {
+    font-size: 14px;
+    margin: 2px 0 0 0;
+    text-align: center;
+    min-height: 18px; /* Ensures space is reserved even when empty */
+    color: #333;
+}
+
+.icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.user-info {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon-container {
+  cursor: pointer;
+}
+
+.user-name {
+  margin-left: 10px;
+  font-size: 16px;
+}
+
+.user-name.empty {
+  display: none; /* Hide when no user */
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  display: none; /* Hidden by default */
+  position: absolute;
+  top: 100%; /* Align below the button */
+  right: 0; /* Align to the right */
+  background-color: white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 1000;
+  min-width: 150px;
+}
+
+.dropdown-menu a {
+  padding: 8px 16px;
+  display: block;
+  text-decoration: none;
+  color: black;
+}
+
+.dropdown-menu a:hover {
+  background-color: #d4d4d4;
+}
+
+.dropdown-container.active .dropdown-menu {
+  display: block; /* Show dropdown */
+}
+#latest-products {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center; /* Center the items */
+  border: 2px solid rgb(131, 131, 131); /* Black border around the container */
+  padding: 20px; /* Padding inside the border */
+  border-radius: 8px; /* Optional: rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Subtle shadow around the container */
+  background-color: #fff; /* Background color for contrast */
+}
+
+
+.product-card {
+  width: 22%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: rgb(248, 221, 169);
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  transition: transform 0.3s ease; /* Smooth hover effect */
+}
+
+.product-card:hover {
+  transform: scale(1.05); /* Slight zoom effect on hover */
+}
+
+.product-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.product-name {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.product-price {
+  color: green;
+  font-size: 1.2em;
+}
+
+.view-more {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: bold;
+  margin-top: 10px;
+  display: inline-block;
+}
+

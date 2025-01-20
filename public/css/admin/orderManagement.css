@@ -1,0 +1,56 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px; /* Optional: add some top margin for spacing */
+}
+
+h2 {
+    margin: 0; /* Remove top and bottom margin for the heading */
+}
+
+button {
+    margin-top: 10px; /* Optional: add some top margin to the button */
+}
+/* Pagination container */
+.pagination {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-top: 20px;
+gap: 10px;
+}
+
+/* Pagination buttons */
+.pagination a {
+display: inline-block;
+padding: 10px 15px;
+font-size: 14px;
+text-decoration: none;
+border-radius: 5px;
+color: #f0b639; /* Bootstrap's primary color */
+border: 1px solid #f0b639;
+transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Active button styling */
+.pagination a.btn-secondary {
+background-color: #f0b639;
+color: #fff;
+cursor: default;
+pointer-events: none;
+}
+
+/* Hover effect for buttons */
+.pagination a:hover {
+background-color: #f0b639; /* Darker shade of primary */
+color: #fff;
+}
+
+/* Disabled button styling */
+.pagination a.disabled {
+color: #6c757d;
+border-color: #6c757d;
+cursor: not-allowed;
+pointer-events: none;
+}

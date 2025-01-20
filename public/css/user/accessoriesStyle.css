@@ -1,0 +1,111 @@
+.user-container {
+position: relative;
+display: inline-block;
+}
+
+.user-info {
+position: relative;
+display: flex;
+flex-direction: column;
+align-items: center;
+cursor: pointer;
+width: 60px; /* Fixed width for consistent alignment */
+}
+
+.user-name {
+font-size: 14px;
+margin: 2px 0 0 0;
+text-align: center;
+min-height: 18px; /* Ensures space is reserved even when empty */
+color: #333;
+}
+
+.icon-container {
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.user-info {
+position: relative;
+display: flex;
+align-items: center;
+}
+.icon-container {
+cursor: pointer;
+}
+.user-name {
+margin-left: 10px;
+font-size: 16px;
+}
+.user-name.empty {
+display: none; /* Hide when no user */
+}
+.dropdown-container {
+position: relative;
+display: inline-block;
+}
+.dropdown-menu {
+display: none; /* Hidden by default */
+position: absolute;
+top: 100%; /* Align below the button */
+right: 0; /* Align to the right */
+background-color: white;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+border-radius: 5px;
+z-index: 1000;
+min-width: 150px;
+}
+.dropdown-menu a {
+padding: 8px 16px;
+display: block;
+text-decoration: none;
+color: black;
+}
+.dropdown-menu a:hover {
+background-color: #f0f0f0;
+}
+.dropdown-container.active .dropdown-menu {
+display: block; /* Show dropdown */
+}
+.pagination {
+display: flex;
+justify-content: center;
+align-items: center;
+margin-top: 20px;
+gap: 10px;
+}
+/* Pagination buttons */
+.pagination a {
+display: inline-block;
+padding: 10px 15px;
+font-size: 14px;
+text-decoration: none;
+border-radius: 5px;
+color: #ffa500; /* Bootstrap's primary color */
+border: 1px solid #ffa500;
+transition: background-color 0.3s ease, color 0.3s ease;
+}
+/* Active button styling */
+.pagination a.btn-secondary {
+background-color: #ffa500;
+color: #fff;
+cursor: default;
+pointer-events: none;
+}
+/* Hover effect for buttons */
+.pagination a:hover {
+background-color: #ffa500; /* Darker shade of primary */
+color: #fff;
+}
+/* Disabled button styling */
+.pagination a.disabled {
+color: #6c757d;
+border-color: #6c757d;
+cursor: not-allowed;
+pointer-events: none;
+} 
+a.active {
+background-color: #ffa500; /* Darker shade of primary */
+color: #007bff;
+font-weight: bold;
+}

@@ -33,9 +33,6 @@
       
         </div>
       </div>
-
-      
-
       <!-- Payment Method Section -->
       <div class="card">
         <div class="card-header bg-light text-white">
@@ -140,8 +137,9 @@
 <!-- Include SweetAlert CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-  let selectedAddressId = null;
+<!-- <script src="/scripts/user/checkout.js" ></script> -->
+ <script>
+    let selectedAddressId = null;
   let selectedPaymentMethod = null;
   let appliedDiscount = 0;
 
@@ -256,14 +254,8 @@
 
                 const verificationResult = await verifyResponse.json();
                 if (verificationResult.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Order placed successfully",
-                        text: response.message,
-                        timer: 1500,
-                        showConfirmButton: false,
-                    })
-                    window.location.href = `/user/orderHistory`;
+                   
+                    window.location.href = `/user/orderPlaced`;
                 } else {
                     console.error("Payment verification failed:", verificationResult);
                     rzp.close();
@@ -297,15 +289,8 @@
     // Open Razorpay modal
     rzp.open();
 }else{
-            Swal.fire({
-            icon: "success",
-            title: "Order placed Sucess ",
-            text: response.message,
-            timer: 1500,
-            showConfirmButton: false,
-            showCancelButton: false
-          })
-          window.location.href = `/user/orderHistory`;
+          
+          window.location.href = `/user/orderPlaced`;
           }
         } else {
           Swal.fire({
@@ -401,4 +386,5 @@ function applyCoupon(event) {
           })
       })
     }
-</script>
+
+ </script>

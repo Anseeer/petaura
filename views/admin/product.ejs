@@ -1,72 +1,7 @@
 <%- include("../partials/admin/header.ejs") %>
-<style>
-    .pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-    gap: 10px;
-}
 
-/* Pagination buttons */
-.pagination a {
-    display: inline-block;
-    padding: 10px 15px;
-    font-size: 14px;
-    text-decoration: none;
-    border-radius: 5px;
-    color: #ffa500; /* Bootstrap's primary color */
-    border: 1px solid #ffa500;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Active button styling */
-.pagination a.btn-secondary {
-    background-color: #ffa500;
-    color: #fff;
-    cursor: default;
-    pointer-events: none;
-}
-
-/* Hover effect for buttons */
-.pagination a:hover {
-    background-color: #ffa500; /* Darker shade of primary */
-    color: #fff;
-}
-
-/* Disabled button styling */
-.pagination a.disabled {
-    color: #6c757d;
-    border-color: #6c757d;
-    cursor: not-allowed;
-    pointer-events: none;
-}
-.button-fixed {
-    display: inline-block;
-    width: 90px; /* Set equal width for both buttons */
-    padding: 5px 10px;
-    font-size: 12px;
-    text-align: center;
-    color: white;
-    background-color:grey;
-    border-radius: 5px;
-    text-decoration: none;
-    margin: 5px 2px;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.button-fixed i {
-    margin-right: 3px;
-}
-
-.button-fixed:hover {
-    background-color: #524646;
-}
-
-</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+<link rel="stylesheet" href="/css/admin/product.css">
 <section class="content-main">
     <div class="content-header">
         <div>

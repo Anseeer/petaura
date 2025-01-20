@@ -102,6 +102,7 @@ userRoutes.post("/single-order-cancel",userauth,orderController.SingleorderCance
 userRoutes.post("/order-return",userauth,orderController.orderReturn);       
 userRoutes.post("/order-return-request",userauth,orderController.returnRequest);
 userRoutes.get("/orderHistory",userauth,profileController.loadOrderHistory);       
+userRoutes.get("/orderPlaced",userauth,profileController.orderPlaced);       
 userRoutes.post("/updatePendingOrder",userauth,orderController.updatePendingOrder);       
 
 // WhishList

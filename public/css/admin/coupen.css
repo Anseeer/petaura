@@ -1,0 +1,23 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+  }
+  th, td {
+    border: none;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #f8f9fa;
+  }
+  .table-action-icons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+  .search-bar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }

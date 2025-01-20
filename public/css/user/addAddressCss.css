@@ -1,0 +1,96 @@
+    /* General Form Styling */
+    .address-form {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 800px;
+        margin: auto;
+        margin-top: 50px;
+        position: relative;
+    }
+
+    /* Header with Cancel Icon */
+    .address-form .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .address-form .header h5 {
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+    .address-form .header .cancel-icon {
+        font-size: 1.5rem;
+        color: #ff4d4d;
+        cursor: pointer;
+    }
+
+    /* Form Fields Container (Two Columns) */
+    .row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .col-md-6 {
+        width: 48%;
+    }
+
+    /* Styling for Form Controls */
+    .form-control {
+        border-radius: 5px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        width: 100%;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #ffa500;
+        outline: none;
+        box-shadow: 0 0 5px rgba(255, 165, 0, 0.3);
+    }
+
+    /* Error Message Styling */
+    .err-msg {
+        color: red;
+        font-size: 0.9rem;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        display: none;
+    }
+
+    /* Submit Button Styling */
+    .address-form input[type="submit"] {
+        background-color: #ffa500;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        border: none;
+        border-radius: 5px;
+        padding: 15px;
+        width: 100%;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .address-form input[type="submit"]:hover {
+        background-color: #ff8c00;
+    }
+
+    /* Responsive Layout for Small Screens */
+    @media (max-width: 768px) {
+        .row {
+            flex-direction: column;
+        }
+
+        .col-md-6 {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    }

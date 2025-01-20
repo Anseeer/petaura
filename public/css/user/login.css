@@ -1,0 +1,80 @@
+body {
+    background-color: #ffa500; /* Orange background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.login-container {
+    width: 70%;
+    max-width: 900px;
+    display: flex;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    background: #fff;
+}
+
+.login-form {
+    width: 50%;
+    padding: 30px;
+}
+
+.login-form h2 {
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.login-form .form-control {
+    border: 1px solid #ccc;
+    border-radius: 0; /* No rounded corners */
+    background-color: #ddd;
+    height: 45px;
+}
+
+.login-form .btn {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px 30px;
+    background-color: #000;
+    color: #fff;
+    text-transform: uppercase;
+    transition: all 0.3s ease-in-out;
+    border: none;
+}
+
+.login-form .btn:hover {
+    background-color: #333;
+}
+
+.login-form a {
+    text-decoration: none;
+    color: #6c63ff;
+}
+
+.login-form a:hover {
+    text-decoration: underline;
+}
+
+.logo-section {
+ width: 50%;
+ height: 400px;
+ overflow: hidden;
+    }
+
+.logo-section img {
+width: 100%;
+height: 100%;  /* Make sure the image fills the container's height */
+object-fit: cover;  /* Make sure the image covers the entire container without stretching */
+}
+
+.form-footer {
+    margin-top: 10px;
+    font-size: 14px;
+}
+.message{
+    color: red;
+}
+.error-msg{
+    color: red;
+}

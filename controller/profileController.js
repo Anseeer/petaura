@@ -87,9 +87,11 @@ const verifyEmail= async(req,res)=>{
         const findUser = await User.findOne({email:email});
         if(findUser){
             const otp= await  generateOtp();
+            console.log("Otp sent :",otp);
             const sentMail = await sendVerificationEmail(email,otp);
             if(sentMail){
                 req.session.userOtp = otp;
+                console.log("hey")
                 req.session.email=email;
                 res.status(200).json({success:true,message:"otp sent"});
             }
@@ -222,6 +224,15 @@ const loadOrderHistory = async(req,res)=>{
         res.render("orderHistory",{orders,orderedItems,pendingOrders,pending,currentPage:page,totalPage:Math.ceil(totalOrders/limit)}); 
     } catch (error) {
         res.status(400).send("Error in the loadOrderHistory");
+    }
+}
+
+const orderPlaced = async(req,res)=>{
+    try {
+        const user = req.session.user;
+        res.render("orderPlaced",{user});
+    } catch (error) {
+        res.send("Error in load orderPlaced");
     }
 }
 
@@ -531,5 +542,6 @@ module.exports = {
     editedAddressInChekout,
     loadReferral,
     addAddress,
-    loadForgetPassOtp
+    loadForgetPassOtp,
+    orderPlaced
 } 

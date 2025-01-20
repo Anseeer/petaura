@@ -235,6 +235,7 @@ const verifyOtp = async (req, res) => {
          res.status(400).json({ success: false, message: "Invalid OTP. Please try again!" });
         }
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ success: false, message: "An error occurred. Please try again later." });
     }
 };
@@ -773,6 +774,9 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({success:false,message:"Faild to  place order"});
            }
         }else if(paymentMethod === "Cash on Delivery"){
+            if(totalPrice > 1000){
+                return res.status(500).json({success:false,message:"Can not purchase COD above the 1000"})
+            }
             try {
                 const newOrder = new Order({
                     orderId,
@@ -806,9 +810,7 @@ const placeOrder = async (req, res) => {
                     paymentStatus:"UNPAID",
                 });
 
-                if(newOrder.finalPrice > 1000){
-                    return res.status(500).json({success:false,message:"Can not purchase COD above the 1000"})
-                }
+               
     
                 await newOrder.save();
                 await Cart.findOneAndDelete({ userId });
@@ -850,6 +852,7 @@ const placeOrder = async (req, res) => {
         
 
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ success: false, message: "Order Failed" });
     }
 };

@@ -1141,7 +1141,7 @@ const fillterCategoryOfFish = async (req, res) => {
             user: userData,
             category: categoriesWithId,
             // product: products,
-            allProduct:categoryIds,
+            allProduct:categoryIds.toString(),
             totalPage:Math.ceil(totalProducts/limit),
             currentPage:page,
             breadcrumbs: [
@@ -1236,6 +1236,7 @@ const fillterCategoryOfAccessories = async (req, res) => {
       ],
     });
   } catch (error) {
+    console.log(error)
     res.status(500).render("error", { message: "Error in filtering the category" });
   }
 };
