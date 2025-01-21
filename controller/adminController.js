@@ -123,21 +123,36 @@ if (filterValue === "year") {
 const fetchDashboard = async(req,res)=>{
     try {
     let filterValue = req.query.filter || 'year';
-    logger.debug(filterValue);
+    let start = req.query.start;
+    let end = req.query.end;
+    console.log("Start:",start,"end:",end);
+    // logger.info(filterValue);
     let currentDate = new Date();
     let startDate, endDate;
 
-if (filterValue === "year") {
-    startDate = new Date(currentDate.getFullYear(), 0, 1); // January 1st of current year
-    endDate = new Date(currentDate.getFullYear() + 1, 0, 1); // January 1st of next year
-} else if (filterValue === "month") {
-    startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // First day of current month
-    endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); // First day of next month
-}
+    if (start && end) {
+        startDate = new Date(start);
+            endDate = new Date(end);
+            startDate.setUTCHours(0, 0, 0, 0);
+            endDate.setUTCHours(23, 59, 59, 999);
+                                                                  
+      } else {
+        if (filterValue === "year") {
+          startDate = new Date(currentDate.getFullYear(), 0, 1); // Jan 1st of current year
+          endDate = new Date(currentDate.getFullYear() + 1, 0, 1); // Jan 1st of next year
+        } else if (filterValue === "month") {
+          startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1); // First day of current month
+          endDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1); // First day of next month
+        }
+      }
+  
+    //   logger.info(`Date Range: Start = ${startDate}, End = ${endDate}`);
+  
+
         const product = await Product.find({}).sort({saleCount:-1}).limit(5);
         const category = await Category.find({}).sort({saleCount:-1}).limit(5);
         const users = await User.countDocuments({});
-        logger.debug("start:",startDate,"end:",endDate);
+        logger.info(` 'start':,${startDate},'end:',${endDate}`);
         const totalSales = await Order.aggregate([
             {
                 $match:{
@@ -157,7 +172,7 @@ if (filterValue === "year") {
         ]);
 
         let sales = totalSales.length > 0 ? totalSales[0].total : 0;
-        logger.debug("totoalSales:",sales)
+        // logger.info("totoalSales:",sales)
 
         const totalRevenue = await Order.aggregate([
             {
@@ -187,10 +202,10 @@ if (filterValue === "year") {
         ]);
         
         let revenue = totalRevenue.length > 0 ? totalRevenue[0].revenue : 0;
-        logger.debug("Total Revenue (5)% of totalPrice):", revenue);
+        // logger.info("Total Revenue (5)% of totalPrice):", revenue);
         
         
-        logger.debug("Iam fetch ");
+        // logger.debug("Iam fetch ");
 
         res.status(200).json({product,category,users,totalSales:sales,revenue});
     } catch (error) {
@@ -261,7 +276,7 @@ const filterSalesReport = async (req, res) => {
             end = now;
         }
 
-        logger.debug("Start Date:", start, "End Date:", end);
+        logger.info("Start Date:", start, "End Date:", end);
 
         // Fetch orders based on date range and filter
         const order = await Order.aggregate([
@@ -285,6 +300,7 @@ const filterSalesReport = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
+
 
 module.exports = {
     loadLogin,

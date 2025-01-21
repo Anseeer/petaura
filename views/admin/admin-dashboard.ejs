@@ -27,12 +27,21 @@
 
 <div class="filter-container">
     <label for="timeFilter ">Filter:</label>
-    <select onchange="filterRevenue(event,this.value)" id="timeFilter">
+    <select onchange="filterRevenue(event,this.value) ,isCustom(event,this.value)" id="timeFilter">
         <option value="year">Yearly</option>
         <option value="month">Monthly</option>
+        <option value="custom">Custom</option>
     </select>
 </div>
-
+    <div style="display: none;" id="customFilter" class="custom-filter-container">
+    <label for="startDate"> Start Date:</label>
+    <input onchange="CustomFilter()" type="date" id="startDate" name="startDate">
+    <!-- <br> -->
+    <label for="endDate"> End Date:</label>
+    <input onchange="CustomFilter()" type="date" id="endDate" name="endDate">
+    <p id="errorMessage" ></p>
+   </div>
+  
 <div class="row">
     <div class="col-md-8">
         <div class="chart-container">
@@ -66,6 +75,7 @@
 <script>
  const totalRevenue =' <%= revenue %>'; 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/scripts/admin/admin-dashboard.js" ></script>
 <%- include("../partials/admin/footer.ejs") %>
 </body>

@@ -25,11 +25,12 @@
               <% } %>
             </ul>
           </div>
-      
+          <% if (address && address.length > 0) { %>
           <div id="selectedAddress" class="mt-3 d-flex align-items-center">
-            <strong id="addressText" class="flex-grow-1">No address selected</strong>
+            <strong id="addressText" class="flex-grow-1">Address:  <%= address[0].addressType %>, <%= address[0].name %>,<%= address[0].country %>, <%= address[0].state %>, <%= address[0].pincode %> , <%= address[0].phone %></strong>
             <a href=""><i id="editAddressIcon" class="fa fa-edit text-primary d-none" style="cursor: pointer;"></i></a>
           </div>
+          <% } %>
       
         </div>
       </div>
@@ -142,6 +143,10 @@
     let selectedAddressId = null;
   let selectedPaymentMethod = null;
   let appliedDiscount = 0;
+document.addEventListener("DOMContentLoaded",()=>{
+  selectAddress(' <%= address[0].addressType %>, <%= address[0].name %>,<%= address[0].country %>, <%= address[0].state %>, <%= address[0].pincode %> , <%= address[0].phone %>','<%= address[0]._id %>')
+})
+
 
   function toggleAddressDropdown() {
     const dropdown = document.getElementById('addressDropdown');

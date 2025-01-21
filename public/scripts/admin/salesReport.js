@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   
     // Get the date range container
     const dateRangeContainer = document.getElementById('dateRangeContainer');
-  
+    validateDates();
     // Show/hide date range container based on selected range
     if (selectRange === 'custom') {
       dateRangeContainer.style.display = 'block';
@@ -240,3 +240,80 @@ document.addEventListener("DOMContentLoaded",()=>{
           tbody.innerHTML += row;
       });
   }
+
+  // function validateDates() {
+  //   const startDateInput = document.getElementById('startDate');
+  //   const endDateInput = document.getElementById('endDate');
+  //   const startDate = startDateInput.value;
+  //   const endDate = endDateInput.value;
+  //   const today = new Date().toISOString().split("T")[0];
+  
+  //   // Check if start date is in the future
+  //   if (startDate > today) {
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: 'Invalid Start Date',
+  //       text: 'Start Date cannot be in the future.',
+  //     });
+  //     startDateInput.value = ""; // Clear the invalid input
+  //     return;
+  //   }
+  
+  //   // Check if end date is in the future
+  //   if (endDate > today) {
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: 'Invalid End Date',
+  //       text: 'End Date cannot be in the future.',
+  //     });
+  //     endDateInput.value = ""; // Clear the invalid input
+  //     return;
+  //   }
+  
+  // }
+
+  // Set the max attribute for the date inputs dynamically
+document.addEventListener("DOMContentLoaded", () => {
+  const today = new Date().toISOString().split("T")[0]; // Format: yyyy-mm-dd
+  document.getElementById("startDate").setAttribute("max", today);
+  document.getElementById("endDate").setAttribute("max", today);
+});
+
+// Validate selected dates in case the user bypasses the restriction
+function validateDates() {
+  const startDateInput = document.getElementById("startDate");
+  const endDateInput = document.getElementById("endDate");
+  const today = new Date().toISOString().split("T")[0];
+
+  // Check if startDate is in the future
+  if (startDateInput.value > today) {
+    Swal.fire({
+      icon: "error",
+      title: "Invalid Start Date",
+      text: "Start Date cannot be in the future.",
+    });
+    startDateInput.value = ""; // Clear invalid input
+    return;
+  }
+
+  // Check if endDate is in the future
+  if (endDateInput.value > today) {
+    Swal.fire({
+      icon: "error",
+      title: "Invalid End Date",
+      text: "End Date cannot be in the future.",
+    });
+    endDateInput.value = ""; // Clear invalid input
+    return;
+  }
+
+  // Check if startDate is after endDate
+  if (startDateInput.value && endDateInput.value && startDateInput.value > endDateInput.value) {
+    Swal.fire({
+      icon: "error",
+      title: "Invalid Date Range",
+      text: "Start Date cannot be after End Date.",
+    });
+    endDateInput.value = ""; // Clear invalid input
+  }
+}

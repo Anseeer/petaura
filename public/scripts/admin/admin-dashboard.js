@@ -89,3 +89,92 @@
      }
  }
  
+ 
+function isCustom(e,filter){
+    e.preventDefault();
+    const CustomFilterContainer = document.getElementById("customFilter")
+    if(filter == 'custom'){
+        CustomFilterContainer.style.display = "block";
+    }else{
+        CustomFilterContainer.style.display = "none";
+    }
+ }
+ 
+ function CustomFilter() {
+    const startDateInput = document.getElementById("startDate");
+    const endDateInput = document.getElementById("endDate");
+    const errorDiv = document.getElementById("errorMessage"); // Error message container
+    const start = startDateInput.value;
+    const end = endDateInput.value;
+    const today = new Date().toISOString().split("T")[0]; // Today's date in YYYY-MM-DD format
+
+    // Clear previous error messages
+    if (errorDiv) errorDiv.textContent = "";
+
+    // Validation: Ensure dates are not in the future
+    if (start > today) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Start Date',
+            text: 'Start Date cannot be in the future.',
+        });
+        startDateInput.value = ""; // Clear the invalid value
+        return;
+    }
+
+    if (end > today) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid End Date',
+            text: 'End Date cannot be in the future.',
+        });
+        endDateInput.value = ""; // Clear the invalid value
+        return;
+    }
+
+    // Validation: Ensure start date is not greater than end date
+    if (start && end && start > end) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Invalid Date Range',
+            text: 'Start Date cannot be greater than End Date.',
+        });
+        endDateInput.value = ""; // Clear the end date to prevent invalid range
+        return;
+    }
+
+    console.log("Validated Dates - Start:", start, "End:", end);
+
+    // Proceed with fetching data
+    fetch(`/admin/fetchDashboard?start=${start}&end=${end}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then((res) => {
+            if (!res.ok) {
+                throw new Error("Failed to fetch data from the server");
+            }
+            return res.json(); // Parse the response as JSON
+        })
+        .then((data) => {
+            updateDashboard(data); // Call your update function with the received data
+        })
+        .catch((err) => {
+            console.error("Error fetching dashboard data:", err);
+
+            // Optional: Display error message in the UI
+            if (errorDiv) {
+                errorDiv.textContent = "An error occurred while fetching the dashboard data. Please try again.";
+            }
+
+            // Optional: Show a SweetAlert error popup
+            Swal.fire({
+                icon: 'error',
+                title: 'Fetch Error',
+                text: 'An error occurred while fetching the data. Please try again later.',
+            });
+        });
+}
+

@@ -563,6 +563,7 @@ const loadCheckoutPage = async (req, res) => {
         const cart = await Cart.findOne({userId:user});
         const coupons = await Coupen.find({ isActive: true, expiredAt: { $gte: new Date() } });
         const address = addressDoc ? addressDoc.addresses : []; // Fallback to empty array if no addresses
+        console.log(address);
         res.render("checkout", { user, address ,cart:cart||{totalPrice:0},coupons}); // Pass addresses to the view
     } catch (error) {
         res.status(500).send("Error loading checkout page.");
@@ -1089,17 +1090,29 @@ const removeFromWishlist = async(req,res)=>{
 
 const loadWallet = async(req,res)=>{
     try {
+       
+        const page = parseInt(req.query.page) || 1;
+        const limit = 10;
+        const skip = (page -1) * limit;
         const userId = req.session.user;
         const wallet = await Wallet.findOne({userId});
         if (wallet && wallet.history) {
             wallet.history.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         }
-        const history = wallet.history;
-        res.render("wallet",{wallet,history});
+        const history = wallet.history.slice(skip, skip + limit);
+        const totalPage = Math.ceil(wallet.history.length / limit); // Calculate total pages
+
+        res.render("wallet", { 
+            wallet, 
+            history, 
+            currentPage: page, 
+            totalPage
+        });
     } catch (error) {
         res.status(400).json({success:false,message:"Error in load wallet"});
     }
 }
+
 function generateTransactionId() {
     const timestamp = Date.now().toString();  // Current timestamp in milliseconds
     const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part

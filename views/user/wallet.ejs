@@ -87,12 +87,32 @@
                                 <td style="padding: 8px;"><%= history[i].description %></td>
                             </tr>
                         </tbody>
-                        
+                       
                     <%}%>
                 </table>
                 <%}else{%>
                     Empty History
                     <%}%>
+            </div>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/user/wallet?page=<%= currentPage - 1 %>" class="btn">Previous</a>
+                <% } else { %>
+                    <a class="btn disabled">Previous</a>
+                <% } %>
+            
+                <% for (let i = 1; i <= totalPage; i++) { %>
+                    <a href="/user/wallet?page=<%= i %>" 
+                       class="btn <%= currentPage === i ? 'btn-secondary' : '' %>">
+                       <%= i %>
+                    </a>
+                <% } %>
+            
+                <% if (currentPage < totalPage) { %>
+                    <a href="/user/wallet?page=<%= currentPage + 1 %>" class="btn">Next</a>
+                <% } else { %>
+                    <a class="btn disabled">Next</a>
+                <% } %>
             </div>
             
         </div>
