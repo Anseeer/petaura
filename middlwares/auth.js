@@ -1,9 +1,12 @@
 const User = require("../model/userSchema");
 const logger = require("../config/logger");
 const userauth = (req, res, next) => {
-    if (req.session.user) {
-        User.findById(req.session.user)
-            .then(data => {                                                                                                                                                                                                                                                                                                                                                            
+    // Check for session user or Passport user
+    const sessionUser = req.session.user || (req.user && req.user._id);
+
+    if (sessionUser) {
+        User.findById(sessionUser)
+            .then(data => {
                 if (data) {
                     if (data.isBlocked) {
                         logger.info("User is blocked");
@@ -14,7 +17,8 @@ const userauth = (req, res, next) => {
                             res.redirect("/user/login");
                         });
                     } else {
-                        next();
+                        req.user = data; // Attach user data to the request object
+                        next(); // Proceed to the next middleware or route
                     }
                 } else {
                     logger.info("User not found");
@@ -30,6 +34,7 @@ const userauth = (req, res, next) => {
         res.redirect("/user/login");
     }
 };
+
 
 
 const adminauth = async (req, res, next) => {

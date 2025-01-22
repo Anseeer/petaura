@@ -129,7 +129,7 @@ const updateRequestStatus = async (req, res) => {
         if (status === "approved") {
             const productIncrement = await Product.findOneAndUpdate(
                 { _id: productId },
-                { $inc: { quantity: requestedOrder.quantity } },
+                { $inc: { quantity: requestedOrder.quantity ,saleCount:-1 }},
                 { new: true }
             );
 
@@ -275,9 +275,21 @@ const orderCancel = async (req, res) => {
                 message: "Order not found for the given user and order ID",
             });
         }
-        order.orderedItems.forEach((item)=>{
-            item.status = "canceled";
-        }) 
+        for (const item of order.orderedItems) {
+            item.status = "canceled"; // Mark item as canceled
+        
+            // Update the product sale count (decrement it)
+            const product = await Product.findOneAndUpdate(
+                { _id: item.product },
+                { $inc: { saleCount: -1 } }, // Decrement saleCount by 1
+                { new: true } // Return the updated product
+            );
+            
+            // You might want to handle the case where the product update fails or returns null
+            if (!product) {
+                console.log(`Product with ID ${item.product} not found.`);
+            }
+        }
         order.save();
 
         if (order.paymentStatus === "PAID") {
@@ -344,6 +356,12 @@ const SingleorderCancel = async (req, res) => {
             { orderId, 'orderedItems._id': itemId },
             { $set: { 'orderedItems.$.status': 'canceled' } }
         );
+
+        await Product.findOneAndUpdate(
+            {_id:orderedItem.product},
+            {$inc:{saleCount:-1}},
+            {new:true}
+        )
 
         // If the payment is completed, refund to wallet
         if (order.paymentStatus === "PAID") {

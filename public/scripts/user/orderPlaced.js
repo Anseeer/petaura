@@ -1,5 +1,5 @@
  // Timer for redirect
- let countdown = 5; // Timer starts at 3 seconds
+ let countdown = 3; // Timer starts at 3 seconds
  const countdownElement = document.getElementById('countdown');
  const redirectLink = document.getElementById('redirectLink');
  

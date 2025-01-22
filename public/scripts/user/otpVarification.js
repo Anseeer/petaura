@@ -86,36 +86,46 @@ return false; // Prevent form submission
 
 
 function resendOTP() {
-console.log("hellooop")
-clearInterval(countdown); // Clear any existing timer
-timeLeft = 60; // Reset the timer
-startTimer(); // Start a new timer
-
-fetch("/user/resend-Otp",{
-method:"POST",
-headers:{
- "Content-Type":"application/json",
-}
-})
-.then(response => response.json())
-.then(response =>{
-if(response.success){
- Swal.fire({
-     icon:"success",
-     title:"OTP Resend ",
-     showCancelButton: false,
-     text:response.message,
-     timer:1500
- })
-}
-})
-.catch(error =>{
-Swal.fire({
- icon:"error",
- title:"Faild To Resend OTP",
- text:response.message,
- showCancelButton: false,
- timer:1500
-})
-})
+    if(timeLeft == 0){
+        clearInterval(countdown); // Clear any existing timer
+        timeLeft = 60; // Reset the timer
+        startTimer(); // Start a new timer
+        
+        fetch("/user/resend-Otp",{
+        method:"POST",
+        headers:{
+         "Content-Type":"application/json",
+        }
+        })
+        .then(response => response.json())
+        .then(response =>{
+        if(response.success){
+         Swal.fire({
+             icon:"success",
+             title:"OTP Resend ",
+             showCancelButton: false,
+             text:response.message,
+             timer:1500
+         })
+        }
+        })
+        .catch(error =>{
+        Swal.fire({
+         icon:"error",
+         title:"Faild To Resend OTP",
+         text:response.message,
+         showCancelButton: false,
+         timer:1500
+        })
+        })
+    }else{
+        Swal.fire({
+            icon: "warning", // Corrected icon name
+            title: "Resend after the expired time limit",
+            showConfirmButton: false, // Corrected spelling
+            showCancelButton: false, // Corrected spelling
+            timer: 1200, // Time in milliseconds
+        });
+        
+    }
 }  

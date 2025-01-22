@@ -142,7 +142,7 @@ const signup = async (req,res)=>{
         const findUser = await User.findOne({email});
 
         if(findUser){
-            return res.render("signup",{message:"Please check your email !"});
+            return res.render("signup",{message:"Please check your email , the email is already exists !"});
         }
 
         const otp = await generateOtp();

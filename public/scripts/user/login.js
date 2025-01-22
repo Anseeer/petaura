@@ -1,65 +1,75 @@
- // Add event listener to toggle password visibility
- document.getElementById("togglePassword").addEventListener("click", function () {
-    const passwordInput = document.getElementById("password");
-    const passwordIcon = document.getElementById("password-icon");
+ document.addEventListener("DOMContentLoaded", function () {
+            const loginform = document.getElementById("loginform");
+            const email = document.getElementById("email");
+            const password = document.getElementById("password");
+            const err1 = document.getElementById("err-1");
+            const err2 = document.getElementById("err-2");
 
-    if (passwordInput.type === "password") {
-      passwordInput.type = "text";  // Show the password
-      passwordIcon.classList.remove("fa-eye-slash");
-      passwordIcon.classList.add("fa-eye");  // Change icon to 'eye' (password visible)
-    } else {
-      passwordInput.type = "password";  // Hide the password
-      passwordIcon.classList.remove("fa-eye");
-      passwordIcon.classList.add("fa-eye-slash");  // Change icon to 'eye-slash' (password hidden)
-    }
-  });
+            // Function to toggle password visibility
+            document.getElementById("togglePassword").addEventListener("click", function () {
+                const passwordInput = document.getElementById("password");
+                const passwordIcon = document.getElementById("password-icon");
 
-  const email = document.getElementById("email");
-  const password = document.getElementById("password");
-  const err1 = document.getElementById("err-1");
-  const err2 = document.getElementById("err-2");
-  const loginform = document.getElementById("loginform");
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    passwordIcon.classList.remove("fa-eye-slash");
+                    passwordIcon.classList.add("fa-eye");
+                } else {
+                    passwordInput.type = "password";
+                    passwordIcon.classList.remove("fa-eye");
+                    passwordIcon.classList.add("fa-eye-slash");
+                }
+            });
 
-  function emailValidation(e){
-      const emailVal = email.value;
-      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            // Email validation function
+            function emailValidation() {
+                const emailVal = email.value.trim();
+                const emailPattern = /^[a-z0-9._%+-]+@gmail\.com$/;
 
-      if(emailVal.trim()==""){
-          err1.style.display="block";
-          err1.innerHTML="Please enter Your Email";
-      }else if(!emailPattern.test(emailVal)){
-          err1.style.display="block";
-          err1.innerHTML="Inavalid Email ";
-      }else{
-          err1.style.display="none";
-          err1.innerHTML=""
-      }
-  }
+                if (emailVal === "") {
+                    err1.style.display = "block";
+                    err1.innerHTML = "Please enter your email.";
+                    return false;
+                } else if (!emailPattern.test(emailVal)) {
+                    err1.style.display = "block";
+                    err1.innerHTML = "Invalid email format.";
+                    return false;
+                } else {
+                    err1.style.display = "none";
+                    err1.innerHTML = "";
+                    return true;
+                }
+            }
 
-  function passValidation(e){
-      const passVal = password.value;
-      const passPattern = /^.{6,}$/;
+            // Password validation function
+            function passValidation() {
+                const passVal = password.value.trim();
+                const passPattern = /^.{6,}$/;
 
-      if(passVal.trim()==""){
-          err2.style.display="block";
-          err2.innerHTML="Please enter Your Password";
-      }else if(!passPattern.test(passVal)){
-          err2.style.display="block";
-          err2.innerHTML="Inavalid Password ";
-      }else{
-          err2.style.display="none";
-          err2.innerHTML=""
-      }
-  }
+                if (passVal === "") {
+                    err2.style.display = "block";
+                    err2.innerHTML = "Please enter your password.";
+                    return false;
+                } else if (!passPattern.test(passVal)) {
+                    err2.style.display = "block";
+                    err2.innerHTML = "Password must be at least 6 characters.";
+                    return false;
+                } else {
+                    err2.style.display = "none";
+                    err2.innerHTML = "";
+                    return true;
+                }
+            }
 
-  document.addEventListener("DOMContentLoaded",function(){
-      loginform.addEventListener("submit",function(e){
-          emailValidation();
-          passValidation();
+            // Form submission handler
+            loginform.addEventListener("submit", function (e) {
+                const isEmail = emailValidation();
+                const isPass = passValidation();
 
-          if( err1.innerHTML || err2.innerHTML){
-              e.preventDefault();
-          }
-      })
-  })
-
+                // If validation fails, prevent form submission
+                if (!isEmail|| ! isPass) {
+                    e.preventDefault(); // Prevent form submission
+                } else {
+                }
+            });
+        });

@@ -177,7 +177,7 @@ function rePayment(event, razorPayOrderId) {
                             // Check if payment verification was successful
                             if (verificationResult.success) {
                                 // Redirect to order confirmation page
-                                window.location.href = `/user/orderHistory`;
+                                window.location.href = `/user/orderPlaced`;
                             } else {
                                 // Show error message if payment verification fails
                             }

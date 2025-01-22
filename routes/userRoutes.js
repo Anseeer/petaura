@@ -124,18 +124,32 @@ userRoutes.get("/referral",userauth,profileController.loadReferral);
 
 userRoutes.post("/apply-coupen",userauth,coupenController.applyCoupen);
 userRoutes.get("/getInvoice/:orderId",userauth,orderController.generateSalesInvoice);
-
-userRoutes.get("/auth/google", passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    prompt: 'select_account'  // Forces account selection if multiple accounts are signed in
-}));
-userRoutes.get('/auth/google/callback',
-    passport.authenticate('google', {
-        successRedirect: '/user', // Where to go on success
-        failureRedirect: '/user/signup',    // Where to go on failure
-         
+// Route to initiate Google sign-up/login
+userRoutes.get(
+    "/auth/google",
+    passport.authenticate("google", {
+      scope: ["profile", "email"],
+      prompt: "select_account", // Forces account selection
     })
-);
+  );
+  
+  // Google OAuth2 Callback Route
+  userRoutes.get(
+    "/auth/google/callback",
+    passport.authenticate("google", {
+      failureRedirect: "/user/signup", // Redirect on authentication failure
+    }),
+    (req, res) => {
+      try {
+        // Successful authentication
+        res.redirect("/user/"); // Redirect to the user dashboard or home page
+      } catch (err) {
+        console.error("Error during redirection:", err);
+        res.redirect("/user/signup");
+      }
+    }
+  );
+  
 
 
 module.exports = userRoutes ;

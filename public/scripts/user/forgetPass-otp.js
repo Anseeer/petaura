@@ -25,7 +25,8 @@ function startOtpTimer() {
 })();
 
 async function resendOtp(event) {
-    event.preventDefault();
+    if(timer == 0){
+        event.preventDefault();
     const timerElement = document.getElementById("timer");
     clearInterval(otpTimerInterval);
     timer = 60;
@@ -63,6 +64,17 @@ async function resendOtp(event) {
             text: "Failed to resend OTP. Try again later.",
         });
     }
+    }else{
+        Swal.fire({
+            icon: "warning", // Corrected icon name
+            title: "Resend after the expired time limit",
+            showConfirmButton: false, // Corrected spelling
+            showCancelButton: false, // Corrected spelling
+            timer: 1200, // Time in milliseconds
+        });
+        
+    }
+    
 }
 
 document.getElementById('otpVerificationForm').addEventListener('submit', async function(e) {

@@ -125,7 +125,7 @@ const fetchDashboard = async(req,res)=>{
     let filterValue = req.query.filter || 'year';
     let start = req.query.start;
     let end = req.query.end;
-    console.log("Start:",start,"end:",end);
+    // console.log("Start:",start,"end:",end);
     // logger.info(filterValue);
     let currentDate = new Date();
     let startDate, endDate;
@@ -146,13 +146,13 @@ const fetchDashboard = async(req,res)=>{
         }
       }
   
-    //   logger.info(`Date Range: Start = ${startDate}, End = ${endDate}`);
+      logger.info(`Date Range: Start = ${startDate}, End = ${endDate}`);
   
 
         const product = await Product.find({}).sort({saleCount:-1}).limit(5);
         const category = await Category.find({}).sort({saleCount:-1}).limit(5);
-        const users = await User.countDocuments({});
-        logger.info(` 'start':,${startDate},'end:',${endDate}`);
+        const users = await User.countDocuments({ isAdmin: false });
+        // logger.info(` 'start':,${startDate},'end:',${endDate}`);
         const totalSales = await Order.aggregate([
             {
                 $match:{
@@ -202,10 +202,7 @@ const fetchDashboard = async(req,res)=>{
         ]);
         
         let revenue = totalRevenue.length > 0 ? totalRevenue[0].revenue : 0;
-        // logger.info("Total Revenue (5)% of totalPrice):", revenue);
-        
-        
-        // logger.debug("Iam fetch ");
+       
 
         res.status(200).json({product,category,users,totalSales:sales,revenue});
     } catch (error) {
