@@ -172,21 +172,19 @@ display: block; /* Show dropdown */
     padding-left: 90px;
     
 }
-
-
 #loading-overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100vw;
-height: 100vh;
-background: rgba(0, 0, 0, 0.6);
-z-index: 9999;
-display: flex;
-justify-content: center;
-align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    z-index: 5; /* Lower than navbar */
+    display: none; /* Hidden initially */
+    justify-content: center;
+    align-items: center;
 }
-
+  
 body.loading #wishlist-container {
 pointer-events: none;
 opacity: 0.5;

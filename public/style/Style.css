@@ -330,16 +330,14 @@
     text-align: center; 
     padding-bottom: 50px;
 }
-.footer{
-    height: 50px;
-    background-color: rgb(250, 150, 7);
-}
 
 .ordernow {
     position: absolute; /* Allows precise placement */
     bottom: 20px; /* Pushes the button near the bottom */
     left: 50%; /* Centers horizontally */
     transform: translateX(-50%); /* Corrects offset from left 50% */
+    /* position: relative; */
+    z-index: 10;
 }
 .ecofreindly_image {
     background-image: url("../style/img/petEco.png");
@@ -404,37 +402,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
 }
 
-.footer {
-    background: rgb(250, 150, 7); /* Dark background */
-    color: #ffffff;     /* White text for contrast */
-    text-align: center;
-}
-
-.footer ul {
-    padding: 0;
-    margin-top: 100vh;
-    background-color: rgb(250, 150, 7);
-}
-
-.footer-link {
-    color: #ffffff; /* Light gray for links */
-    text-decoration: none; /* Remove underline */
-    font-size: 1.1rem; /* Slightly larger font size */
-    transition: color 0.3s ease, transform 0.2s ease; /* Smooth effects */
-}
-
-.footer-link:hover {
-    color: #f8f9fa; /* Change to white on hover */
-    transform: scale(1.1); /* Slight zoom effect */
-}
-
-.footer ul li {
-    list-style: none;
-}
-.social-icons{
-    padding-left: 720px;
-    
-}
 
 /* catsupllies */
 

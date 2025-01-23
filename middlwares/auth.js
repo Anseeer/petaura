@@ -2,7 +2,7 @@ const User = require("../model/userSchema");
 const logger = require("../config/logger");
 const userauth = (req, res, next) => {
     // Check for session user or Passport user
-    const sessionUser = req.session.user || (req.user && req.user._id);
+    const sessionUser = req.session.user ;
 
     if (sessionUser) {
         User.findById(sessionUser)
@@ -26,7 +26,7 @@ const userauth = (req, res, next) => {
                 }
             })
             .catch(err => {
-                logger.error("Error occurred in userauth", err);
+                logger.error("Error occurred in userAuth:", err);
                 res.redirect("/user/login");
             });
     } else {
@@ -34,7 +34,6 @@ const userauth = (req, res, next) => {
         res.redirect("/user/login");
     }
 };
-
 
 
 const adminauth = async (req, res, next) => {

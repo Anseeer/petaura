@@ -47,37 +47,81 @@
 </body>
 </html> -->
 <!-- Footer -->
-<footer style="background-color: rgb(250, 150, 7); color: rgb(0, 0, 0); padding: 15px 0;">
-    <div style="max-width: 1200px; margin: 0 auto; text-align: center;">
-      <h3>PetAura</h3>
-      <p>Your one-stop destination for pet accessories and products.</p>
-  
-      <!-- Social Media Icons -->
-      <div style="margin: 15px 0;">
-        <a href="https://facebook.com" target="_blank" style="color: rgb(0, 0, 0); margin: 0 10px; text-decoration: none;">
-          <i class="fab fa-facebook-f"></i>
-        </a>
-        <a href="https://instagram.com" target="_blank" style="color: rgb(0, 0, 0); margin: 0 10px; text-decoration: none;">
-          <i class="fab fa-instagram"></i>
-        </a>
-        <a href="https://twitter.com" target="_blank" style="color: rgb(0, 0, 0); margin: 0 10px; text-decoration: none;">
-          <i class="fab fa-twitter"></i>
-        </a>
-      </div>
-   
-      <p>&copy; 2025 PetAura. All Rights Reserved.</p>
+<footer class="footer">
+  <div class="footer-content">
+    <h3>PetAura</h3>
+    <p>Your one-stop destination for pet accessories and products.</p>
+
+    <!-- Social Media Icons -->
+    <div class="social-icons">
+      <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
+      <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
     </div>
-  </footer>
 
-  <style>
-    /* Add styles for social icons */
-footer a i {
-  font-size: 20px;
-  transition: color 0.3s ease;
+    <p>&copy; 2025 PetAura. All Rights Reserved.</p>
+  </div>
+</footer>
+
+<style>
+/* General body and container styles */
+body, html {
+margin: 0;
+padding: 0;
+height: 100%;
+display: flex;
+flex-direction: column;
 }
 
-footer a:hover i {
-  color: #4CAF50; /* Add your brand color for hover effect */
+.main-content {
+flex: 1; /* Ensure content pushes the footer down */
+min-height: 70vh; /* Adjust based on the page layout */
 }
+
+/* Footer styles */
+.footer {
+background-color: rgb(250, 150, 7); /* Background color */
+color: #000; /* Black text for better readability */
+text-align: center;
+padding: 20px 0; /* Padding for spacing */
+margin-top: 0vh; /* Push the footer to the bottom */
+}
+
+.footer-content {
+max-width: 1200px;
+margin: 0 auto;
+}
+
+.footer ul {
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+.footer ul li {
+display: inline-block;
+margin: 0 10px;
+}
+
+.footer a {
+color: #000; /* Black links */
+text-decoration: none;
+}
+
+.footer a:hover {
+color: #4CAF50; /* Brand hover color */
+}
+
+.social-icons a {
+margin: 0 10px;
+font-size: 20px;
+transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+color: #4CAF50; /* Brand hover color */
+}
+</style>
+
 
   </style>
