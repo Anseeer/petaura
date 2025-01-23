@@ -1,4 +1,74 @@
-   
+document.addEventListener("DOMContentLoaded",()=>{
+    fetchAddress()
+})
+
+function fetchAddress(){
+    fetch("/user/fetchAddress",{
+        method:"GET",
+        headers:{
+            'Content-Type':'application/json',
+        }
+    })
+    .then((res)=> res.json() )
+    .then((res)=>{
+        if(res.success){
+            renderAddress(res.address)
+        }else{
+            alert("FAILD TO FETCH");
+        }
+    })
+    .catch(()=>{
+        alert("ERROR IN FETCH ");
+    })
+}
+
+function renderAddress(address) {
+    const table = document.getElementById("addressTable");
+    const tbody = table.querySelector("tbody");
+
+    // Clear existing table rows
+    tbody.innerHTML = "";
+
+    if (address && address.length > 0) {
+        table.style.display = "table"; // Show the table
+
+        // Populate the table with rows
+        address.forEach((addr, index) => {
+            const row = document.createElement("tr");
+
+            // Create cells
+            const cellIndex = document.createElement("td");
+            cellIndex.textContent = index + 1;
+
+            const cellAddress = document.createElement("td");
+            cellAddress.innerHTML = `<strong>${addr.addressType}:</strong> ${addr.name}, ${addr.country}, ${addr.state}, ${addr.pincode}, ${addr.phone}`;
+
+            const cellActions = document.createElement("td");
+            cellActions.innerHTML = `
+                <a href="/user/edit-address?id=${addr._id}" class="text-primary">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a href="#" onclick="deleteAddress(event, '${addr._id}')" class="text-danger">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            `;
+
+            // Append cells to the row
+            row.appendChild(cellIndex);
+            row.appendChild(cellAddress);
+            row.appendChild(cellActions);
+
+            // Append row to the tbody
+            tbody.appendChild(row);
+        });
+    } else {
+        table.style.display = "none"; // Hide the table if no addresses
+    }
+
+    // Clear all form inputs
+
+}
+
    function deleteAddress(event,addressId){
     console.log("addressId:",addressId); 
     event.preventDefault();
@@ -31,7 +101,7 @@
             showConfirmButton:false,
             timer:1500,
         }).then(()=>{
-            location.reload();
+            fetchAddress()
         })
     }else{
         Swal.fire({
@@ -178,7 +248,14 @@
             showConfirmButton:false,
             timer:1500,
         }).then(()=>{
-            window.location.href="/user/address";
+        const formInputs = document.querySelectorAll(".address-form input, .address-form select");
+        formInputs.forEach((input) => {
+        if (input.type !== "submit") {
+            input.value = ""; // Clear the value
+        }
+        });
+    
+            fetchAddress()
         })
     }else{
         Swal.fire({

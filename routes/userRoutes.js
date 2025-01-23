@@ -75,6 +75,7 @@ userRoutes.post("/reset-password",profileController.newPass);
 userRoutes.get("/reset-password",profileController.loadNewPass);    
 userRoutes.get("/profile",userauth,profileController.loadProfile);       
 userRoutes.get("/address",userauth,profileController.loadAddress);       
+userRoutes.get("/fetchAddress",userauth,profileController.fetchAddress);       
 userRoutes.post("/addAddress",userauth,profileController.addNewAddress);                     
 userRoutes.get("/addNewAddress",userauth,profileController.addAddress);                     
 userRoutes.get("/edit-address",userauth,profileController.editAddress);                     
@@ -102,6 +103,7 @@ userRoutes.post("/single-order-cancel",userauth,orderController.SingleorderCance
 userRoutes.post("/order-return",userauth,orderController.orderReturn);       
 userRoutes.post("/order-return-request",userauth,orderController.returnRequest);
 userRoutes.get("/orderHistory",userauth,profileController.loadOrderHistory);       
+userRoutes.get("/fetchOrders",userauth,profileController.fetchOrders);       
 userRoutes.get("/orderPlaced",userauth,profileController.orderPlaced);       
 userRoutes.post("/updatePendingOrder",userauth,orderController.updatePendingOrder);       
 
@@ -125,49 +127,6 @@ userRoutes.get("/referral",userauth,profileController.loadReferral);
 userRoutes.post("/apply-coupen",userauth,coupenController.applyCoupen);
 userRoutes.get("/getInvoice/:orderId",userauth,orderController.generateSalesInvoice);
 
-// module.exports.googleLoginRoute = (req, res, next) => {
-//   // Use Passport's Google authentication strategy
-//   passport.authenticate("google", {
-//     scope: ["profile", "email"], // Request access to profile and email
-//     prompt: "select_account" // Forces the user to select an account, useful for multi-account users
-//   })(req, res, next);
-// };
-
-// module.exports.googleAuthCallback = (req, res, next) => {
-//   console.log("log 1"); // Log before authentication starts
-  
-//   passport.authenticate("google", { session: false }, (err, user, info) => {
-//     console.log("log 2"); // Log after authentication response from Google
-
-//     // Handle any errors from Google authentication
-//     if (err && err.message) {
-//       // Check for a duplicate email error during authentication
-//       if (err.message.includes("E11000")) {
-//         console.error("Error during authentication: Duplicate email detected.");
-        
-//         // Redirect the user with a message indicating the email is already registered
-//         return res.status(500).redirect(`/login/?errorDuplicate=${encodeURIComponent("Email already registered through normal login")}`);
-//       }
-//     }
-
-//     // If no user is found, send a 401 Unauthorized response
-//     if (!user) {
-//       console.warn("Authentication failed: No user found.");
-//       return res.status(401).json({ error: "Unauthorized" });
-//     }
-
-//     // If authentication is successful, generate a JWT (token) for the user
-//     const token = user.token;
-    
-//     // Set the token in a cookie (securely, with httpOnly flag to prevent access from JS)
-//     res.cookie("jwt", token, { httpOnly: true });
-
-//     console.log("After setting cookie"); // Log after cookie has been set
-    
-//     // Redirect the user to the home page after successful authentication
-//     res.redirect("/");
-//   })(req, res, next); // Pass request, response, and next middleware to Passport
-// };
 
 
 

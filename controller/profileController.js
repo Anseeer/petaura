@@ -201,7 +201,6 @@ const loadProfile = async(req,res)=>{
 
 const loadOrderHistory = async(req,res)=>{
     try {
-
         const page = parseInt(req.query.page) || 1;
         const limit = 8;
         const skip = (page -1) * limit;
@@ -221,11 +220,50 @@ const loadOrderHistory = async(req,res)=>{
         const orderedItems = orders.orderedItems;
 
 
-        res.render("orderHistory",{orders,orderedItems,pendingOrders,pending,currentPage:page,totalPage:Math.ceil(totalOrders/limit)}); 
+        res.render("orderHistory",{
+                success: true,
+                pendingOrders,
+                pending, // Pass the full array
+                orders,        // Pass the full array
+                currentPage: page,
+                totalPage: Math.ceil(totalOrders / limit),
+        }); 
     } catch (error) {
         res.status(400).send("Error in the loadOrderHistory");
     }
 }
+const fetchOrders = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+        const skip = (page - 1) * limit;
+
+        const userId = req.session.user;
+        const totalOrders = await Order.countDocuments({ userId });
+
+        const pendingOrders = await PendingOrder.find({ userId })
+            .populate("orderedItems.product", "_id name Image description")
+            .sort({ createdAT: -1 });
+
+        const orders = await Order.find({ userId })
+            .skip(skip)
+            .limit(limit)
+            .populate("orderedItems.product", "_id name Image description")
+            .sort({ createdAT: -1 });
+
+        res.status(200).json({
+            success: true,
+            pendingOrders, // Pass the full array
+            orders,        // Pass the full array
+            currentPage: page,
+            totalPage: Math.ceil(totalOrders / limit),
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ success: false, message: "Error in fetching order history" });
+    }
+};
+
 
 const orderPlaced = async(req,res)=>{
     try {
@@ -240,6 +278,17 @@ const loadAddress = async (req, res) => {
     try {
         const user = req.session.user;
 
+        res.render("address", { user });
+
+    } catch (error) {
+        res.status(400).send("Error in the loadAddress");
+    }
+};
+
+const fetchAddress = async (req, res) => {
+    try {
+        const user = req.session.user;
+
         // Find the user's address document
         const addressDoc = await Address.findOne({ userId: user });
 
@@ -247,7 +296,7 @@ const loadAddress = async (req, res) => {
         const address = addressDoc?.addresses || []; 
 
         // Proceed with your logic (e.g., render a template or send data)
-        res.render("address", { user, address });
+        res.status(200).json({success:true, user, address });
 
     } catch (error) {
         res.status(400).send("Error in the loadAddress");
@@ -531,7 +580,9 @@ module.exports = {
     loadNewPass,
     loadProfile ,  
     loadOrderHistory,
+    fetchOrders,
     loadAddress,
+    fetchAddress,
     addNewAddress,
     editAddress,
     editedAddress,

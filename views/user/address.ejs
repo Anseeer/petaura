@@ -79,34 +79,16 @@
         </div>
 
         <!-- Address Table -->
-        <table class="table">
-            <% if(address && address.length > 0 ){ %>
+        <table class="table" id="addressTable" style="display: none;">
             <thead>
                 <tr style="border-top: 2px solid black;">
                     <th>#</th>
                     <th>Address</th>
-                    <th>Actions</th> 
+                    <th>Actions</th>
                 </tr>
             </thead>
-           
-            <tbody>
-                <% address.forEach((address,index)=> {%>
-                    <tr>
-                        <td><%= index + 1 %></td>
-                        <td>
-                            <strong><%= address.addressType %>:</strong> <%= address.name %>, <%= address.country %>, <%= address.state %>, <%= address.pincode %>, <%= address.phone %>
-                        </td>
-                        <td>
-                            <a href="/user/edit-address?id=<%= address._id %>" class="text-primary"><i class="fas fa-edit"></i></a>
-                            <a href="" onclick="deleteAddress(event , '<%= address._id %>') " class="text-danger"><i class="fas fa-trash-alt"></i></a>
-                        </td>
-                    </tr>
-                    
-            <%})%>
-            </tbody>
-
+            <tbody></tbody>
         </table>
-        <%}%>
         
     </div>
 
