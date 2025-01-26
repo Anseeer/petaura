@@ -251,7 +251,7 @@ function renderOrders(pendingOrders, orders, currentPage, totalPage) {
                 ${
                     order.status === 'delivered' &&
                     new Date(order.returnDeadline) > new Date()
-                        ? `<span>Return by: ${new Date(order.returnDeadline).toLocaleDateString(
+                        ? `<span>Return in: ${new Date(order.returnDeadline).toLocaleDateString(
                               'en-GB'
                           )}</span>`
                         : order.status === 'pending'

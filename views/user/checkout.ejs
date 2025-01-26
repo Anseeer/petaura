@@ -143,11 +143,24 @@
     let selectedAddressId = null;
   let selectedPaymentMethod = null;
   let appliedDiscount = 0;
-document.addEventListener("DOMContentLoaded",()=>{
-  selectAddress(' <%= address[0].addressType %>, <%= address[0].name %>,<%= address[0].country %>, <%= address[0].state %>, <%= address[0].pincode %> , <%= address[0].phone %>','<%= address[0]._id %>')
-})
+  document.addEventListener("DOMContentLoaded", () => {
+    // Parse the address array from EJS safely
+    const address = <%- JSON.stringify(address) %>;
 
+    console.log("Parsed address array:", address);
 
+    if (address.length > 0) {
+      const firstAddress = address[0];
+
+      // Call the selectAddress function with the first address details
+      selectAddress(
+        `${firstAddress.addressType}, ${firstAddress.name}, ${firstAddress.country}, ${firstAddress.state}, ${firstAddress.pincode}, ${firstAddress.phone}`,
+        `${firstAddress._id}`
+      );
+    }
+  });
+
+  
   function toggleAddressDropdown() {
     const dropdown = document.getElementById('addressDropdown');
     dropdown.classList.toggle('d-none');

@@ -98,7 +98,7 @@
                             <td><%= order.status %></td>
                             <td>
                                 <% if (order.status === "delivered" && !hasRejectedItems && new Date(order.returnDeadline) > new Date()) { %>
-                                    <span>Return by: <%= order.returnDeadline ? new Date(order.returnDeadline).toLocaleDateString('en-GB') : 'N/A' %></span>
+                                    <span>Return in: <%= order.returnDeadline ? new Date(order.returnDeadline).toLocaleDateString('en-GB') : 'N/A' %></span>
                                     <% } else if (order.status === "pending") { %>
                                     <button class="btn btn-danger btn-sm btn-custom" onclick="event.stopPropagation(); orderCancel(event, '<%= order.orderId %>')">Cancel Order</button>
                                 <% } %>
