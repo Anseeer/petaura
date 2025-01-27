@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function fetchProducts(page) {
     const { category, sort, search } = filterState;
   
-    fetch(`/user/fillterCategoryOfCat?category=${encodeURIComponent(category)}&sort=${encodeURIComponent(sort)}&search=${encodeURIComponent(search)}&page=${page}`, {
+    fetch(`/fillterCategoryOfCat?category=${encodeURIComponent(category)}&sort=${encodeURIComponent(sort)}&search=${encodeURIComponent(search)}&page=${page}`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json'
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
     products.forEach((product, index) => {
       const productDetails = `
         <div class="col-md-4 mb-4">
-          <a href="/user/ProuctDetailsOfPetBirds?product=${product._id}" class="text-decoration-none">
+          <a href="/ProuctDetailsOfPetBirds?product=${product._id}" class="text-decoration-none">
             <div class="Ccard position-relative">
               <span onclick="event.stopPropagation(); return addToWishlist(event, '${product._id}')">
                 <button id="wishlist-btn-${index}" class="wishlist-btn btn btn-light p-2 rounded-circle position-absolute top-0 end-0 m-2">
@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (button.style.color === 'white') {
       button.style.color = 'red';
       button.style.backgroundColor = 'white';
-      fetch("/user/delete-from-whishlist",{
+      fetch("/delete-from-whishlist",{
                       method:"POST",
                       headers:{
                           'Content-Type':'application/json'
@@ -181,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
       button.style.color = 'white';
       button.style.backgroundColor = 'red';
       console.log("Styart fetch")
-      fetch("/user/add-to-whishlist",{
+      fetch("/add-to-whishlist",{
         method:"POST",
         headers:{
           'Content-Type':'application/json'
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 3000); // The badge will disappear after 3 seconds
   
     // Make the fetch request
-    fetch(`/user/add-to-cart?productId=${id}`, {
+    fetch(`/add-to-cart?productId=${id}`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json'

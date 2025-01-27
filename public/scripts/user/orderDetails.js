@@ -3,7 +3,7 @@ function getInvoice(e, orderId) {
     e.preventDefault();
     console.log("ID:", orderId);
   
-    fetch(`/user/getInvoice/${orderId}`, {
+    fetch(`/getInvoice/${orderId}`, {
       method: "GET",
       headers: {
         'Content-Type': 'application/json'
@@ -37,7 +37,7 @@ function getInvoice(e, orderId) {
           reverseButtons: true
       }).then((result) => {
           if (result.isConfirmed) {
-              fetch("/user/single-order-cancel", {
+              fetch("/single-order-cancel", {
                   method: "POST",
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({itemId,orderId})
@@ -100,7 +100,7 @@ function getInvoice(e, orderId) {
                   showCancelButton: true,
                   confirmButtonText: 'Submit',
                   preConfirm: (reason) => {
-                      return fetch("/user/order-return-request", {
+                      return fetch("/order-return-request", {
                           method: "POST",
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({itemId, orderId,reason})

@@ -17,7 +17,7 @@
     <div class="header">
         <div class="logo">Petaura</div>
         <div class="d-flex end-0">
-            <a href="/user" class="home-link">
+            <a href="/" class="home-link">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
                     <path d="M12 3l7 6v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9l7-6zm5 7.586V19h-3v-4H10v4H7v-8.414L12 5.414l5 5.172z" />
                 </svg>
@@ -27,14 +27,14 @@
             </div>
 
             <div class="sidebar">
-                <a href="/user/profile"><i class="fas fa-user"></i> Account Details</a>
-                <a href="/user/orderHistory" ><i class="fas fa-clock"></i> Order History</a>
-                <a href="#"><i class="fas fa-wallet" class="active"></i> Wallet</a>
-                <a href="/user/cart"><i class="fas fa-shopping-cart"></i> Shopping Cart</a>
-                <a href="/user/whishlist"><i class="fas fa-heart"></i> Wishlist</a>
-                <a href="/user/address"><i class="fas fa-map-marker-alt"></i> Address</a>
-                <a href="/user/referral"><i class="fas fa-user-friends"></i> Referral</a>
-                <a href="/user/logOut"><i class="fas fa-sign-out-alt"></i> Log-out</a>
+                <a href="/profile"><i class="fas fa-user"></i> Account Details</a>
+                <a href="/orderHistory" ><i class="fas fa-clock"></i> Order History</a>
+                <a href="/wallet"><i class="fas fa-wallet" class="active"></i> Wallet</a>
+                <a href="/cart"><i class="fas fa-shopping-cart"></i> Shopping Cart</a>
+                <a href="/whishlist"><i class="fas fa-heart"></i> Wishlist</a>
+                <a href="/address"><i class="fas fa-map-marker-alt"></i> Address</a>
+                <a href="/referral"><i class="fas fa-user-friends"></i> Referral</a>
+                <a href="/logOut"><i class="fas fa-sign-out-alt"></i> Log-out</a>
             </div>
 
     <div class="content ">
@@ -97,20 +97,20 @@
             <% if( history.length > 0 ){ %>
                 <div class="pagination">
                     <% if (currentPage > 1) { %>
-                        <a href="/user/wallet?page=<%= currentPage - 1 %>" class="btn">Previous</a>
+                        <a href="/wallet?page=<%= currentPage - 1 %>" class="btn">Previous</a>
                     <% } else { %>
                         <a class="btn disabled">Previous</a>
                     <% } %>
                 
                     <% for (let i = 1; i <= totalPage; i++) { %>
-                        <a href="/user/wallet?page=<%= i %>" 
+                        <a href="/wallet?page=<%= i %>" 
                            class="btn <%= currentPage === i ? 'btn-secondary' : '' %>">
                            <%= i %>
                         </a>
                     <% } %>
                 
                     <% if (currentPage < totalPage) { %>
-                        <a href="/user/wallet?page=<%= currentPage + 1 %>" class="btn">Next</a>
+                        <a href="/wallet?page=<%= currentPage + 1 %>" class="btn">Next</a>
                     <% } else { %>
                         <a class="btn disabled">Next</a>
                     <% } %>

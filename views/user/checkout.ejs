@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
           <button class="btn btn-outline-secondary w-100 mb-1" onclick="toggleAddressDropdown()">Choose Address</button>
-          <button class="btn btn-outline-secondary w-100 mt-1" onclick=" location.href='/user/addNewAddress' " >Add New Address</button>
+          <button class="btn btn-outline-secondary w-100 mt-1" onclick=" location.href='/addNewAddress' " >Add New Address</button>
 
           <div id="addressDropdown" class="d-none">
             <ul class="list-group">
@@ -127,7 +127,7 @@
             <button class="btn btn-primary btn-sm" id="applyCoupen" onclick="applyCoupon(event)">Apply Coupon</button>
           </div>
           
-          <a href="/user/cart"><button class="btn btn-secondary w-100">Edit Cart</button></a>
+          <a href="/cart"><button class="btn btn-secondary w-100">Edit Cart</button></a>
           <button id="placeOrderButton" class="btn btn-warning w-100 mb-2" disabled>Place Order</button>
         </div>
       </div>
@@ -175,7 +175,7 @@
 
     // Update the edit icon link with the address ID
     const editLink = document.querySelector('#selectedAddress a');
-    editLink.href = `/user/edit-addressInCheckout?id=${id}`;
+    editLink.href = `/edit-addressInCheckout?id=${id}`;
 
     // Show edit icon after selection
     editIcon.classList.remove('d-none');
@@ -218,7 +218,7 @@
     if('<%= cart.totalPrice %>' < 500 ){
        delivery= document.getElementById("deliveryFee").innerHTML.slice(1);
     }
-    fetch("/user/place-order", {
+    fetch("/place-order", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'
@@ -258,7 +258,7 @@
 
             try {
                 // Verify payment with the backend
-              const verifyResponse = await fetch(`/user/verifyOnline-payment/${response.orderId}`, {
+              const verifyResponse = await fetch(`/verifyOnline-payment/${response.orderId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -273,7 +273,7 @@
                 const verificationResult = await verifyResponse.json();
                 if (verificationResult.success) {
                    
-                    window.location.href = `/user/orderPlaced`;
+                    window.location.href = `/orderPlaced`;
                 } else {
                     console.error("Payment verification failed:", verificationResult);
                     rzp.close();
@@ -301,14 +301,14 @@
                         timer: 1500,
                         showConfirmButton: false,
                     })
-                    window.location.href = `/user/orderHistory`; 
+                    window.location.href = `/orderHistory`; 
     });
 
     // Open Razorpay modal
     rzp.open();
 }else{
           
-          window.location.href = `/user/orderPlaced`;
+          window.location.href = `/orderPlaced`;
           }
         } else {
           Swal.fire({
@@ -357,7 +357,7 @@ function applyCoupon(event) {
 
       console.log("inputCode:", inputCode, "totalAmount:", totalAmount);
 
-      fetch("/user/apply-coupen",{
+      fetch("/apply-coupen",{
         method:"POST",
         headers:{
           'Content-Type':'application/json'

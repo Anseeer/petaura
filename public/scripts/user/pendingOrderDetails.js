@@ -6,7 +6,7 @@ function rePayment(event, razorPayOrderId) {
     console.log("1");
 
     // Send a request to update the pending order
-    fetch("/user/updatePendingOrder", {
+    fetch("/updatePendingOrder", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ function rePayment(event, razorPayOrderId) {
                         try {
                             console.log("orderId",response.pendingOrder[0].orderId)
                             // Send the Razorpay payment response to your server for verification
-                            const result = await fetch(`/user/verifyOnline-payment/${response.pendingOrder[0].orderId}`, {
+                            const result = await fetch(`/verifyOnline-payment/${response.pendingOrder[0].orderId}`, {
                                 method: "POST",
                                 headers: {
                                     "Content-Type": "application/json",
@@ -58,7 +58,7 @@ function rePayment(event, razorPayOrderId) {
                             // Check if payment verification was successful
                             if (verificationResult.success) {
                                 // Redirect to order confirmation page
-                                window.location.href = `/user/orderHistory`;
+                                window.location.href = `/orderHistory`;
                             } else {
                                 // Show error message if payment verification fails
                             }

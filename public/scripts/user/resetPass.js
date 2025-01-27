@@ -14,7 +14,7 @@ document.getElementById('newPasswordForm').addEventListener('submit', async func
     }
 
     try {
-        const response = await fetch('/user/reset-password', {
+        const response = await fetch('/reset-password', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ document.getElementById('newPasswordForm').addEventListener('submit', async func
                 timer: 1500,
                 showConfirmButton: false,
             }).then(() => {
-                window.location.href = '/user/login'; // Redirect to login page
+                window.location.href = '/login'; // Redirect to login page
             });
         } else {
             Swal.fire({

@@ -18,7 +18,7 @@ function forgetPass(e) {
 
     // Proceed with fetch if email is valid
     console.log("Email:", email);
-    fetch("/user/forget-pass", {
+    fetch("/forget-pass", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -34,9 +34,9 @@ function forgetPass(e) {
                     text:res.message,
                     showCancelButton: false,
                     showConfirmButton: false,
-                    timer: 1200,
+                    timer: 1500,
                 });
-                window.location.href = "/user/loadForgetPassOtp";
+                window.location.href = "/loadForgetPassOtp";
             }else{
                 Swal.fire({
                     icon: "error",

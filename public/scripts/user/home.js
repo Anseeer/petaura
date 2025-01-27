@@ -21,7 +21,7 @@ fetchLatestProducts();
 });
 
 function fetchLatestProducts() {
-fetch("/user/latest-products")  // Ensure this URL matches your backend route
+fetch("/latest-products")  // Ensure this URL matches your backend route
  .then((res) => res.json())
  .then((data) => {
    if (data.success) {
@@ -56,7 +56,7 @@ products.forEach((product) => {
      <img src="${product.Image[0]}" alt="${product.name}" class="product-image">
      <h3 class="product-name">${product.name}</h3>
      <p class="product-price">₹${product.finalPrice}</p>
-     <a href="/user/ProuctDetails?product=${product._id}" class="view-more">View Details</a>
+     <a href="/ProuctDetails?product=${product._id}" class="view-more">View Details</a>
    </div>
  `;
 

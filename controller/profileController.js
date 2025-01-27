@@ -12,8 +12,7 @@ const { text } = require("express");
 
 
 
-function generateOtp() {
-    // Generate a random number between 100000 and 999999
+async function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000);
   }
 
@@ -80,18 +79,17 @@ const loadForgetEmail = async(req,res)=>{
     }
 }
 
-const verifyEmail= async(req,res)=>{
+const verifyEmail = async (req,res)=>{
     try {
         const {email} = req.body;
         
         const findUser = await User.findOne({email:email});
         if(findUser){
-            const otp= await  generateOtp();
-            console.log("Otp sent :",otp);
+            const otp = await  generateOtp();
+            console.log("Otp sent one  :",otp);
             const sentMail = await sendVerificationEmail(email,otp);
             if(sentMail){
                 req.session.userOtp = otp;
-                console.log("hey")
                 req.session.email=email;
                 res.status(200).json({success:true,message:"otp sent"});
             }
@@ -188,7 +186,7 @@ const loadProfile = async(req,res)=>{
 
         const breadcrumbs = [
             { text:"Home" , url:"/"},
-            {text:"Profile" , url:"/user/profile/"},
+            {text:"Profile" , url:"/profile/"},
         ]
         res.render("profile",{
             user,
@@ -546,7 +544,7 @@ const editedAddressInChekout = async(req,res)=>{
             {new:true},
         );
         if(updateAddress){
-            res.redirect("/user/checkout-page")
+            res.redirect("/checkout-page")
         }else{
             res.status(400).json({success:false,message:"EditAddress Faild !"});
 

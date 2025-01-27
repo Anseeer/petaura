@@ -97,7 +97,7 @@ function addAddress(event){
     
 
     
-fetch("/user/addAddress",{
+fetch("/addAddress",{
 method:"POST",
 headers:{
     'Content-Type':'application/json'
@@ -115,7 +115,7 @@ if(response.success){
         showConfirmButton:false,
         timer:1500,
     }).then(()=>{
-        window.location.href="/user/checkout-page";
+        window.location.href="/checkout-page";
     })
 }else{
     Swal.fire({

@@ -32,17 +32,17 @@ const loadHome = async (req,res)=>{
                 res.render("home",{
                     user:userData,
                     breadcrumbs:[
-                        {text:"Home",url:"/user/"}
+                        {text:"Home",url:"/"}
                     ]
                 });
             }else{
-            res.redirect("/user");                        
+            res.redirect("/");                        
            }
         }else{
             res.render("home",{
                 user,
                 breadcrumbs:[
-                    {text:"Home",url:"/user/"}
+                    {text:"Home",url:"/"}
                 ]
             })
         }
@@ -268,7 +268,7 @@ const loadlogin = async(req,res)=>{
     try {
         if(req.session.user){
             localStorage.clear(); 
-            res.redirect("/user")
+            res.redirect("/")
         }else{
             res.render("login");
         }
@@ -282,7 +282,7 @@ const login = async (req, res) => {
     try {
         // Check if the user is already logged in
         if (req.session.user) {
-            return res.redirect("/user");
+            return res.redirect("/");
         }
 
         // Destructure the email and password from the request body
@@ -343,7 +343,7 @@ const logout = async(req,res)=>{
                 res.send(error.message);
             }
             message = "Logout SuccessFull !";
-             res.redirect("/user/login");
+             res.redirect("/login");
         })
     } catch (error) {
         res.render("error",{message:"Logout Error"});
@@ -503,8 +503,8 @@ const laodDetails = async(req,res)=>{
           Offer: product.Offer || "No Offer" ,
           Related:relatedProducts,
           breadcrumbs:[
-              {text:"Home",url:"/user/"},
-              {text:"ProductDetails",url:"/use/ProuctDetails"}
+              {text:"Home",url:"/"},
+              {text:"ProductDetails",url:"/ProuctDetails"}
           ]
         });
     } catch (error) {

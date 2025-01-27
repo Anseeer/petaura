@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 })
 
 function fetchAddress(){
-    fetch("/user/fetchAddress",{
+    fetch("/fetchAddress",{
         method:"GET",
         headers:{
             'Content-Type':'application/json',
@@ -45,7 +45,7 @@ function renderAddress(address) {
 
             const cellActions = document.createElement("td");
             cellActions.innerHTML = `
-                <a href="/user/edit-address?id=${addr._id}" class="text-primary">
+                <a href="/edit-address?id=${addr._id}" class="text-primary">
                     <i class="fas fa-edit"></i>
                 </a>
                 <a href="#" onclick="deleteAddress(event, '${addr._id}')" class="text-danger">
@@ -84,7 +84,7 @@ function renderAddress(address) {
         })
         .then((res) => {
             if(res.isConfirmed) {
-                fetch("/user/delete-address",{
+                fetch("/delete-address",{
                     method:"POST",
                     headers:{
                         'Content-Type':'application/json'
@@ -230,7 +230,7 @@ function renderAddress(address) {
         
 
         
-    fetch("/user/addAddress",{
+    fetch("/addAddress",{
     method:"POST",
     headers:{
         'Content-Type':'application/json'

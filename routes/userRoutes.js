@@ -136,15 +136,15 @@ userRoutes.get("/auth/google",
 // Google Callback Route
 userRoutes.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/user/signup" }),
+  passport.authenticate("google", { failureRedirect: "/signup" }),
   (req, res) => {
     req.login(req.user, (err) => {
       if (err) {
         console.error("Error logging in user:", err);
-        return res.redirect("/user/signup");
+        return res.redirect("/signup");
       }
        req.session.user  = req.session.passport.user; 
-      res.redirect("/user"); // Redirect to user dashboard or homepage
+      res.redirect("/"); // Redirect to user dashboard or homepage
     });
   }
 );

@@ -49,7 +49,7 @@ app.use(passport.session());
 
 
 // Routes
-app.use("/user", userRoutes);
+app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 
 // Global error handler
@@ -67,7 +67,7 @@ const port = process.env.PORT || 3003;
 app.listen(port, () => {
     console.log(`
     Server is running on:
-    User: http://localhost:${port}/user
+    User: http://localhost:${port}
     Admin: http://localhost:${port}/admin/login
     `);
 });

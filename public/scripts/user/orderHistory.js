@@ -13,7 +13,7 @@ function orderCancel(event, orderId) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch("/user/order-cancel", {
+            fetch("/order-cancel", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId})
@@ -61,7 +61,7 @@ function rePayment(event, razorPayOrderId) {
     console.log("1");
 
     // Send a request to update the pending order
-    fetch("/user/updatePendingOrder", {
+    fetch("/updatePendingOrder", {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ function rePayment(event, razorPayOrderId) {
                         try {
                             console.log("orderId",response.pendingOrder[0].orderId)
                             // Send the Razorpay payment response to your server for verification
-                            const result = await fetch(`/user/verifyOnline-payment/${response.pendingOrder[0].orderId}`, {
+                            const result = await fetch(`/verifyOnline-payment/${response.pendingOrder[0].orderId}`, {
                                 method: "POST",
                                 headers: {
                                     "Content-Type": "application/json",
@@ -113,7 +113,7 @@ function rePayment(event, razorPayOrderId) {
                             // Check if payment verification was successful
                             if (verificationResult.success) {
                                 // Redirect to order confirmation page
-                                window.location.href = `/user/orderPlaced`;
+                                window.location.href = `/orderPlaced`;
                             } else {
                                 // Show error message if payment verification fails
                             }
@@ -156,7 +156,7 @@ function rePayment(event, razorPayOrderId) {
 }
 
 function fetchOrder(){
-    fetch("/user/fetchOrders",{
+    fetch("/fetchOrders",{
         method:"GET",
         headers:{
             'Content-Type':'application/json',
@@ -197,7 +197,7 @@ function renderOrders(pendingOrders, orders, currentPage, totalPage) {
                         ${pendingOrders
                             .map(
                                 (pending) => `
-                        <tr onclick="location.href='/user/pending-order-details?orderId=${pending._id}'">
+                        <tr onclick="location.href='/pending-order-details?orderId=${pending._id}'">
                             <td>${pending._id}</td>
                             <td>${pending.orderedItems
                                 .map(
@@ -241,7 +241,7 @@ function renderOrders(pendingOrders, orders, currentPage, totalPage) {
     ${orders
         .map((order) => {
             return `
-        <tr onclick="window.location.href='/user/order-details?orderId=${order._id}'">
+        <tr onclick="window.location.href='/order-details?orderId=${order._id}'">
             <td>${order._id}</td>
             <td>(${order.orderedItems.length})</td> <!-- Display the total length of ordered items -->
             <td>${new Date(order.createdAT).toLocaleDateString('en-GB')}</td>
@@ -270,7 +270,7 @@ function renderOrders(pendingOrders, orders, currentPage, totalPage) {
             <div class="no-orders text-center">
                 <h3>Your order history is empty!</h3>
                 <p>It seems like you haven’t placed any orders yet.</p>
-                <a href="/user/" class="btn btn-primary">Start Shopping</a>
+                <a href="/" class="btn btn-primary">Start Shopping</a>
             </div>
             `
             }
@@ -282,13 +282,13 @@ function renderOrders(pendingOrders, orders, currentPage, totalPage) {
         <div class="pagination mt-4">
             ${
                 currentPage > 1
-                    ? `<a href="/user/orderHistory?page=${currentPage - 1}" class="btn">Previous</a>`
+                    ? `<a href="/orderHistory?page=${currentPage - 1}" class="btn">Previous</a>`
                     : `<a class="btn disabled">Previous</a>`
             }
             ${Array.from({ length: totalPage }, (_, i) => i + 1)
                 .map(
                     (page) => `
-                <a href="/user/orderHistory?page=${page}" class="btn ${
+                <a href="/orderHistory?page=${page}" class="btn ${
                         currentPage === page ? 'btn-secondary' : ''
                     }">${page}</a>
             `
@@ -296,7 +296,7 @@ function renderOrders(pendingOrders, orders, currentPage, totalPage) {
                 .join('')}
             ${
                 currentPage < totalPage
-                    ? `<a href="/user/orderHistory?page=${currentPage + 1}" class="btn">Next</a>`
+                    ? `<a href="/orderHistory?page=${currentPage + 1}" class="btn">Next</a>`
                     : `<a class="btn disabled">Next</a>`
             }
         </div>

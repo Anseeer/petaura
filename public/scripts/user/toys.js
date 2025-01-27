@@ -34,9 +34,9 @@
       search,
       page,
     });
-    history.pushState(null, '', `/user/toys?${urlParams.toString()}`);
+    history.pushState(null, '', `/toys?${urlParams.toString()}`);
 
-    fetch(`/user/fillterCategoryOfAccessories?${urlParams.toString()}`, {
+    fetch(`/fillterCategoryOfAccessories?${urlParams.toString()}`, {
       method: "GET",
       headers: { 'Content-Type': 'application/json' },
     })
@@ -68,7 +68,7 @@
     products.forEach((product, index) => {
       const productDetails = `
         <div class="col-md-4 mb-4">
-          <a href="/user/ProuctDetailsOfToys?product=${product._id}" class="text-decoration-none">
+          <a href="/ProuctDetailsOfToys?product=${product._id}" class="text-decoration-none">
             <div class="Ccard position-relative">
               <!-- Wishlist Button -->
               <span onclick="event.stopPropagation(); return addToWishlist(event, '${product._id}')">
@@ -155,7 +155,7 @@
   if (button.style.color === 'white') {
     button.style.color = 'red';
     button.style.backgroundColor = 'white';
-    fetch("/user/delete-from-whishlist",{
+    fetch("/delete-from-whishlist",{
                     method:"POST",
                     headers:{
                         'Content-Type':'application/json'
@@ -178,7 +178,7 @@
     button.style.color = 'white';
     button.style.backgroundColor = 'red';
     console.log("Styart fetch")
-    fetch("/user/add-to-whishlist",{
+    fetch("/add-to-whishlist",{
       method:"POST",
       headers:{
         'Content-Type':'application/json'
@@ -222,7 +222,7 @@ function addToCart(e, id,index) {
   }, 3000); // The badge will disappear after 3 seconds
 
   // Make the fetch request
-  fetch(`/user/add-to-cart?productId=${id}`, {
+  fetch(`/add-to-cart?productId=${id}`, {
     method: "GET",
     headers: {
       'Content-Type': 'application/json'

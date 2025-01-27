@@ -320,8 +320,8 @@ const loadCatSupplies = async (req, res) => {
           currentPage:page,
           totalPage: Math.ceil(totalProduct/limit),
           breadcrumbs: [
-              { text: "Home", url: "/user/" },
-              { text: "CatSupplies", url: "/user/cat-supplies" },
+              { text: "Home", url: "/" },
+              { text: "CatSupplies", url: "/cat-supplies" },
           ],
       });
 
@@ -412,8 +412,8 @@ const fillterCategoryOfCat = async (req, res) => {
       totalPage: Math.ceil(totalProducts / limit),
       currentPage: page,
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "CatSupplies", url: "/user/cat-supplies" },
+        { text: "Home", url: "/" },
+        { text: "CatSupplies", url: "/cat-supplies" },
       ],
     });
   } catch (error) {
@@ -451,8 +451,8 @@ const fillterCategoryOfCat = async (req, res) => {
         finalPrice:product.salePrice - offer ,
         Related:relatedProducts,
         breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"CatSupplies",url:"/user/cat-supplies"},
+            {text:"Home",url:"/"},
+            {text:"CatSupplies",url:"/cat-supplies"},
             {text:"ProductDetails",url:"/use/ProuctDetails"}
         ]
       });
@@ -476,9 +476,6 @@ const loadDogSupplies = async (req, res) => {
         
         if(!ParentDog){
         }
-
-       
-
         const categories = await Category.find({ isListed: true ,parent:ParentDog._id }); 
         const categoryIds = categories.map((category) => category._id.toString());
         const categoreiesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
@@ -502,8 +499,8 @@ const loadDogSupplies = async (req, res) => {
             parent:ParentDog._id,
             totalPage:Math.ceil(totalPage/limit),
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "DogSupplies", url: "/user/dog-supplies" }
+                { text: "Home", url: "/" },
+                { text: "DogSupplies", url: "/dog-supplies" }
             ]
         });
 
@@ -523,7 +520,6 @@ const fillterCategoryOfDog = async (req, res) => {
       let sort = req.query.sort;
       let search = req.query.search;
      
-
       const query = {
           isBlocked: false,
           quantity: { $gte: 0 },
@@ -575,8 +571,8 @@ const fillterCategoryOfDog = async (req, res) => {
           totalPage: Math.ceil(totalProducts / limit),
           currentPage: page,
           breadcrumbs: [
-              { text: "Home", url: "/user/" },
-              { text: "DogSupplies", url: "/user/dog-supplies" },
+              { text: "Home", url: "/" },
+              { text: "DogSupplies", url: "/dog-supplies" },
           ],
       });
   } catch (error) {
@@ -611,8 +607,8 @@ const fillterCategoryOfDog = async (req, res) => {
         Offer: product.Offer || "No Offer" ,
         Related:relatedProducts,
         breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"DogSupplies",url:"/user/dog-supplies"},
+            {text:"Home",url:"/"},
+            {text:"DogSupplies",url:"/dog-supplies"},
             {text:"ProductDetails",url:"/use/ProuctDetailsOfDog"}
         ]
       });
@@ -660,8 +656,8 @@ const loadSmallPetsSupplies = async (req, res) => {
             totalPage:Math.ceil(totalProducts/limit),
             currentPage:page,
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "SmallPetsSupplies", url: "/user/smallpets-supplies" }
+                { text: "Home", url: "/" },
+                { text: "SmallPetsSupplies", url: "/smallpets-supplies" }
             ]
         });
 
@@ -731,8 +727,8 @@ const fillterCategoryOfSmallPets = async (req, res) => {
         totalPage: Math.ceil(totalProducts / limit),
         currentPage: page,
         breadcrumbs: [
-            { text: "Home", url: "/user/" },
-            { text: "DogSupplies", url: "/user/dog-supplies" },
+            { text: "Home", url: "/" },
+            { text: "DogSupplies", url: "/dog-supplies" },
         ],
     });
 } catch (error) {
@@ -767,8 +763,8 @@ const fillterCategoryOfSmallPets = async (req, res) => {
         Offer: product.Offer || "No Offer" ,
         Related:relatedProducts,
         breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"SmallPetsSupplies",url:"/user/smallpets-supplies"},
+            {text:"Home",url:"/"},
+            {text:"SmallPetsSupplies",url:"/smallpets-supplies"},
             {text:"ProductDetailsOfSmallPets",url:"/use/ProuctDetailsOfSmallPets"}
         ]
       });
@@ -816,8 +812,8 @@ const loadPetBirdSupplies = async (req, res) => {
             parent:ParentPetBird._id,
             totalPage:Math.ceil(totalProducts/limit),
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "PetBirdSupplies", url: "/user/petbird-supplies" }
+                { text: "Home", url: "/" },
+                { text: "PetBirdSupplies", url: "/petbird-supplies" }
             ]
         });
 
@@ -889,8 +885,8 @@ const fillterCategoryOfPetBird = async (req, res) => {
         totalPage: Math.ceil(totalProducts / limit),
         currentPage: page,
         breadcrumbs: [
-            { text: "Home", url: "/user/" },
-            { text: "DogSupplies", url: "/user/dog-supplies" },
+            { text: "Home", url: "/" },
+            { text: "DogSupplies", url: "/dog-supplies" },
         ],
     });
 } catch (error) {
@@ -925,8 +921,8 @@ const fillterCategoryOfPetBird = async (req, res) => {
         Offer: product.Offer || "No Offer" ,
         Related:relatedProducts,
         breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"PetBirdSupplies",url:"/user/petbird-supplies"},
+            {text:"Home",url:"/"},
+            {text:"PetBirdSupplies",url:"/petbird-supplies"},
             {text:"ProductDetailsOfPetBird",url:"/use/ProuctDetailsOfPetBird"}
         ]
       });
@@ -973,8 +969,8 @@ const loadFishSupplies = async (req, res) => {
             parent:ParentFish._id ,
             totalPage:Math.ceil(totalProducts/limit),
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "FishSupplies", url: "/user/fish-supplies" }
+                { text: "Home", url: "/" },
+                { text: "FishSupplies", url: "/fish-supplies" }
             ]
         });
 
@@ -1046,8 +1042,8 @@ const fillterCategoryOfFish = async (req, res) => {
         totalPage: Math.ceil(totalProducts / limit),
         currentPage: page,
         breadcrumbs: [
-            { text: "Home", url: "/user/" },
-            { text: "DogSupplies", url: "/user/dog-supplies" },
+            { text: "Home", url: "/" },
+            { text: "DogSupplies", url: "/dog-supplies" },
         ],
     });
 } catch (error) {
@@ -1082,8 +1078,8 @@ const fillterCategoryOfFish = async (req, res) => {
         Offer: product.Offer || "No Offer" ,
         Related:relatedProducts,
         breadcrumbs:[
-            {text:"Home",url:"/user/"},
-            {text:"FishSupplies",url:"/user/fish-supplies"},
+            {text:"Home",url:"/"},
+            {text:"FishSupplies",url:"/fish-supplies"},
             {text:"ProductDetailsOfFish",url:"/use/ProuctDetailsOfFish"}
         ]
       });
@@ -1145,8 +1141,8 @@ const fillterCategoryOfFish = async (req, res) => {
             totalPage:Math.ceil(totalProducts/limit),
             currentPage:page,
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "Accessories", url: "/user/Accessories" }
+                { text: "Home", url: "/" },
+                { text: "Accessories", url: "/Accessories" }
             ]
         });
     } catch (error) {
@@ -1231,8 +1227,8 @@ const fillterCategoryOfAccessories = async (req, res) => {
       currentPage: page,
       totalPage: Math.ceil(totalProducts / limit),
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "Accessories", url: "/user/accessories" },
+        { text: "Home", url: "/" },
+        { text: "Accessories", url: "/accessories" },
       ],
     });
   } catch (error) {
@@ -1269,9 +1265,9 @@ const ProuctDetailsOfAccessories = async(req, res) => {
       Offer: product.Offer || "No Offer" ,
       Related:relatedProducts,
       breadcrumbs:[
-          {text:"Home",url:"/user/"},
-          {text:"accessories",url:"/user/accessories"},
-          {text:"ProuctDetailsOfAccessories",url:"/use/ProuctDetailsOfAccessories"}
+          {text:"Home",url:"/"},
+          {text:"accessories",url:"/accessories"},
+          {text:"ProuctDetailsOfAccessories",url:"/ProuctDetailsOfAccessories"}
       ]
     });
   } catch (error) {
@@ -1335,8 +1331,8 @@ const loadTreats = async (req, res) => {
          allProduct:categoryIds,
          totalPage:Math.ceil(totalProducts/limit),
          breadcrumbs: [
-             { text: "Home", url: "/user/" },
-             { text: "Treats", url: "/user/Treats" }
+             { text: "Home", url: "/" },
+             { text: "Treats", url: "/Treats" }
          ]
      });
   } catch (error) {
@@ -1422,8 +1418,8 @@ const fillterCategoryOfTreats = async (req, res) => {
       currentPage: page,
       totalPage: Math.ceil(totalProducts / limit),
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "Accessories", url: "/user/accessories" },
+        { text: "Home", url: "/" },
+        { text: "Accessories", url: "/accessories" },
       ],
     });
   } catch (error) {
@@ -1458,9 +1454,9 @@ const ProuctDetailsOfTreats = async(req, res) => {
       Offer: product.Offer || "No Offer" ,
       Related:relatedProducts,
       breadcrumbs:[
-          {text:"Home",url:"/user/"},
-          {text:"treats",url:"/user/treat"},
-          {text:"ProuctDetailsOfTreats",url:"/use/ProuctDetailsOfTreats"}
+          {text:"Home",url:"/"},
+          {text:"treats",url:"/treat"},
+          {text:"ProuctDetailsOfTreats",url:"/ProuctDetailsOfTreats"}
       ]
     });
   } catch (error) {
@@ -1523,8 +1519,8 @@ const loadToys = async (req, res) => {
          totalPage:Math.ceil(totalProducts/limit),
          currentPage:page,
          breadcrumbs: [
-             { text: "Home", url: "/user/" },
-             { text: "Toys", url: "/user/toys" }
+             { text: "Home", url: "/" },
+             { text: "Toys", url: "/toys" }
          ]
      });
   } catch (error) {
@@ -1609,8 +1605,8 @@ const fillterCategoryOfToys = async (req, res) => {
       currentPage: page,
       totalPage: Math.ceil(totalProducts / limit),
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "Accessories", url: "/user/accessories" },
+        { text: "Home", url: "/" },
+        { text: "Accessories", url: "/accessories" },
       ],
     });
   } catch (error) {
@@ -1644,9 +1640,9 @@ const ProuctDetailsOfToys = async(req, res) => {
       Offer: product.Offer || "No Offer" ,
       Related:relatedProducts,
       breadcrumbs:[
-          {text:"Home",url:"/user/"},
-          {text:"Toys",url:"/user/toys"},
-          {text:"ProuctDetailsOfToys",url:"/use/ProuctDetailsOfToys"}
+          {text:"Home",url:"/"},
+          {text:"Toys",url:"/toys"},
+          {text:"ProuctDetailsOfToys",url:"/ProuctDetailsOfToys"}
       ]
     });
   } catch (error) {
@@ -1709,8 +1705,8 @@ const loadFood = async (req, res) => {
          totalPage:Math.ceil(totalProducts/limit),
          currentPage:page,
          breadcrumbs: [
-             { text: "Home", url: "/user/" },
-             { text: "Food", url: "/user/food" }
+             { text: "Home", url: "/" },
+             { text: "Food", url: "/food" }
          ]
      });
   } catch (error) {
@@ -1795,8 +1791,8 @@ const fillterCategoryOfFood = async (req, res) => {
       currentPage: page,
       totalPage: Math.ceil(totalProducts / limit),
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "Accessories", url: "/user/accessories" },
+        { text: "Home", url: "/" },
+        { text: "Accessories", url: "/accessories" },
       ],
     });
   } catch (error) {
@@ -1831,9 +1827,9 @@ const ProuctDetailsOfFood = async(req, res) => {
       Offer: product.Offer || "No Offer" ,
       Related:relatedProducts,
       breadcrumbs:[
-          {text:"Home",url:"/user/"},
-          {text:"Food",url:"/user/food"},
-          {text:"ProuctDetailsOfFood",url:"/use/ProuctDetailsOfFood"}
+          {text:"Home",url:"/"},
+          {text:"Food",url:"/food"},
+          {text:"ProuctDetailsOfFood",url:"/ProuctDetailsOfFood"}
       ]
     });
   } catch (error) {
@@ -1871,8 +1867,8 @@ const filterDogSupplies = async(req,res)=>{
       category: categoreiesWithId,
       product: products,
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "DogSupplies", url: "/user/dog-supplies" },
+        { text: "Home", url: "/" },
+        { text: "DogSupplies", url: "/dog-supplies" },
       ],
     });
 
@@ -1911,8 +1907,8 @@ const filterFishSupplies = async(req,res)=>{
       category: categoreiesWithId,
       product: products,
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "FishSupplies", url: "/user/fish-supplies" },
+        { text: "Home", url: "/" },
+        { text: "FishSupplies", url: "/fish-supplies" },
       ],
     });
 
@@ -1951,8 +1947,8 @@ const filterPetBirdSupplies = async(req,res)=>{
       category: categoreiesWithId,
       product: products,
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "PetBirdsSupplies", url: "/user/petbird-supplies" },
+        { text: "Home", url: "/" },
+        { text: "PetBirdsSupplies", url: "/petbird-supplies" },
       ],
     });
 
@@ -1991,8 +1987,8 @@ const filterSmallPetsSupplies = async(req,res)=>{
       category: categoreiesWithId,
       product: products,
       breadcrumbs: [
-        { text: "Home", url: "/user/" },
-        { text: "SmallPetSupplies", url: "/user/smallPets-supplies" },
+        { text: "Home", url: "/" },
+        { text: "SmallPetSupplies", url: "/smallPets-supplies" },
       ],
     });
 
@@ -2045,8 +2041,8 @@ const filterAccessories = async(req,res)=>{
             category: categoriesWithId,
             product: products,
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "Accessories", url: "/user/Accessories" }
+                { text: "Home", url: "/" },
+                { text: "Accessories", url: "/Accessories" }
             ]
         });
   } catch (error) {
@@ -2098,8 +2094,8 @@ const filterFood = async(req,res)=>{
             category: categoriesWithId,
             product: products,
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "Accessories", url: "/user/Accessories" }
+                { text: "Home", url: "/" },
+                { text: "Accessories", url: "/Accessories" }
             ]
         });
   } catch (error) {
@@ -2150,8 +2146,8 @@ const filterToys =async(req,res)=>{
             category: categoriesWithId,
             product: products,
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "Toys", url: "/user/toys" }
+                { text: "Home", url: "/" },
+                { text: "Toys", url: "/toys" }
             ]
         });
   } catch (error) {
@@ -2203,8 +2199,8 @@ const filterTreat =async(req,res)=>{
             category: categoriesWithId,
             product: products,
             breadcrumbs: [
-                { text: "Home", url: "/user/" },
-                { text: "Treat", url: "/user/treat" }
+                { text: "Home", url: "/" },
+                { text: "Treat", url: "/treat" }
             ]
         });
   } catch (error) {

@@ -17,7 +17,7 @@ function toggleLoading(show) {
       })
 
      function fetchCart(){
-          fetch("/user/fetchCart",{
+          fetch("/fetchCart",{
               method:"GET",
               headers:{
                   'Content-Type':'application',
@@ -66,7 +66,7 @@ function toggleLoading(show) {
   if (cart.items.length === 0) {
       cartContainer.innerHTML = `
           <div class="empty-cart ">
-              <p class="empty">Your cart is empty.<a href="/user/" class="btn shop-btn">Shop Now</a></p>
+              <p class="empty">Your cart is empty.<a href="/" class="btn shop-btn">Shop Now</a></p>
               
           </div>
       `;
@@ -82,7 +82,7 @@ function toggleLoading(show) {
               <!-- Product Name -->
               <div>
                   <div class="fw-bold">${item.productId.name}</div>
-                  <a href="/user/viewMoreDetails?id=${item.productId._id}" class="text-primary text-decoration-none">VIEW MORE DETAILS</a>
+                  <a href="/viewMoreDetails?id=${item.productId._id}" class="text-primary text-decoration-none">VIEW MORE DETAILS</a>
               </div>
               <!-- Product Price -->
               <div class="ms-auto text-warning fw-bold">₹${item.productId.finalPrice}</div>
@@ -117,9 +117,9 @@ function toggleLoading(show) {
               <span>Total</span>
               <span id="totalPrice">₹${totalPrice.toFixed(2)}</span>
           </div>
-          <a href="/user/checkout-page"><button class="btn checkout-btn btn-dark mt-3">Checkout</button></a>
+          <a href="/checkout-page"><button class="btn checkout-btn btn-dark mt-3">Checkout</button></a>
           <div class="text-center mt-2">
-              <a href="/user/" class="text-dark text-decoration-none"><u>Continue Shopping</u></a>
+              <a href="/" class="text-dark text-decoration-none"><u>Continue Shopping</u></a>
           </div>
       </div>
   `;
@@ -168,7 +168,7 @@ function increaseQty(event, productId, quantity) {
 
 function updateCart(productId, currentQty, quantity) {
   console.log("Update", "productId", productId, "currentQty:", currentQty, "quan:", quantity);
-  fetch('/user/update-cart', {
+  fetch('/update-cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, currentQty }),
@@ -225,7 +225,7 @@ function updateCart(productId, currentQty, quantity) {
 
 function updateCart(productId,currentQty ,quantity) {
   console.log("Update","productId",productId,"currentQty:",currentQty,"quan:",quantity);
-  fetch('/user/update-cart', {
+  fetch('/update-cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, currentQty }),
@@ -273,7 +273,7 @@ function updateCart(productId,currentQty ,quantity) {
       function removeFromCart(event, productId) {
           event.preventDefault(); // Prevent default form submission
       
-          fetch(`/user/remove-from-cart?productId=${productId}`, {
+          fetch(`/remove-from-cart?productId=${productId}`, {
               method: "GET",
               headers: {
                   'Content-Type': 'application/json'

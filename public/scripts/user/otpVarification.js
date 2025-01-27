@@ -37,7 +37,7 @@ if (timeLeft <= 0) {
  return false; // Stop the function
 }
 
-fetch("/user/verify-Otp", {
+fetch("/verify-Otp", {
 method: "POST",
 headers: {
  'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ if (response.success) {
      showCancelButton: false,
      timer: 1500
  }).then(() => {
-     window.location.href = "/user";
+     window.location.href = "/";
  });
 } else{
  console.log("Invalid otp");
@@ -91,7 +91,7 @@ function resendOTP() {
         timeLeft = 60; // Reset the timer
         startTimer(); // Start a new timer
         
-        fetch("/user/resend-Otp",{
+        fetch("/resend-Otp",{
         method:"POST",
         headers:{
          "Content-Type":"application/json",

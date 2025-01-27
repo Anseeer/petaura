@@ -12,7 +12,7 @@ addMoneyModal.hide();
 const amount = document.getElementById("amount").value;
 console.log(`amount: ${amount}`);
 
-fetch("/user/addToWallet", {
+fetch("/addToWallet", {
     method: "POST",
     headers: {
         "Content-Type": "application/json",
@@ -32,7 +32,7 @@ fetch("/user/addToWallet", {
             currency: "INR",
             order_id: razorPayOrderId, // Order ID from backend
             handler: function (response) {
-                fetch('/user/Wallet-verify-payment', {
+                fetch('/Wallet-verify-payment', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -53,7 +53,7 @@ fetch("/user/addToWallet", {
                             showConfirmButton:false,
                             showCancelButton:false,
                         })
-                        window.location.href="/user/wallet";
+                        window.location.href="/wallet";
                     } else {
                         Swal.fire({
                             icon:"error",

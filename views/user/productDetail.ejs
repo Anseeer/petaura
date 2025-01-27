@@ -130,11 +130,14 @@
             <div class="col-md-3 py-5 mb--decoration-none">
                 <div class="Ccard posi4">
                   
-                    <a href="/user/ProuctDetails?product=<%= Related[i]._id %>" class="texttion-relative">
+                    <a href="/ProuctDetails?product=<%= Related[i]._id %>" class="texttion-relative">
                         <!-- Wishlist button -->
-                        <button class="wishlist-btn btn btn-light p-2 rounded-circle position-absolute top-0 end-0 m-2">
-                            <i class="fa fa-heart"></i>
-                        </button>
+                        <button
+                        onclick="event.stopPropagation(); return addToWishlistRelated(event, '<%= Related[i]._id %>', '<%= i %>')"
+                        class="wishlist-btn btn btn-light p-2 rounded-circle position-absolute top-0 end-0 m-2">
+                        <i class="fa fa-heart"></i>
+                      </button>
+                      
 
                         <!-- Product image -->
                         <img src="<%=Related[i].Image[0]%>" alt="" class="Ccard-img-top">
@@ -144,7 +147,7 @@
                             <h5 class="Ccard-title">Name:<%=Related[i].name%></h5>
                             <p>Brand</p>
                             <p class="Ccard-text">Price:₹<%=Related[i].salePrice%><strike>₹<%=Related[i].regularPrice%></strike></p>
-                            <button class="btn btn-warning">Add to Cart</button>
+                            <button id="addToCart-<%= i %>" onclick="return addToCartRelated(event, '<%= Related[i]._id %>', '<%= i %>')" class="btn btn-warning">Add to Cart</button>
                         </div>
                     </a>
                 </div>

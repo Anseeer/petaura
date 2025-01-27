@@ -46,7 +46,7 @@ if(phone.trim() ==""){
            return false;
        }
 
-   fetch("/user/edit-user-details",{
+   fetch("/edit-user-details",{
        method:"POST",
        headers:{
            'Content-Type':'application/json',
@@ -63,7 +63,7 @@ if(phone.trim() ==""){
                showConfirmButton:false,
                timer:1500,
            }).then(()=>{
-               window.location.href = "/user/profile";
+               window.location.href = "/profile";
            })
        }else{
            Swal.fire({
@@ -153,7 +153,7 @@ function ChangePassword(event){
        return false;
    }
 
-   fetch("/user/change-password",{
+   fetch("/change-password",{
        method:"POST",
        headers:{
            'Content-Type':'application/json',
@@ -170,7 +170,7 @@ function ChangePassword(event){
                showConfirmButton:false,
                timer:1500,
            }).then(()=>{
-               window.location.href = "/user/profile";
+               window.location.href = "/profile";
            })
        }else{
            Swal.fire({

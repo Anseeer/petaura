@@ -1,5 +1,5 @@
 function addToCart(itemId) {
-    fetch(`/user/add-to-cart?productId=${itemId}`, {
+    fetch(`/add-to-cart?productId=${itemId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'

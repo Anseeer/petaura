@@ -1,13 +1,16 @@
 let otpTimerInterval;
 let timer = 60;
+let otpExpired = false; 
 
 function startOtpTimer() {
+     otpExpired = false; 
     const timerElement = document.getElementById("timer");
     otpTimerInterval = setInterval(function () {
         const minutes = Math.floor(timer / 60);
         const seconds = timer % 60;
         timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         if (timer <= 0) {
+             otpExpired = true; 
             clearInterval(otpTimerInterval);
             timerElement.textContent = "Expired";
             timerElement.style.color = "red";
@@ -23,58 +26,57 @@ function startOtpTimer() {
     timer = 60; // Reset timer
     startOtpTimer();
 })();
-
 async function resendOtp(event) {
-    if(timer == 0){
-        event.preventDefault();
-    const timerElement = document.getElementById("timer");
-    clearInterval(otpTimerInterval);
-    timer = 60;
-    timerElement.style.color = "black";
-    startOtpTimer();
+    event.preventDefault(); // Prevent default behavior regardless of conditions
 
-    try {
-        const response = await fetch("/user/resendOtp-ForgetPass", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
+    if (otpExpired) { // Check if the timer has expired
+        const timerElement = document.getElementById("timer");
+        clearInterval(otpTimerInterval); // Clear any existing interval
+        timer = 60; // Reset timer to 60 seconds
+        timerElement.style.color = "black"; // Reset timer color
+        otpExpired = false; // Reset the expiry flag
+        startOtpTimer(); // Start a new timer countdown
 
-        const result = await response.json();
-        if (result.success) {
-            Swal.fire({
-                icon: "success",
-                title: "OTP Resent",
-                text: result.message,
-                timer: 1500,
-                showConfirmButton: false,
+        try {
+            const response = await fetch("/resendOtp-ForgetPass", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             });
-        } else {
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "OTP Resent",
+                    text: result.message,
+                    timer: 1500,
+                    showConfirmButton: false,
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed to Resend OTP",
+                    text: result.message,
+                });
+            }
+        } catch (error) {
             Swal.fire({
                 icon: "error",
-                title: "Failed to Resend OTP",
-                text: result.message,
+                title: "Error",
+                text: `Failed to resend OTP. Try again later. (${error.message})`,
             });
         }
-    } catch (error) {
+    } else {
         Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Failed to resend OTP. Try again later.",
+            icon: "warning",
+            title: `Please wait for ${timer} seconds to resend OTP`,
+            showConfirmButton: false,
+            timer: 1200, // Display the warning for 1.2 seconds
         });
     }
-    }else{
-        Swal.fire({
-            icon: "warning", // Corrected icon name
-            title: "Resend after the expired time limit",
-            showConfirmButton: false, // Corrected spelling
-            showCancelButton: false, // Corrected spelling
-            timer: 1200, // Time in milliseconds
-        });
-        
-    }
-    
 }
 
 document.getElementById('otpVerificationForm').addEventListener('submit', async function(e) {
@@ -100,7 +102,7 @@ document.getElementById('otpVerificationForm').addEventListener('submit', async 
     }
 
     try {
-        const response = await fetch("/user/resetPass", {
+        const response = await fetch("/resetPass", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -117,7 +119,7 @@ document.getElementById('otpVerificationForm').addEventListener('submit', async 
                 timer: 1500,
                 showConfirmButton: false,
             }).then(() => {
-                window.location.href = "/user/reset-password"; // Redirect on success
+                window.location.href = "/reset-password"; // Redirect on success
             });
         } else {
             Swal.fire({

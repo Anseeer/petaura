@@ -16,7 +16,7 @@
                 <p class="message"><%= message %></p>
             <% } %>
             
-            <form id="signform" novalidate method="post" action="/user/signup">
+            <form id="signform" novalidate method="post" action="/signup">
                 <div class="mb-3">
                     <input type="text" class="form-control" id="name" name="name" placeholder="Name" >
                     <!-- <div class="invalid-feedback">Please enter your name.</div> -->
@@ -55,7 +55,7 @@
                 </div>
                 <p class="text-center">or</p>
                 <div class="text-center mb-3">
-                    <a href="/user/auth/google" class="btn btn-light google-btn w-100">
+                    <a href="/auth/google" class="btn btn-light google-btn w-100">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 28" fill="none">
                             <g clip-path="url(#clip0_87_585)">
                                 <path d="M16.0322 11.5723V16.6951H24.4021C24.0345 18.3426 22.9316 19.7376 21.2775 20.6755L26.3248 24.0066C29.2656 21.6978 30.9622 18.3066 30.9622 14.2781C30.9622 13.3402 30.8632 12.4382 30.6794 11.5724L16.0322 11.5723Z" fill="#4285F4"/>
@@ -73,7 +73,7 @@
                     </a>
                     
                 </div>
-                <p class="text-center">Already have an account? <a href="/user/login">Login</a></p>
+                <p class="text-center">Already have an account? <a href="/login">Login</a></p>
             </form>        
         </div>
         <div class="logo-container ">

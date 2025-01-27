@@ -70,7 +70,7 @@
         if (!isValid) return false;
     
         // Send data via fetch API
-        fetch("/user/editAddress", {
+        fetch("/editAddress", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -87,7 +87,7 @@
                     timer: 1500,
                     showConfirmButton: false,
                 }).then(() => {
-                    window.location.href = "/user/address";
+                    window.location.href = "/address";
                 });
             } else {
                 Swal.fire({

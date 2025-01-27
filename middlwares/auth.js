@@ -14,7 +14,7 @@ const userauth = (req, res, next) => {
                             if (err) {
                                 logger.error("Error destroying session:", err);
                             }
-                            res.redirect("/user/login");
+                            res.redirect("/login");
                         });
                     } else {
                         req.user = data; // Attach user data to the request object
@@ -22,16 +22,16 @@ const userauth = (req, res, next) => {
                     }
                 } else {
                     logger.info("User not found");
-                    res.redirect("/user/login");
+                    res.redirect("/login");
                 }
             })
             .catch(err => {
                 logger.error("Error occurred in userAuth:", err);
-                res.redirect("/user/login");
+                res.redirect("/login");
             });
     } else {
         logger.info("No session");
-        res.redirect("/user/login");
+        res.redirect("/login");
     }
 };
 

@@ -16,7 +16,7 @@
 
     // Update the edit icon link with the address ID
     const editLink = document.querySelector('#selectedAddress a');
-    editLink.href = `/user/edit-addressInCheckout?id=${id}`;
+    editLink.href = `/edit-addressInCheckout?id=${id}`;
 
     // Show edit icon after selection
     editIcon.classList.remove('d-none');
@@ -59,7 +59,7 @@
     if('<%= cart.totalPrice %>' < 500 ){
        delivery= document.getElementById("deliveryFee").innerHTML.slice(1);
     }
-    fetch("/user/place-order", {
+    fetch("/place-order", {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'
@@ -99,7 +99,7 @@
 
             try {
                 // Verify payment with the backend
-              const verifyResponse = await fetch(`/user/verifyOnline-payment/${response.orderId}`, {
+              const verifyResponse = await fetch(`/verifyOnline-payment/${response.orderId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -120,7 +120,7 @@
                         timer: 1500,
                         showConfirmButton: false,
                     })
-                    window.location.href = `/user/orderPlaced`;
+                    window.location.href = `/orderPlaced`;
                 } else {
                     console.error("Payment verification failed:", verificationResult);
                     rzp.close();
@@ -148,7 +148,7 @@
                         timer: 1500,
                         showConfirmButton: false,
                     })
-                    window.location.href = `/user/orderHistory`; 
+                    window.location.href = `/orderHistory`; 
     });
 
     // Open Razorpay modal
@@ -162,7 +162,7 @@
             showConfirmButton: false,
             showCancelButton: false
           })
-          window.location.href = `/user/orderPlaced`;
+          window.location.href = `/orderPlaced`;
           }
         } else {
           Swal.fire({
@@ -211,7 +211,7 @@ function applyCoupon(event) {
 
       console.log("inputCode:", inputCode, "totalAmount:", totalAmount);
 
-      fetch("/user/apply-coupen",{
+      fetch("/apply-coupen",{
         method:"POST",
         headers:{
           'Content-Type':'application/json'
