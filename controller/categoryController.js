@@ -253,18 +253,17 @@ const addParentCategory = async (req, res) => {
 const editParentCategory = async (req, res) => {
     try {
         const {  name, description } = req.body;
-
-        
+        const parentId = req.body._id;
+        console.log(req.body);
 
         // Validate that required fields are not empty
         if (!name || !description) {
             return res.status(400).send("Name and description are required");
         }
-        const findParent = await ParentCategory.findOne({name:name});
-        const _id = findParent._id;
+        
         // Update the category
         const updatedCategory = await ParentCategory.findByIdAndUpdate(
-            _id,
+          parentId,
             { $set: { name: name.trim(), description: description.trim() } },
             { new: true } // Return the updated document
         );
@@ -275,9 +274,12 @@ const editParentCategory = async (req, res) => {
 
         res.redirect("/admin/parentCategories");
     } catch (error) {
+      console.log(error)
         res.status(500).send("An error occurred while updating the category");
     }
 };
+
+
 
 const loadCatSupplies = async (req, res) => {
   try {
