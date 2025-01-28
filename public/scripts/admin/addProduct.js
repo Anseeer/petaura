@@ -163,14 +163,14 @@ function viewImage(event, index) {
         const salePattern = /^\d+(\.\d{1,2})?$/;
 
         if(saleVal.trim()==""){
-            err6.style.display="block";
-            err6.innerHTML="Please Enter The SalePrice";
+            err7.style.display="block";
+            err7.innerHTML="Please Enter The SalePrice";
         }else if (!salePattern.test(saleVal)){
-            err6.style.display="block";
-            err6.innerHTML="Price Only Allowed Numnbers";
+            err7.style.display="block";
+            err7.innerHTML="Price Only Allowed Numnbers";
         }else{
-            err6.style.display="none";
-            err6.innerHTML=""
+            err7.style.display="none";
+            err7.innerHTML=""
         }
     };
 
@@ -179,14 +179,14 @@ function viewImage(event, index) {
         const regPattern = /^\d+(\.\d{1,2})?$/;
 
         if(regVal.trim()==""){
-            err7.style.display="block";
-            err7.innerHTML="Please Enter The SalePrice";
+            err6.style.display="block";
+            err6.innerHTML="Please Enter The RegularPrice";
         }else if (!regPattern.test(regVal)){
-            err7.style.display="block";
-            err7.innerHTML="Price Only Allowed Numnbers";
+            err6.style.display="block";
+            err6.innerHTML="Price Only Allowed Numnbers";
         }else{
-            err7.style.display="none";
-            err7.innerHTML=""
+            err6.style.display="none";
+            err6.innerHTML=""
         }
     };
 

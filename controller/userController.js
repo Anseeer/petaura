@@ -215,21 +215,50 @@ const verifyOtp = async (req, res) => {
             });
 
             const ref = req.session.userData .refCode;
-            await Referral.findOneAndUpdate(
-                { referralCode: ref },
-                {
-                    $push: { "referredUsers": { userId: saveUserData._id } },
-                    $inc: { bonus: 100 }, // Increment the bonus
-                },
-                { new: true } // Return the updated document
-            );
-            
-            
-            await referral.save();
+            if (ref) {
+                // Find the referring user's referral document using the refCode
+                const refUser = await Referral.findOne({ referralCode: ref });
+
+                if (refUser) {
+                    // Add the referred user to the referring user's list
+                    await Referral.findOneAndUpdate(
+                        { referralCode: ref },
+                        {
+                            $push: { referredUsers: { userId: saveUserData._id } },
+                            $inc :{bonus : 100},
+                        },
+                        { new: true }
+                    );
+
+                    // Find the referring user's wallet
+                    const refUserWallet = await Wallet.findOne({ userId: refUser.userId });
+
+                    if (refUserWallet) {
+                        // Add the bonus to the referring user's wallet balance
+                        refUserWallet.balance += 100;
+
+                        // Add a transaction entry to the referring user's wallet history
+                        refUserWallet.history.push({
+                            transactionId: generateTransactionId() || `TXN-${Date.now()}`, // Unique transaction ID
+                            type: "CREDIT",
+                            amount: 100,
+                            description: `Referral bonus `,
+                            createdAt: new Date(),
+                        });
+
+                        // Save the referring user's wallet
+                        await refUserWallet.save();
+                    }
+                }
+            }
+
+            // Save the referred user's wallet and referral details
             await wallet.save();
+            await referral.save();
+
+            // Set the session and respond
             req.session.user = saveUserData._id;
-            res.status(200).json({ success: true});
-            // res.redirect("/")
+            res.status(200).json({ success: true });
         } else {
          console.error("Invalid OTP entered",otp);
          res.status(400).json({ success: false, message: "Invalid OTP. Please try again!" });

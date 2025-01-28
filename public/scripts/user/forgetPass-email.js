@@ -1,4 +1,7 @@
+
+
 function forgetPass(e) {
+    console.log("hey");
     e.preventDefault(); // Prevent form submission
 
     // Email Validation
