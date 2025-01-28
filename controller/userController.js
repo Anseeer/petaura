@@ -73,7 +73,7 @@ const loadsignup = async (req,res)=>{
     }
 };
 
-function generateOtp() {
+async function generateOtp() {
     // Generate a random number between 100000 and 999999
     return Math.floor(100000 + Math.random() * 900000);
   }
@@ -135,6 +135,7 @@ async function sendVerificationEmail(email,otp){
 const signup = async (req,res)=>{
     try {
         const {name,email,password,phone,refCode} = req.body;
+        console.log('hey')
         if (!email || email.trim() === "") {
             return res.render("signup", { message: "Email is required!" });
         }
@@ -277,7 +278,7 @@ const resendOtp = async (req, res) => {
             return res.status(400).json({ success: false, message: "Session expired. Please sign up again." });
         }
 
-        const otp = generateOtp(); // Generate a new OTP
+        const otp = await generateOtp(); // Generate a new OTP
         req.session.userOtp = otp; // Update session with the new OTP
         const sendMail = await sendVerificationEmail(email, otp);
 

@@ -113,7 +113,7 @@ function resendOTP() {
         Swal.fire({
          icon:"error",
          title:"Faild To Resend OTP",
-         text:response.message,
+         text:error.message,
          showCancelButton: false,
          timer:1500
         })
