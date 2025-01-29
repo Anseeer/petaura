@@ -439,7 +439,7 @@ const addToCart = async (req, res) => {
             if (existingItem) {
                 // Update existing item's price and quantity
                 existingItem.price += price * quantity; 
-                if(findProduct.quantity > existingItem.quantity){
+                if(findProduct.quantity > existingItem.quantity && existingItem.quantity <= findProduct.maxQuantity){
                     existingItem.quantity += quantity;
                 }
             } else {
