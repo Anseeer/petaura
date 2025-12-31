@@ -1,59 +1,55 @@
 const Order = require("../model/orderSchema");
-const Product = require("../model/productSchema"); 
-const Wallet = require("../model/walletSchema"); 
-const PendingOrder = require("../model/pendingOrderSchema"); 
+const Product = require("../model/productSchema");
+const Wallet = require("../model/walletSchema");
+const PendingOrder = require("../model/pendingOrderSchema");
 const User = require("../model/userSchema");
 const ReturnRequest = require("../model/returnRequestSchema");
-const env = require('dotenv').config();
 const PDFDocument = require('pdfkit');
 
 
-const  loadOrder = async(req,res)=>{
+const loadOrder = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 10;
-        const skip = (page - 1) * limit ;
+        const skip = (page - 1) * limit;
         const total = await Order.countDocuments({});
         const orders = await Order.find()
-        .sort({createdAT:-1})
-        .skip(skip)
-        .limit(limit)
-        .populate("orderedItems.product","_id name Image status quantity")
-        
-        res.render("orderManagement",{orders,currentPage:page,totalPage:Math.ceil(total/limit)});
+            .sort({ createdAT: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate("orderedItems.product", "_id name Image status quantity")
+
+        res.render("orderManagement", { orders, currentPage: page, totalPage: Math.ceil(total / limit) });
     } catch (error) {
-        res.status(400).json({success:false,message:"Error In loadOrder"})
+        res.status(400).json({ success: false, message: "Error In loadOrder" })
     }
 }
 
 const updateStatus = async (req, res) => {
     try {
-        const { orderId,status} = req.body;
+        const { orderId, status } = req.body;
 
         if (status === 'canceled') {
             const order = await Order.findOne({ orderId });
-        
-            // Update order and items status to "canceled"
+
             order.status = "canceled";
             order.orderedItems.forEach((item) => {
                 item.status = "canceled";
             });
             await order.save();
-        
-            // Handle refund if payment was made
+
             if (order.paymentStatus === "PAID") {
                 const wallet = await Wallet.findOne({ userId: order.userId });
-        
+
                 if (!wallet) {
                     return res.status(400).json({
                         success: false,
                         message: "Wallet not found for the user",
                     });
                 }
-        
+
                 const transactionId = generateTransactionId();
-        
-                // Update wallet balance and history
+
                 wallet.balance += order.finalPrice;
                 wallet.history.push({
                     transactionId,
@@ -62,11 +58,10 @@ const updateStatus = async (req, res) => {
                     description: "Refund for order cancellation",
                     date: new Date(),
                 });
-        
+
                 await wallet.save();
             }
-        
-            // Restock canceled products
+
             for (const item of order.orderedItems) {
                 const product = await Product.findById(item.product);
                 if (product) {
@@ -78,36 +73,35 @@ const updateStatus = async (req, res) => {
             const order = await Order.findOne({ orderId });
 
             const now = new Date();
-            const deadline = new Date(now); 
-             deadline.setDate(now.getDate() + 14); 
+            const deadline = new Date(now);
+            deadline.setDate(now.getDate() + 14);
 
-        
+
             order.returnDeadline = deadline;
-            
+
             order.status = "delivered";
             order.orderedItems.forEach((item) => {
                 item.status = "delivered";
             });
             await order.save();
-        
+
         }
-        res.status(200).json({success:true,mesage:"Updated !"});
+        res.status(200).json({ success: true, mesage: "Updated !" });
     } catch (error) {
-       
+
         return res.status(500).json({ success: false, message: "Internal server error." });
     }
 };
 
 function generateTransactionId() {
-    const timestamp = Date.now().toString();  // Current timestamp in milliseconds
-    const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
-    return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
+    const timestamp = Date.now().toString();
+    const randomPart = Math.random().toString(36).substring(2, 10);
+    return `TXN-${timestamp}-${randomPart}`;
 }
 const updateRequestStatus = async (req, res) => {
     try {
         const { productId, orderId, status } = req.body;
 
-        // Validate request data
         if (!productId || !orderId || !status) {
             return res.status(400).json({
                 success: false,
@@ -115,9 +109,7 @@ const updateRequestStatus = async (req, res) => {
             });
         }
 
-   
-
-        const requestedOrder = await ReturnRequest.findOne({ orderId ,productId});
+        const requestedOrder = await ReturnRequest.findOne({ orderId, productId });
         if (!requestedOrder) {
             return res.status(404).json({
                 success: false,
@@ -125,16 +117,15 @@ const updateRequestStatus = async (req, res) => {
             });
         }
 
-        // Handle approval logic
         if (status === "approved") {
             const productIncrement = await Product.findOneAndUpdate(
                 { _id: productId },
-                { $inc: { quantity: requestedOrder.quantity ,saleCount:-1 }},
+                { $inc: { quantity: requestedOrder.quantity, saleCount: -1 } },
                 { new: true }
             );
 
             const requestStatus = await ReturnRequest.findOneAndUpdate(
-                { orderId ,productId},
+                { orderId, productId },
                 { $set: { status } },
                 { new: true }
             );
@@ -145,9 +136,6 @@ const updateRequestStatus = async (req, res) => {
                 { new: true }
             );
 
-           
-
-            // Handle wallet refund if payment status is PAID
             const order = await Order.findOne({ orderId });
             const user = order.userId;
             if (order.paymentStatus === "PAID") {
@@ -172,7 +160,6 @@ const updateRequestStatus = async (req, res) => {
                 await wallet.save();
             }
 
-            // Check if all items in the order are approved
             const updatedOrder = await Order.findOne({ orderId });
             const allItemsApproved = updatedOrder.orderedItems.every(
                 (item) => item.status === "approved"
@@ -189,7 +176,6 @@ const updateRequestStatus = async (req, res) => {
             return res.status(200).json({ success: true, message: "Request approved successfully." });
         }
 
-        // Handle rejection logic
         if (status === "rejected") {
             const requestStatus = await ReturnRequest.findOneAndUpdate(
                 { orderId },
@@ -206,7 +192,6 @@ const updateRequestStatus = async (req, res) => {
             return res.status(200).json({ success: true, message: "Request rejected successfully." });
         }
 
-        // Invalid status
         return res.status(400).json({ success: false, message: "Invalid status provided." });
     } catch (error) {
         return res.status(500).json({
@@ -216,59 +201,43 @@ const updateRequestStatus = async (req, res) => {
     }
 };
 
-
-const orderDetails = async(req,res)=>{
+const orderDetails = async (req, res) => {
     try {
-        const {orderId} = req.query;
+        const { orderId } = req.query;
         const userId = req.session.user;
         const user = await User.findById(userId);
-        const order = await Order.findOne({orderId}); 
-        
-        
+        const order = await Order.findOne({ orderId });
         const address = order.address;
-        
-        
-        res.render("orderDetails",{order,user,address});  
-
+        res.render("orderDetails", { order, user, address });
     } catch (error) {
-        res.status(400).json({success:false,message:"Error in the order detail loading"});
+        res.status(400).json({ success: false, message: "Error in the order detail loading" });
     }
 }
 
-const pendingOrderDetails = async(req,res)=>{
+const pendingOrderDetails = async (req, res) => {
     try {
-        const {orderId} = req.query;
+        const { orderId } = req.query;
         const userId = req.session.user;
         const user = await User.findById(userId);
-        const pendingOrder = await PendingOrder.findOne({orderId}); 
-        
-        
+        const pendingOrder = await PendingOrder.findOne({ orderId });
         const address = pendingOrder.address;
-        
-        
-        res.render("pendingOrderDetails",{pendingOrder,user,address});   
-
+        res.render("pendingOrderDetails", { pendingOrder, user, address });
     } catch (error) {
-        res.status(400).json({success:false,message:"Error in the order detail loading"});
+        res.status(400).json({ success: false, message: "Error in the order detail loading" });
     }
 }
 function generateTransactionId() {
-    const timestamp = Date.now().toString();  // Current timestamp in milliseconds
-    const randomPart = Math.random().toString(36).substring(2, 10);  // Random string part
-    return `TXN-${timestamp}-${randomPart}`;  // Format with a prefix for better readability
+    const timestamp = Date.now().toString();
+    const randomPart = Math.random().toString(36).substring(2, 10);
+    return `TXN-${timestamp}-${randomPart}`;
 };
 
 const orderCancel = async (req, res) => {
     try {
-        const {orderId} = req.body; 
-        const user = req.session.user; 
+        const { orderId } = req.body;
+        const user = req.session.user;
 
-        // Set the order status to "canceled"
-        const orderCancel = await Order.updateOne(
-            { userId:user,orderId}, 
-            { $set: { status: "canceled" } }
-        );
-        const order = await Order.findOne({ userId:user, orderId });
+        const order = await Order.findOne({ userId: user, orderId });
         if (!order) {
             return res.status(404).json({
                 success: false,
@@ -276,16 +245,13 @@ const orderCancel = async (req, res) => {
             });
         }
         for (const item of order.orderedItems) {
-            item.status = "canceled"; // Mark item as canceled
-        
-            // Update the product sale count (decrement it)
+            item.status = "canceled";
             const product = await Product.findOneAndUpdate(
                 { _id: item.product },
-                { $inc: { saleCount: -1 } }, // Decrement saleCount by 1
-                { new: true } // Return the updated product
+                { $inc: { saleCount: -1 } },
+                { new: true }
             );
-            
-            // You might want to handle the case where the product update fails or returns null
+
             if (!product) {
                 console.log(`Product with ID ${item.product} not found.`);
             }
@@ -302,10 +268,7 @@ const orderCancel = async (req, res) => {
                 });
             }
 
-            // Example usage:
             const transactionId = generateTransactionId();
-
-            // Update balance and add transaction history
             wallet.balance += order.finalPrice;
             wallet.history.push({
                 transactionId,
@@ -317,19 +280,17 @@ const orderCancel = async (req, res) => {
 
             await wallet.save();
         }
-        // Iterate over each product in orderedItems
         for (const item of order.orderedItems) {
             const product = await Product.findById(item.product);
             if (product) {
-              product.quantity += item.quantity;
-              await product.save();
+                product.quantity += item.quantity;
+                await product.save();
             }
-          }
-          
-        // Respond to the client
-        res.status(200).json({ 
-            success: true, 
-            message: "Order cancellation successful, product quantities updated" 
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Order cancellation successful, product quantities updated"
         });
     } catch (error) {
         res.status(400).json({ success: false, message: "Error in OrderCancel" });
@@ -340,7 +301,6 @@ const SingleorderCancel = async (req, res) => {
     try {
         const { itemId, orderId } = req.body;
 
-        // Find the order and the specific ordered item
         const order = await Order.findOne({ orderId });
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found" });
@@ -351,29 +311,25 @@ const SingleorderCancel = async (req, res) => {
             return res.status(404).json({ success: false, message: "Ordered item not found" });
         }
 
-        // Update the item's status in the order
         await Order.findOneAndUpdate(
             { orderId, 'orderedItems._id': itemId },
             { $set: { 'orderedItems.$.status': 'canceled' } }
         );
 
         await Product.findOneAndUpdate(
-            {_id:orderedItem.product},
-            {$inc:{saleCount:-1}},
-            {new:true}
+            { _id: orderedItem.product },
+            { $inc: { saleCount: -1 } },
+            { new: true }
         )
 
-        // If the payment is completed, refund to wallet
         if (order.paymentStatus === "PAID") {
             const wallet = await Wallet.findOne({ userId: order.userId });
             if (!wallet) {
                 return res.status(400).json({ success: false, message: "Wallet not found for the user" });
             }
 
-            // Generate a transaction ID
             const transactionId = generateTransactionId();
 
-            // Update the wallet balance and add to history
             wallet.balance += orderedItem.totalPrice;
             wallet.history.push({
                 transactionId,
@@ -386,7 +342,6 @@ const SingleorderCancel = async (req, res) => {
             await wallet.save();
         }
 
-        // Update the product stock
         const product = await Product.findById(orderedItem.product);
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });
@@ -398,7 +353,6 @@ const SingleorderCancel = async (req, res) => {
         const updatedOrder = await Order.findOne({ orderId });
         const allItemsCanceled = updatedOrder.orderedItems.every((item) => item.status === "canceled");
 
-        // If all items are canceled, update the order status
         if (allItemsCanceled) {
             await Order.findOneAndUpdate(
                 { orderId },
@@ -411,19 +365,16 @@ const SingleorderCancel = async (req, res) => {
     }
 };
 
-const orderReturn = async(req,res)=>{
+const orderReturn = async (req, res) => {
     try {
-        const { id } = req.body; // Order ID to cancel
-        const user = req.session.user; 
-        
+        const { id } = req.body;
+        const user = req.session.user;
 
-        // Set the order status to "canceled"
         const orderReturn = await Order.updateOne(
-            { userId: user, orderId: id }, 
+            { userId: user, orderId: id },
             { $set: { status: "returned" } }
         );
 
-        // Find the specific order and its ordered items
         const order = await Order.findOne({ userId: user, orderId: id });
         if (!order) {
             return res.status(404).json({
@@ -431,7 +382,7 @@ const orderReturn = async(req,res)=>{
                 message: "Order not found for the given user and order ID",
             });
         }
-        
+
 
 
         if (order.paymentStatus === "PAID") {
@@ -444,8 +395,6 @@ const orderReturn = async(req,res)=>{
                 });
             }
 
-
-            // Update balance and add transaction history
             wallet.balance += order.finalPrice;
             wallet.history.push({
                 type: "CREDIT",
@@ -457,24 +406,20 @@ const orderReturn = async(req,res)=>{
             await wallet.save();
         }
 
-        // Iterate over each product in orderedItems
         const updatePromises = order.orderedItems.map(async (item) => {
             const { product, quantity } = item;
             return Product.findOneAndUpdate(
                 { _id: product },
-                { $inc: { quantity } }, // Increment the quantity of the product
+                { $inc: { quantity } },
                 { new: true }
             );
         });
 
-        // Wait for all updates to complete
         await Promise.all(updatePromises);
 
-
-        // Respond to the client
-        res.status(200).json({ 
-            success: true, 
-            message: "Order return successful, product quantities updated" 
+        res.status(200).json({
+            success: true,
+            message: "Order return successful, product quantities updated"
         });
     } catch (error) {
         res.status(400).json({ success: false, message: "Error in orderReturn" });
@@ -483,21 +428,21 @@ const orderReturn = async(req,res)=>{
 
 const returnRequest = async (req, res) => {
     try {
-        const {itemId,orderId,reason } = req.body;
+        const { itemId, orderId, reason } = req.body;
 
-        const order = await Order.findOne({orderId});
-        const orderedItem = await order.orderedItems.find((item)=> item._id.toString() == itemId.toString() );
+        const order = await Order.findOne({ orderId });
+        const orderedItem = await order.orderedItems.find((item) => item._id.toString() == itemId.toString());
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found or already returned." });
         }
 
         const request = new ReturnRequest({
-            productId:orderedItem.product,
+            productId: orderedItem.product,
             orderId,
-            userId:order.userId,
+            userId: order.userId,
             reason,
-            quantity:orderedItem.quantity,
-            price:orderedItem.totalPrice,
+            quantity: orderedItem.quantity,
+            price: orderedItem.totalPrice,
         });
         await request.save();
 
@@ -518,51 +463,42 @@ const returnRequest = async (req, res) => {
     }
 };
 
-const returnRequestPage = async(req,res)=>{
+const returnRequestPage = async (req, res) => {
     try {
-        const requestedItem = await ReturnRequest.find({}).populate("productId",'name Image').sort({createdAt:-1});
-        res.render("returnRequest",{requestedItem});
+        const requestedItem = await ReturnRequest.find({}).populate("productId", 'name Image').sort({ createdAt: -1 });
+        res.render("returnRequest", { requestedItem });
     } catch (error) {
-        
+
     }
 }
 
-const orderDetailsPage = async(req,res)=>{
+const orderDetailsPage = async (req, res) => {
     try {
-        const {orderId} = req.query;
+        const { orderId } = req.query;
         const userId = req.session.user;
         const user = await User.findById(userId);
-        const order = await Order.findOne({orderId}); 
-        
-        
+        const order = await Order.findOne({ orderId });
         const address = order.address;
-        
-        
-        
-        res.render("orderDetailsPage",{order,user,address});  
-
+        res.render("orderDetailsPage", { order, user, address });
     } catch (error) {
-        res.status(400).json({success:false,message:"ERROR in the orderDetailsPage"});
+        res.status(400).json({ success: false, message: "ERROR in the orderDetailsPage" });
     }
 }
 
-const updatePendingOrder = async(req,res)=>{
+const updatePendingOrder = async (req, res) => {
     try {
-        const {razorPayOrderId} = req.body;
-        const findOrder = await PendingOrder.find({razorPayOrderId});
-
+        const { razorPayOrderId } = req.body;
+        const findOrder = await PendingOrder.find({ razorPayOrderId });
         const razorpayKey = process.env.RAZORPAY_KEY;
-         res.status(200).json({success:true,pendingOrder:findOrder,razorpayKey})
-
+        res.status(200).json({ success: true, pendingOrder: findOrder, razorpayKey })
     } catch (error) {
-        res.status(400).json({success:false,message:"Error in the updatePendingOrder Function"});
+        res.status(400).json({ success: false, message: "Error in the updatePendingOrder Function" });
     }
 }
+
 const generateSalesInvoice = async (req, res) => {
     try {
         const orderId = req.params.orderId;
-
-        // Fetch order and populate necessary fields
         const order = await Order.findOne({ orderId })
             .populate('userId')
             .populate('orderedItems.product');
@@ -571,7 +507,6 @@ const generateSalesInvoice = async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        // Generate the invoice
         generateInvoice(order, res);
     } catch (error) {
         res.status(500).json({ message: 'Internal Server Error' });
@@ -581,14 +516,10 @@ const generateSalesInvoice = async (req, res) => {
 function generateInvoice(order, res) {
     const doc = new PDFDocument({ margin: 50 });
     const fileName = `invoice-${order.orderId}.pdf`;
-
-    // Set response headers for PDF
     res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
     res.setHeader('Content-Type', 'application/pdf');
-
     doc.pipe(res);
 
-    // Invoice header
     doc
         .fontSize(24)
         .text('Petaura Order Invoice', { align: 'center' })
@@ -597,7 +528,6 @@ function generateInvoice(order, res) {
         .text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' })
         .moveDown(2);
 
-    // Company and Billing Info
     const address = order.address[0] || {};
     doc
         .text('PETAURA Ltd.', 50, 100)
@@ -614,7 +544,6 @@ function generateInvoice(order, res) {
         .text(`Invoice Number: ${order.orderId}`, 50, 200)
         .text(`Order Date: ${new Date(order.createdAT).toLocaleDateString() || 'N/A'}`, 50, 215);
 
-    // Product Table Header
     const tableTop = 270;
     const rowHeight = 20;
 
@@ -628,7 +557,6 @@ function generateInvoice(order, res) {
 
     let position = tableTop + rowHeight;
 
-    // List Products
     order.orderedItems.forEach(item => {
         const productName = item.product?.name || 'Unknown Product';
         const productPrice = parseFloat(item.price) || 0;
@@ -646,7 +574,6 @@ function generateInvoice(order, res) {
     doc.moveTo(50, position).lineTo(550, position).stroke('#cccccc');
     position += 10;
 
-    // Invoice Totals
     const discount = parseFloat(order.discount) || 0;
     const deliveryFee = parseFloat(order.deliveryFee) || 0;
     const finalPrice = parseFloat(order.finalPrice) || 0;
@@ -664,7 +591,6 @@ function generateInvoice(order, res) {
         .fontSize(14)
         .text(finalPrice.toFixed(2), 450, position + 40, { width: 100, align: 'right' });
 
-    // Footer
     doc
         .moveDown(4)
         .fontSize(10)
@@ -682,7 +608,7 @@ function generateInvoice(order, res) {
 
 
 module.exports = {
-    loadOrder ,
+    loadOrder,
     updateStatus,
     orderCancel,
     orderDetails,

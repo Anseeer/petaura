@@ -1,16 +1,16 @@
 let otpTimerInterval;
 let timer = 60;
-let otpExpired = false; 
+let otpExpired = false;
 
 function startOtpTimer() {
-     otpExpired = false; 
+    otpExpired = false;
     const timerElement = document.getElementById("timer");
     otpTimerInterval = setInterval(function () {
         const minutes = Math.floor(timer / 60);
         const seconds = timer % 60;
         timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         if (timer <= 0) {
-             otpExpired = true; 
+            otpExpired = true;
             clearInterval(otpTimerInterval);
             timerElement.textContent = "Expired";
             timerElement.style.color = "red";
@@ -23,19 +23,18 @@ function startOtpTimer() {
     if (otpTimerInterval) {
         clearInterval(otpTimerInterval);
     }
-    timer = 60; // Reset timer
+    timer = 60;
     startOtpTimer();
 })();
 async function resendOtp(event) {
-    event.preventDefault(); // Prevent default behavior regardless of conditions
-
-    if (otpExpired) { // Check if the timer has expired
+    event.preventDefault();
+    if (otpExpired) {
         const timerElement = document.getElementById("timer");
-        clearInterval(otpTimerInterval); // Clear any existing interval
-        timer = 60; // Reset timer to 60 seconds
-        timerElement.style.color = "black"; // Reset timer color
-        otpExpired = false; // Reset the expiry flag
-        startOtpTimer(); // Start a new timer countdown
+        clearInterval(otpTimerInterval);
+        timer = 60;
+        timerElement.style.color = "black";
+        otpExpired = false;
+        startOtpTimer();
 
         try {
             const response = await fetch("/resendOtp-ForgetPass", {
@@ -74,12 +73,12 @@ async function resendOtp(event) {
             icon: "warning",
             title: `Please wait for ${timer} seconds to resend OTP`,
             showConfirmButton: false,
-            timer: 1200, // Display the warning for 1.2 seconds
+            timer: 1200,
         });
     }
 }
 
-document.getElementById('otpVerificationForm').addEventListener('submit', async function(e) {
+document.getElementById('otpVerificationForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const otp = document.getElementById('otp').value.trim();
@@ -119,7 +118,7 @@ document.getElementById('otpVerificationForm').addEventListener('submit', async 
                 timer: 1500,
                 showConfirmButton: false,
             }).then(() => {
-                window.location.href = "/reset-password"; // Redirect on success
+                window.location.href = "/reset-password";
             });
         } else {
             Swal.fire({

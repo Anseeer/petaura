@@ -10,7 +10,7 @@ const addCustomer = document.getElementById("addCustomer");
 
 function nameValidation() {
     const nameVal = nameid.value.trim();
-    const namePattern = /^[a-zA-Z\s]+$/; // Accept only alphabets and spaces
+    const namePattern = /^[a-zA-Z\s]+$/;
 
     if (nameVal === "") {
         err1.style.display = "block";
@@ -48,7 +48,7 @@ function emailValidation() {
 
 function passwordValidation() {
     const passVal = passwordid.value.trim();
-    const passPattern = /^.{6,}$/; // Minimum 6 characters
+    const passPattern = /^.{6,}$/;
 
     if (passVal === "") {
         err3.style.display = "block";
@@ -67,7 +67,7 @@ function passwordValidation() {
 
 function phoneValidation() {
     const phnVal = phoneid.value.trim();
-    const phnPattern = /^[0-9]{10}$/; // Accept only 10-digit numbers
+    const phnPattern = /^[0-9]{10}$/;
 
     if (phnVal === "") {
         err4.style.display = "block";
@@ -91,7 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const isPasswordValid = passwordValidation();
         const isPhoneValid = phoneValidation();
 
-        // Prevent form submission if any validation fails
         if (!isNameValid || !isEmailValid || !isPasswordValid || !isPhoneValid) {
             e.preventDefault();
         }

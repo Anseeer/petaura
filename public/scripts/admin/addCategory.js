@@ -48,18 +48,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     addCategoryForm.addEventListener("submit", function (e) {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
 
         nameValidation();
         parentValidation();
         descriptionValidation();
 
-        // Check if any validation failed
         if (err1.innerHTML || err2.innerHTML || err3.innerHTML) {
-            return; // Do not proceed further
+            return;
         }
 
-        addCategory(); // Call the function to submit the form data
+        addCategory();
     });
 
     function addCategory() {
@@ -76,37 +75,37 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             body: JSON.stringify({ name, parent, offer, description })
         })
-        .then((response) => response.json())
-        .then((response) => {
-            if (response.success) {
-                Swal.fire({
-                    icon: "success",
-                    title: "Added",
-                    showCancelButton: false,
-                    showConfirmButton: false,
-                    text: response.message,
-                    timer: 1500
-                });
-                window.location.href = "/admin/category";
-            } else {
+            .then((response) => response.json())
+            .then((response) => {
+                if (response.success) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Added",
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        text: response.message,
+                        timer: 1500
+                    });
+                    window.location.href = "/admin/category";
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed To Add",
+                        showCancelButton: false,
+                        showConfirmButton: false,
+                        text: response.message,
+                        timer: 1500
+                    });
+                }
+            })
+            .catch(() => {
                 Swal.fire({
                     icon: "error",
-                    title: "Failed To Add",
+                    title: "Error",
                     showCancelButton: false,
                     showConfirmButton: false,
-                    text: response.message,
                     timer: 1500
                 });
-            }
-        })
-        .catch(() => {
-            Swal.fire({
-                icon: "error",
-                title: "Error",
-                showCancelButton: false,
-                showConfirmButton: false,
-                timer: 1500
             });
-        });
     }
 });

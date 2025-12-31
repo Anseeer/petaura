@@ -1,4 +1,3 @@
-    /* General Form Styling */
     .address-form {
         background-color: #ffffff;
         padding: 30px;
@@ -10,7 +9,6 @@
         position: relative;
     }
 
-    /* Header with Cancel Icon */
     .address-form .header {
         display: flex;
         align-items: center;
@@ -29,7 +27,6 @@
         cursor: pointer;
     }
 
-    /* Form Fields Container (Two Columns) */
     .row {
         display: flex;
         justify-content: space-between;
@@ -40,7 +37,6 @@
         width: 48%;
     }
 
-    /* Styling for Form Controls */
     .form-control {
         border-radius: 5px;
         padding: 10px;
@@ -55,7 +51,6 @@
         box-shadow: 0 0 5px rgba(255, 165, 0, 0.3);
     }
 
-    /* Error Message Styling */
     .err-msg {
         color: red;
         font-size: 0.9rem;
@@ -64,7 +59,6 @@
         display: none;
     }
 
-    /* Submit Button Styling */
     .address-form input[type="submit"] {
         background-color: #ffa500;
         color: white;
@@ -83,7 +77,6 @@
         background-color: #ff8c00;
     }
 
-    /* Responsive Layout for Small Screens */
     @media (max-width: 768px) {
         .row {
             flex-direction: column;

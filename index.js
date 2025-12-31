@@ -12,13 +12,11 @@ const fs = require('fs');
 
 db();
 
-// Ensure upload directory exists
 const uploadDir = path.join(__dirname, 'public/uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -27,7 +25,7 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     cookie: {
-        secure: false, // Change to true in production with HTTPS
+        secure: false,
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000
     }

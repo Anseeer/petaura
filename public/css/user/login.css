@@ -1,5 +1,5 @@
 body {
-    background-color: #ffa500; /* Orange background */
+    background-color: #ffa500;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -27,7 +27,7 @@ body {
 
 .login-form .form-control {
     border: 1px solid #ccc;
-    border-radius: 0; /* No rounded corners */
+    border-radius: 0;
     background-color: #ddd;
     height: 45px;
 }
@@ -57,24 +57,26 @@ body {
 }
 
 .logo-section {
- width: 50%;
- height: 400px;
- overflow: hidden;
-    }
+    width: 50%;
+    height: 400px;
+    overflow: hidden;
+}
 
 .logo-section img {
-width: 100%;
-height: 100%;  /* Make sure the image fills the container's height */
-object-fit: cover;  /* Make sure the image covers the entire container without stretching */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .form-footer {
     margin-top: 10px;
     font-size: 14px;
 }
-.message{
+
+.message {
     color: red;
 }
-.error-msg{
+
+.error-msg {
     color: red;
 }

@@ -1,12 +1,11 @@
 
-// fomr validation of the editcategory 
 const name = document.getElementById("name");
 const parent = document.getElementById("parent");
 const description = document.getElementById("description");
 const err1 = document.getElementById("error1");
 const err2 = document.getElementById("error2");
 const err3 = document.getElementById("error3");
-const editCategory = document.getElementById("editCategory"); // Corrected form ID
+const editCategory = document.getElementById("editCategory");
 
 function nameValidation() {
     const nameVal = name.value;
@@ -55,13 +54,12 @@ function descriptionValidation() {
 
 document.addEventListener("DOMContentLoaded", function () {
     editCategory.addEventListener("submit", function (e) {
-          nameValidation();
-           parentValidation();
-             descriptionValidation();
+        nameValidation();
+        parentValidation();
+        descriptionValidation();
 
-        // Prevent form submission if any validation fails
         if (err1.innerHTML || err2.innerHTML || err3.innerHTML) {
-            e.preventDefault(); // Prevent form submission
+            e.preventDefault();
             console.log("Form validation failed.");
         } else {
             console.log("Form validation passed.");

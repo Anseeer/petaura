@@ -11,7 +11,6 @@ function confirmDelete(id) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            // Redirect to the delete URL
             window.location.href = '/admin/deleteCategory?id=' + id;
         }
     });

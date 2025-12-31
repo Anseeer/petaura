@@ -1,15 +1,13 @@
- // Timer for redirect
- let countdown = 3; // Timer starts at 3 seconds
- const countdownElement = document.getElementById('countdown');
- const redirectLink = document.getElementById('redirectLink');
- 
- const timer = setInterval(() => {
-   countdown--; // Decrement countdown
-   countdownElement.textContent = countdown;
+let countdown = 3;
+const countdownElement = document.getElementById('countdown');
+const redirectLink = document.getElementById('redirectLink');
 
-   // When the countdown reaches 0
-   if (countdown === 0) {
-     clearInterval(timer); // Stop the timer
-     window.location.href = '/orderHistory'; // Redirect to another page
-   }
- }, 1000); // Run every 1 second
+const timer = setInterval(() => {
+  countdown--;
+  countdownElement.textContent = countdown;
+
+  if (countdown === 0) {
+    clearInterval(timer);
+    window.location.href = '/orderHistory';
+  }
+}, 1000);

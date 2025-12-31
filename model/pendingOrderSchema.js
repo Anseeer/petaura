@@ -1,116 +1,115 @@
 const mongoose = require("mongoose");
-const {Schema} = mongoose;
+const { Schema } = mongoose;
 
 const pendingOrderSchema = new Schema({
-    razorPayOrderId:{
-        type:'String',
-        required:true,
+    razorPayOrderId: {
+        type: 'String',
+        required: true,
     },
-    orderId:{
-        type:"String",
-        required:true
+    orderId: {
+        type: "String",
+        required: true
     },
-    userId:{
-        type:Schema.Types.ObjectId,
-        ref:"User"
+    userId: {
+        type: Schema.Types.ObjectId,
+        ref: "User"
     },
-    orderedItems:[{
-        product:{
-            type:Schema.Types.ObjectId,
-            ref:"Product",
-            required:true
+    orderedItems: [{
+        product: {
+            type: Schema.Types.ObjectId,
+            ref: "Product",
+            required: true
         },
-        name:{
-            type:String,
-            required:true
+        name: {
+            type: String,
+            required: true
         },
-        quantity:{
-            type:Number,
-            required:true,
-            default:1
+        quantity: {
+            type: Number,
+            required: true,
+            default: 1
         },
-        price:{
-            type:Number,
-            default:0
+        price: {
+            type: Number,
+            default: 0
         },
-        discount:{
-            type:Number,
-            default:0
+        discount: {
+            type: Number,
+            default: 0
         },
-        totalPrice:{
-            type:Number,
-            required:true
+        totalPrice: {
+            type: Number,
+            required: true
         },
-        image:{
-            type:String,
-            required:true
+        image: {
+            type: String,
+            required: true
         },
-        status:{
-            type:String,
-            required:true,
-            enum:["pending","proccessing","shipped","delivered","canceled","return request","returned"],
-            default:"pending"
+        status: {
+            type: String,
+            required: true,
+            enum: ["pending", "proccessing", "shipped", "delivered", "canceled", "return request", "returned"],
+            default: "pending"
         },
     }],
-    totalPrice:{
-        type:Number,
-        required:true
+    totalPrice: {
+        type: Number,
+        required: true
     },
-    discount:{
-        type:Number,
-        default:0
+    discount: {
+        type: Number,
+        default: 0
     },
-    deliveryFee:{
-        type:Number,
-        default:0,
+    deliveryFee: {
+        type: Number,
+        default: 0,
     },
-    finalPrice:{
-        type:Number,
-        required:true
+    finalPrice: {
+        type: Number,
+        required: true
     },
-    address:[{
-        name:{
-            type:String,
-            required:true
+    address: [{
+        name: {
+            type: String,
+            required: true
         },
-        state:{
-            type:String,
-            required:true,
+        state: {
+            type: String,
+            required: true,
         },
-        country:{
-            type:String,
-            required:true
+        country: {
+            type: String,
+            required: true
         },
-        pincode:{
-            type:Number,
-            required:true
+        pincode: {
+            type: Number,
+            required: true
         },
-        phone:{
-            type:Number,
-            required:true
+        phone: {
+            type: Number,
+            required: true
         },
     }],
-    paymentMethod:{
-        type:String,
-        required:true
+    paymentMethod: {
+        type: String,
+        required: true
     },
-    status:{
-        type:String,
-        required:true,
-        enum:["pending","proccessing","shipped","Delivered","canceled","return request","returned"],
-        default:"pending"
+    status: {
+        type: String,
+        required: true,
+        enum: ["pending", "proccessing", "shipped", "Delivered", "canceled", "return request", "returned"],
+        default: "pending"
     },
-    createdAT:{
-        type:Date,
-        default:Date.now,
-        required:true
+    createdAT: {
+        type: Date,
+        default: Date.now,
+        required: true
     },
-    coupenApplied:{
-        type:Boolean,
-        default:false
+    coupenApplied: {
+        type: Boolean,
+        default: false
     }
 });
 
-const pendingOrder = mongoose.model("pendingOrder",pendingOrderSchema);
+const pendingOrder = mongoose.model("pendingOrder", pendingOrderSchema);
 module.exports = pendingOrder;
- 

@@ -1,30 +1,31 @@
 .user-container {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .user-info {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    width: 60px; /* Fixed width for consistent alignment */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  width: 60px;
 }
 
 .user-name {
-    font-size: 14px;
-    margin: 2px 0 0 0;
-    text-align: center;
-    min-height: 18px; /* Ensures space is reserved even when empty */
-    color: #333;
+  font-size: 14px;
+  margin: 2px 0 0 0;
+  text-align: center;
+  min-height: 18px;
+  color: #333;
 }
 
 .icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .user-info {
   position: relative;
   display: flex;
@@ -41,7 +42,7 @@
 }
 
 .user-name.empty {
-  display: none; /* Hide when no user */
+  display: none;
 }
 
 .dropdown-container {
@@ -50,10 +51,10 @@
 }
 
 .dropdown-menu {
-  display: none; /* Hidden by default */
+  display: none;
   position: absolute;
-  top: 100%; /* Align below the button */
-  right: 0; /* Align to the right */
+  top: 100%;
+  right: 0;
   background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
@@ -73,10 +74,10 @@
 }
 
 .dropdown-container.active .dropdown-menu {
-  display: block; /* Show dropdown */
+  display: block;
 }
 
-   
+
 .pagination {
   display: flex;
   justify-content: center;
@@ -85,19 +86,17 @@
   gap: 10px;
 }
 
-/* Pagination buttons */
 .pagination a {
   display: inline-block;
   padding: 10px 15px;
   font-size: 14px;
   text-decoration: none;
   border-radius: 5px;
-  color: #ffa500; /* Bootstrap's primary color */
+  color: #ffa500;
   border: 1px solid #ffa500;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Active button styling */
 .pagination a.btn-secondary {
   background-color: #ffa500;
   color: #fff;
@@ -105,21 +104,20 @@
   pointer-events: none;
 }
 
-/* Hover effect for buttons */
 .pagination a:hover {
-  background-color: #ffa500; /* Darker shade of primary */
+  background-color: #ffa500;
   color: #fff;
 }
 
-/* Disabled button styling */
 .pagination a.disabled {
   color: #6c757d;
   border-color: #6c757d;
   cursor: not-allowed;
   pointer-events: none;
-} 
+}
+
 a.active {
-  background-color: #ffa500; /* Darker shade of primary */
-    color: #007bff;
-    font-weight: bold;
+  background-color: #ffa500;
+  color: #007bff;
+  font-weight: bold;
 }

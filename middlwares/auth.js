@@ -1,8 +1,7 @@
 const User = require("../model/userSchema");
 const logger = require("../config/logger");
 const userauth = (req, res, next) => {
-    // Check for session user or Passport user
-    const sessionUser = req.session.user ;
+    const sessionUser = req.session.user;
 
     if (sessionUser) {
         User.findById(sessionUser)
@@ -17,8 +16,8 @@ const userauth = (req, res, next) => {
                             res.redirect("/login");
                         });
                     } else {
-                        req.user = data; // Attach user data to the request object
-                        next(); // Proceed to the next middleware or route
+                        req.user = data;
+                        next();
                     }
                 } else {
                     logger.info("User not found");
@@ -35,13 +34,12 @@ const userauth = (req, res, next) => {
     }
 };
 
-
 const adminauth = async (req, res, next) => {
     try {
         const admin = req.session.admin;
         if (!admin) {
             console.log("No Admin Found");
-            return res.redirect("/admin/login"); // Handle missing admin
+            return res.redirect("/admin/login");
         }
         next();
     } catch (err) {
@@ -50,9 +48,8 @@ const adminauth = async (req, res, next) => {
     }
 }
 
-
 module.exports = {
     adminauth,
     userauth
 }
- 
+

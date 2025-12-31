@@ -1,5 +1,5 @@
 
-        
+
 function toggleLoading(show) {
     const overlay = document.getElementById('loading-overlay');
     if (show) {
@@ -7,74 +7,74 @@ function toggleLoading(show) {
     } else {
         overlay.style.display = 'none';
     }
-  }
-      
-      document.addEventListener("DOMContentLoaded",()=>{
-          const footer = document.getElementById("footer");
-          footer.style.display="none";
-          toggleLoading(true);
-         fetchCart();
-      })
+}
 
-     function fetchCart(){
-          fetch("/fetchCart",{
-              method:"GET",
-              headers:{
-                  'Content-Type':'application',
-              }
-          })
-          
-          .then((res)=> res.json())
-          .then((res)=>{
-              toggleLoading(false);
-              footer.style.display="block";
-              if(res.success){
-                  console.log("res:",res)
-                  renderCart(res.cart);
-              }else{
-                  toggleLoading(false);
-                  Swal.fire({
-                      icon:"error",
-                      title:"Faild To Fetch  Cart Data`s ",
-                      showCancelButton:false,
-                      showConfirmButton:false,
-                      timer:1200,
-                  })
-              }
-          })
-          .catch(()=>{
-              toggleLoading(false);
-              footer.style.display="block";
-              Swal.fire({
-                      icon:"error",
-                      title:"Error In Fetch  Cart Data`s ",
-                      showCancelButton:false,
-                      showConfirmButton:false,
-                      timer:1200,
-                  })
-          })
-      }
+document.addEventListener("DOMContentLoaded", () => {
+    const footer = document.getElementById("footer");
+    footer.style.display = "none";
+    toggleLoading(true);
+    fetchCart();
+})
 
-  function renderCart(cart) {
-  const product = document.getElementById("cart-products");
-  const summury = document.getElementById("cart-summury");
-  const cartContainer = document.getElementById("cart-container"); // Make sure cart-container is the parent container
+function fetchCart() {
+    fetch("/fetchCart", {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application',
+        }
+    })
 
-  product.innerHTML = "";
-  summury.innerHTML = "";
+        .then((res) => res.json())
+        .then((res) => {
+            toggleLoading(false);
+            footer.style.display = "block";
+            if (res.success) {
+                console.log("res:", res)
+                renderCart(res.cart);
+            } else {
+                toggleLoading(false);
+                Swal.fire({
+                    icon: "error",
+                    title: "Faild To Fetch  Cart Data`s ",
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timer: 1200,
+                })
+            }
+        })
+        .catch(() => {
+            toggleLoading(false);
+            footer.style.display = "block";
+            Swal.fire({
+                icon: "error",
+                title: "Error In Fetch  Cart Data`s ",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 1200,
+            })
+        })
+}
 
-  if (cart.items.length === 0) {
-      cartContainer.innerHTML = `
+function renderCart(cart) {
+    const product = document.getElementById("cart-products");
+    const summury = document.getElementById("cart-summury");
+    const cartContainer = document.getElementById("cart-container"); // Make sure cart-container is the parent container
+
+    product.innerHTML = "";
+    summury.innerHTML = "";
+
+    if (cart.items.length === 0) {
+        cartContainer.innerHTML = `
           <div class="empty-cart ">
               <p class="empty">Your cart is empty.<a href="/" class="btn shop-btn">Shop Now</a></p>
               
           </div>
       `;
-      return; // Exit the function if cart is empty
-  }
+        return;
+    }
 
-  cart.items.forEach((item) => {
-      let productData = ` 
+    cart.items.forEach((item) => {
+        let productData = ` 
           <div class="cart-item">
               <button class="remove-btn" onclick="return removeFromCart(event, '${item.productId._id}')">&times;</button>
               <!-- Product Image -->
@@ -94,14 +94,13 @@ function toggleLoading(show) {
               </div>
           </div>
       `;
-      product.innerHTML += productData;
-  });
+        product.innerHTML += productData;
+    });
 
-  // Calculate delivery fee and total price dynamically
-  const deliveryFee = cart.totalPrice < 500 ? 40 : 0;
-  const totalPrice = cart.totalPrice + deliveryFee;
+    const deliveryFee = cart.totalPrice < 500 ? 40 : 0;
+    const totalPrice = cart.totalPrice + deliveryFee;
 
-  summury.innerHTML = `
+    summury.innerHTML = `
       <div class="order-summary">
           <h5 class="fw-bold">Order Summary</h5>
           <div class="d-flex justify-content-between">
@@ -127,192 +126,183 @@ function toggleLoading(show) {
 
 
 function decreaseQty(event, productId, quantity) {
-  const input = document.getElementById(`quantity-${productId}`);
-  let currentQty = parseInt(input.value);
+    const input = document.getElementById(`quantity-${productId}`);
+    let currentQty = parseInt(input.value);
 
-  if (currentQty > 1) {
-      currentQty--;
-      input.value = currentQty;
-      updateCart(productId, currentQty, quantity); // Update the cart on the backend
-  } else {
-      Swal.fire({
-          icon:"error",
-          title:"Minimum quantity is 1",
-          showCancelButton:false,
-          showConfirmButton:false,
-          timer:1500
-      })
-  }
+    if (currentQty > 1) {
+        currentQty--;
+        input.value = currentQty;
+        updateCart(productId, currentQty, quantity);
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Minimum quantity is 1",
+            showCancelButton: false,
+            showConfirmButton: false,
+            timer: 1500
+        })
+    }
 }
 
 function increaseQty(event, productId, quantity) {
-  console.log("the quantity is:",quantity);
-  const input = document.getElementById(`quantity-${productId}`);
-  let currentQty = parseInt(input.value);
+    console.log("the quantity is:", quantity);
+    const input = document.getElementById(`quantity-${productId}`);
+    let currentQty = parseInt(input.value);
 
-  if (currentQty < quantity) {
-      currentQty++;
-      input.value = currentQty;
-      updateCart(productId, currentQty, quantity); // Update the cart on the backend
-  } else {
-      Swal.fire({
-          icon:"error",
-          title:"Cannot exceed available stock",
-          showCancelButton:false,
-          showConfirmButton:false,
-          timer:1500
-      })
-  }
+    if (currentQty < quantity) {
+        currentQty++;
+        input.value = currentQty;
+        updateCart(productId, currentQty, quantity);
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Cannot exceed available stock",
+            showCancelButton: false,
+            showConfirmButton: false,
+            timer: 1500
+        })
+    }
 }
 
 
 function updateCart(productId, currentQty, quantity) {
-  console.log("Update", "productId", productId, "currentQty:", currentQty, "quan:", quantity);
-  fetch('/update-cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, currentQty }),
-  })
-      .then((response) => response.json())
-      .then((data) => {
-          if (data.success) {
-              console.log("Cart updated successfully.");
-              // Update the DOM directly
-              const Subtotal = document.getElementById("subTotal");
-              const totalPrice = document.getElementById("totalPrice");
-              const deliveryFee = document.getElementById("deliveryFee");
+    console.log("Update", "productId", productId, "currentQty:", currentQty, "quan:", quantity);
+    fetch('/update-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, currentQty }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                console.log("Cart updated successfully.");
+                const Subtotal = document.getElementById("subTotal");
+                const totalPrice = document.getElementById("totalPrice");
+                const deliveryFee = document.getElementById("deliveryFee");
 
-              // Update the subtotal and total price
-              const roundedTotalPrice = Math.round(data.cart.totalPrice * 100) / 100;
+                const roundedTotalPrice = Math.round(data.cart.totalPrice * 100) / 100;
 
-              Subtotal.textContent = `₹${roundedTotalPrice.toFixed(2)}`;
+                Subtotal.textContent = `₹${roundedTotalPrice.toFixed(2)}`;
 
-              const finalTotalPrice =
-                  roundedTotalPrice > 500 ? roundedTotalPrice : Math.round((roundedTotalPrice + 40) * 100) / 100;
+                const finalTotalPrice =
+                    roundedTotalPrice > 500 ? roundedTotalPrice : Math.round((roundedTotalPrice + 40) * 100) / 100;
 
-              totalPrice.textContent = `₹${finalTotalPrice.toFixed(2)}`;
-              deliveryFee.textContent = roundedTotalPrice > 500 ? "Free" : "₹40";
+                totalPrice.textContent = `₹${finalTotalPrice.toFixed(2)}`;
+                deliveryFee.textContent = roundedTotalPrice > 500 ? "Free" : "₹40";
 
-              // Optionally, update the item's quantity in the UI
-              const input = document.getElementById(`quantity-${productId}`);
-              input.value = currentQty;
-          } else {
-              Swal.fire({
-                  icon: "error",
-                  title: data.message || "Failed to update cart",
-                  showCancelButton: false,
-                  showConfirmButton: false,
-                  timer: 1500,
-              });
+                const input = document.getElementById(`quantity-${productId}`);
+                input.value = currentQty;
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: data.message || "Failed to update cart",
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
 
-              // Reset the quantity input to the original value if the update fails
-              const input = document.getElementById(`quantity-${productId}`);
-              input.value = quantity > 1 ? quantity : 1;
-          }
-      })
-      .catch((error) => {
-          console.error("Error updating cart:", error);
-          Swal.fire({
-              icon: "error",
-              title: "Error updating cart",
-              text: "Please try again later.",
-              showCancelButton: false,
-              showConfirmButton: false,
-              timer: 1500,
-          });
-      });
+                const input = document.getElementById(`quantity-${productId}`);
+                input.value = quantity > 1 ? quantity : 1;
+            }
+        })
+        .catch((error) => {
+            console.error("Error updating cart:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error updating cart",
+                text: "Please try again later.",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        });
 }
 
-function updateCart(productId,currentQty ,quantity) {
-  console.log("Update","productId",productId,"currentQty:",currentQty,"quan:",quantity);
-  fetch('/update-cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, currentQty }),
-  })
-      .then((response) => response.json()) 
-      .then((data) => {
+function updateCart(productId, currentQty, quantity) {
+    console.log("Update", "productId", productId, "currentQty:", currentQty, "quan:", quantity);
+    fetch('/update-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, currentQty }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
 
-          if (data.success) {
-              console.log("Cart updated successfully.")
-              const Subtotal = document.getElementById("subTotal");
-              const totalPrice = document.getElementById("totalPrice");
-              const deliveryFee = document.getElementById("deliveryFee");
-              // Round total price to 2 decimal places
-              const roundedTotalPrice = Math.round(data.cart.totalPrice * 100) / 100;
+            if (data.success) {
+                console.log("Cart updated successfully.")
+                const Subtotal = document.getElementById("subTotal");
+                const totalPrice = document.getElementById("totalPrice");
+                const deliveryFee = document.getElementById("deliveryFee");
+                const roundedTotalPrice = Math.round(data.cart.totalPrice * 100) / 100;
 
-              // Update Subtotal
-              Subtotal.textContent =` ₹${roundedTotalPrice.toFixed(2)}`;
+                Subtotal.textContent = ` ₹${roundedTotalPrice.toFixed(2)}`;
 
-              // Calculate and Update Total Price
-              const finalTotalPrice = roundedTotalPrice > 500 
-                  ? roundedTotalPrice 
-                  : Math.round((roundedTotalPrice + 40) * 100) / 100;
-              totalPrice.textContent =` ₹${finalTotalPrice.toFixed(2)}`;
+                const finalTotalPrice = roundedTotalPrice > 500
+                    ? roundedTotalPrice
+                    : Math.round((roundedTotalPrice + 40) * 100) / 100;
+                totalPrice.textContent = ` ₹${finalTotalPrice.toFixed(2)}`;
 
-              // Update Delivery Fee
-              deliveryFee.textContent = roundedTotalPrice > 500 ? "Free" : "₹40";
+                deliveryFee.textContent = roundedTotalPrice > 500 ? "Free" : "₹40";
 
-              fetchCart();
-          } else {
-              Swal.fire({
-                  icon:"error",
-                  title:data.message || "Failed to update cart",
-                  showCancelButton:false,
-                  showConfirmButton:false,
-                  timer:1500
-              })
-              const input = document.getElementById(`quantity-${productId}`);
-              input.value = quantity > quantity ? quantity : 1;
-          }
-      })
-      // .then(()=> window.location.reload())
-      .catch((error) => console.error("Error updating cart:", error));
+                fetchCart();
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: data.message || "Failed to update cart",
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                const input = document.getElementById(`quantity-${productId}`);
+                input.value = quantity > quantity ? quantity : 1;
+            }
+        })
+        .catch((error) => console.error("Error updating cart:", error));
 }
 
-      function removeFromCart(event, productId) {
-          event.preventDefault(); // Prevent default form submission
-      
-          fetch(`/remove-from-cart?productId=${productId}`, {
-              method: "GET",
-              headers: {
-                  'Content-Type': 'application/json'
-              }
-          })
-          .then((res) => res.json())
-          .then((data) => {
-              console.log("Data:",data.datas)
-              if (data.success) {
-                  Swal.fire({
-                      icon: "success",
-                      title: "Removed",
-                       showCancelButton: false,
-                      showConfirmButton: false,
-                      timer: 1500,
-                  })
-                  fetchCart();
+function removeFromCart(event, productId) {
+    event.preventDefault();
 
-              } else {
-                  Swal.fire({
-                      icon: "error",
-                      title: "Failed to Remove",
-                      text: data.message,
-                      showCancelButton: false,
-                      showConfirmButton: false,
-                      timer: 1500,
-                  });
-              }
-          })
-          .catch(() => {
-              Swal.fire({
-                  icon: "error",
-                  title: "Error",
-                  text: "An error occurred while removing the item.",
-                  showCancelButton: false,
-                  showConfirmButton: false,
-                  timer: 1500,
-              });
-          });
-      }
+    fetch(`/remove-from-cart?productId=${productId}`, {
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then((res) => res.json())
+        .then((data) => {
+            console.log("Data:", data.datas)
+            if (data.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Removed",
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+                fetchCart();
 
-      
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Failed to Remove",
+                    text: data.message,
+                    showCancelButton: false,
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+            }
+        })
+        .catch(() => {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "An error occurred while removing the item.",
+                showCancelButton: false,
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        });
+}
+
+

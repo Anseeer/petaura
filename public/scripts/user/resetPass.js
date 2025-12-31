@@ -1,4 +1,4 @@
-document.getElementById('newPasswordForm').addEventListener('submit', async function(e) {
+document.getElementById('newPasswordForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const newPassword = document.getElementById('newPassword').value;
@@ -31,7 +31,7 @@ document.getElementById('newPasswordForm').addEventListener('submit', async func
                 timer: 1500,
                 showConfirmButton: false,
             }).then(() => {
-                window.location.href = '/login'; // Redirect to login page
+                window.location.href = '/login';
             });
         } else {
             Swal.fire({

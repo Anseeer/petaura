@@ -18,12 +18,11 @@ function updateStatus(orderId, status) {
                     showCancelButton: false,
                     showConfirmButton: false
                 }).then(() => {
-                    // If `select` is required, ensure it's defined
-                    const select = document.querySelector(`[data-order-id="${orderId}"]`); // Example: Get select element dynamically
+                    const select = document.querySelector(`[data-order-id="${orderId}"]`);
                     if (select) {
-                        select.disabled = true; // Disable the dropdown
+                        select.disabled = true;
                     }
-                    window.location.reload(); // Reload the page
+                    window.location.reload();
                 });
             } else {
                 Swal.fire({
@@ -47,7 +46,7 @@ function updateStatus(orderId, status) {
         });
 }
 
-function orderCancel(ordersId,itemsId) {
+function orderCancel(ordersId, itemsId) {
     Swal.fire({
         icon: "warning",
         title: "Are you sure?",
@@ -57,46 +56,46 @@ function orderCancel(ordersId,itemsId) {
         confirmButtonText: "Yes",
         cancelButtonText: "No"
     })
-    .then((result) => {
-        if (result.isConfirmed) {
-            fetch("/admin/order-cancel", {
-                method: "POST",
-                headers: {
-                    'Content-Type': "application/json"
-                },
-                body: JSON.stringify({ ordersId,itemsId })
-            })
-            .then((response) => response.json())
-            .then((response) => {
-                if (response.success) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Order Cancelled",
-                        timer: 1500,
-                        showCancelButton: false,
-                        showConfirmButton: false
-                    }).then(() => {
-                        location.reload();
+        .then((result) => {
+            if (result.isConfirmed) {
+                fetch("/admin/order-cancel", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': "application/json"
+                    },
+                    body: JSON.stringify({ ordersId, itemsId })
+                })
+                    .then((response) => response.json())
+                    .then((response) => {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Order Cancelled",
+                                timer: 1500,
+                                showCancelButton: false,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Order Cancellation Failed",
+                                timer: 1500,
+                                showCancelButton: false,
+                                showConfirmButton: false
+                            });
+                        }
                     });
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Order Cancellation Failed",
-                        timer: 1500,
-                        showCancelButton: false,
-                        showConfirmButton: false
-                    });
-                }
+            }
+        })
+        .catch(() => {
+            Swal.fire({
+                icon: "error",
+                title: "Error in cancelOrder",
+                timer: 1500,
+                showCancelButton: false,
+                showConfirmButton: false
             });
-        }
-    })
-    .catch(() => {
-        Swal.fire({
-            icon: "error",
-            title: "Error in cancelOrder",
-            timer: 1500,
-            showCancelButton: false,
-            showConfirmButton: false
         });
-    });
 }

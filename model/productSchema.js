@@ -32,8 +32,8 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
-    finalPrice:{
-      type:Number,
+    finalPrice: {
+      type: Number,
     },
     quantity: {
       type: Number,
@@ -57,13 +57,13 @@ const productSchema = new Schema(
       default: "Available",
       required: true,
     },
-    maxQuantity:{
-      type:Number,
-      default:5
+    maxQuantity: {
+      type: Number,
+      default: 5
     },
-    saleCount:{
-      type:Number,
-      default:0
+    saleCount: {
+      type: Number,
+      default: 0
     },
   },
   { timestamps: true }

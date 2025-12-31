@@ -43,7 +43,7 @@ input[type="file"] {
 
 .cropped-container {
     margin-top: 10px;
-    display: none; /* Hidden until cropping is done */
+    display: none;
 }
 
 .cropped-preview {
@@ -70,6 +70,7 @@ input[type="file"] {
 .btn-save:hover {
     background-color: #0056b3;
 }
-.error-msg{
+
+.error-msg {
     color: red;
 }

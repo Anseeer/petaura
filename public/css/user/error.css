@@ -9,6 +9,7 @@ body {
     height: 100vh;
     color: #333;
 }
+
 .container {
     text-align: center;
     background: #fff;
@@ -17,15 +18,18 @@ body {
     border-radius: 10px;
     max-width: 500px;
 }
+
 .container h1 {
     font-size: 48px;
     color: #ff6b6b;
     margin-bottom: 20px;
 }
+
 .container p {
     font-size: 18px;
     margin-bottom: 30px;
 }
+
 .container a {
     text-decoration: none;
     padding: 10px 20px;
@@ -34,9 +38,11 @@ body {
     border-radius: 5px;
     transition: background 0.3s ease;
 }
+
 .container a:hover {
     background: #0056b3;
 }
+
 .icon {
     font-size: 64px;
     color: #ff6b6b;

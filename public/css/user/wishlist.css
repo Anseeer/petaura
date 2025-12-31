@@ -1,30 +1,31 @@
 .user-container {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .user-info {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    width: 60px; /* Fixed width for consistent alignment */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  width: 60px;
 }
 
 .user-name {
-    font-size: 14px;
-    margin: 2px 0 0 0;
-    text-align: center;
-    min-height: 18px; /* Ensures space is reserved even when empty */
-    color: #333;
+  font-size: 14px;
+  margin: 2px 0 0 0;
+  text-align: center;
+  min-height: 18px;
+  color: #333;
 }
 
 .icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .user-info {
   position: relative;
   display: flex;
@@ -41,7 +42,7 @@
 }
 
 .user-name.empty {
-  display: none; /* Hide when no user */
+  display: none;
 }
 
 .dropdown-container {
@@ -50,10 +51,10 @@
 }
 
 .dropdown-menu {
-  display: none; /* Hidden by default */
+  display: none;
   position: absolute;
-  top: 100%; /* Align below the button */
-  right: 0; /* Align to the right */
+  top: 100%;
+  right: 0;
   background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
@@ -73,155 +74,154 @@
 }
 
 .dropdown-container.active .dropdown-menu {
-  display: block; /* Show dropdown */
+  display: block;
 }
 
 body {
-    background-color: #f8f9fa;
-    display: block;
-    height: 100vh;
-    
+  background-color: #f8f9fa;
+  display: block;
+  height: 100vh;
+
 }
 
 .wishlist-item {
-    border: 1px solid #ff960d;
-    border-radius: 10px;
-    background-color: #fff0c0;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    margin-bottom: 15px;
+  border: 1px solid #ff960d;
+  border-radius: 10px;
+  background-color: #fff0c0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin-bottom: 15px;
 }
 
 .wishlist-item img {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
 }
 
 .remove-btn {
-    background-color: #f00;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    font-size: 16px;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    z-index: 10;
+  background-color: #f00;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 10;
 }
 
 .wishlist-item h5 {
-    margin: 0;
-    font-weight: bold;
+  margin: 0;
+  font-weight: bold;
 }
 
 .wishlist-item .price {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .cart-icon {
-    font-size: 24px;
-    color: #000;
-    cursor: pointer;
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: color 0.3s ease;
+  font-size: 24px;
+  color: #000;
+  cursor: pointer;
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: color 0.3s ease;
 }
 
 .cart-icon:hover {
-    color: #ffffff;
+  color: #ffffff;
 }
 
 .whishlist-title {
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 30px 0;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 30px 0;
 }
 
 .empty {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 380px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 380px;
 }
 
 
 .pagination {
-display: flex;
-justify-content: center;
-align-items: center;
-margin-top: 20px;
-gap: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
 }
 
-/* Pagination buttons */
 .pagination a {
-display: inline-block;
-padding: 10px 15px;
-font-size: 14px;
-text-decoration: none;
-border-radius: 5px;
-color: #ffa500; /* Bootstrap's primary color */
-border: 1px solid #ffa500;
-transition: background-color 0.3s ease, color 0.3s ease;
+  display: inline-block;
+  padding: 10px 15px;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 5px;
+  color: #ffa500;
+  border: 1px solid #ffa500;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Active button styling */
 .pagination a.btn-secondary {
-background-color: #ffa500;
-color: #fff;
-cursor: default;
-pointer-events: none;
+  background-color: #ffa500;
+  color: #fff;
+  cursor: default;
+  pointer-events: none;
 }
 
-/* Hover effect for buttons */
 .pagination a:hover {
-background-color: #ffa500; /* Darker shade of primary */
-color: #fff;
+  background-color: #ffa500;
+  color: #fff;
 }
 
-/* Disabled button styling */
 .pagination a.disabled {
-color: #6c757d;
-border-color: #6c757d;
-cursor: not-allowed;
-pointer-events: none;
-} 
-.empty{
-display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 380px;
+  color: #6c757d;
+  border-color: #6c757d;
+  cursor: not-allowed;
+  pointer-events: none;
 }
+
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 380px;
+}
+
 #loading-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-  z-index: 5; /* Lower than navbar */
-  display: none; /* Hidden initially */
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 5;
+  display: none;
   justify-content: center;
   align-items: center;
 }
 
 body.loading #wishlist-container {
-pointer-events: none;
-opacity: 0.5;
+  pointer-events: none;
+  opacity: 0.5;
 }
-#footer{
+
+#footer {
   margin-top: 30vh;
 }

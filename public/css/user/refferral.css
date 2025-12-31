@@ -4,7 +4,6 @@ body {
     background-color: #f7f7f7;
 }
 
-/* Header Styling */
 .header {
     background: linear-gradient(90deg, #ffa500, #ff7f50);
     padding: 15px 20px;
@@ -24,10 +23,9 @@ body {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Sidebar Styling */
 .sidebar {
     position: fixed;
-    top: 70px; /* Start below the header */
+    top: 70px;
     left: 0;
     width: 250px;
     height: calc(100% - 70px);
@@ -59,11 +57,10 @@ body {
     font-size: 18px;
 }
 
-/* Content Area */
 .content {
     margin-left: 270px;
     padding: 20px;
-    padding-top: 100px; /* Push content down to not overlap with the fixed header */
+    padding-top: 100px;
 }
 
 svg {

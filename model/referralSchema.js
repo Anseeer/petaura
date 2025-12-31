@@ -3,14 +3,14 @@ const { Schema } = mongoose;
 
 const referralSchema = new Schema({
     userId: {
-        type: Schema.Types.ObjectId, 
+        type: Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
     referralCode: {
         type: String,
         unique: true,
-        required: true, 
+        required: true,
     },
     referredUsers: [
         {
@@ -21,11 +21,11 @@ const referralSchema = new Schema({
             },
             createdAt: {
                 type: Date,
-                default: Date.now, 
+                default: Date.now,
             },
         },
     ],
-    bonus: { 
+    bonus: {
         type: Number,
         default: 0,
     },

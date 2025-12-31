@@ -4,7 +4,6 @@ body {
     background-color: #f7f7f7;
 }
 
-/* Header Styling */
 .header {
     background: linear-gradient(90deg, #ffa500, #ff7f50);
     padding: 15px 20px;
@@ -24,10 +23,9 @@ body {
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-/* Sidebar Styling */
 .sidebar {
     position: fixed;
-    top: 70px; /* Start below the header */
+    top: 70px;
     left: 0;
     width: 250px;
     height: calc(100% - 70px);
@@ -59,11 +57,10 @@ body {
     font-size: 18px;
 }
 
-/* Content Area */
 .content {
     margin-left: 270px;
     padding: 20px;
-    padding-top: 100px; /* Push content down to not overlap with the fixed header */
+    padding-top: 100px;
 }
 
 .section {
@@ -99,7 +96,6 @@ input {
     box-sizing: border-box;
 }
 
-/* Buttons */
 button.btn {
     background: linear-gradient(90deg, #000000, #474849);
     color: white;
@@ -115,7 +111,6 @@ button.btn:hover {
     background: linear-gradient(90deg, #000000, #252f3a);
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .sidebar {
         width: 200px;
@@ -129,27 +124,29 @@ button.btn:hover {
         font-size: 20px;
     }
 }
+
 .row {
-display: flex;
-flex-wrap: wrap;
-justify-content: center; /* Centers the row horizontally */
-gap: 1.5rem; /* Adds space between items */
-margin-left:20px  auto; /* Centers the row within its container */
-width: 1500px; /* Adjusts the row's width, can be customized */
-margin-right: calc(-.4* var(--bs-gutter-x));
-margin-left: calc(-9.5* var(--bs-gutter-x));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-left: 20px auto;
+    width: 1500px;
+    margin-right: calc(-.4* var(--bs-gutter-x));
+    margin-left: calc(-9.5* var(--bs-gutter-x));
 }
 
-.err-msg{
-color: red;
+.err-msg {
+    color: red;
 }
+
 svg {
-color: #000000; /* Blue color */
-cursor: pointer; /* Pointer cursor for interactivity */
-transition: color 0.3s;
-width: 30px;
+    color: #000000;
+    cursor: pointer;
+    transition: color 0.3s;
+    width: 30px;
 }
 
 svg:hover {
-color: #ffffff; /* Darker blue on hover */
+    color: #ffffff;
 }

@@ -23,7 +23,7 @@
 .summary-card .icon {
     font-size: 40px;
     margin-bottom: 10px;
-    color: #000; /* Black icons */
+    color: #000;
 }
 
 .summary-card h4 {
@@ -33,7 +33,7 @@
 }
 
 .summary-card p {
-    
+
     margin: 10px 0;
     font-size: 18px;
     font-weight: bold;
@@ -66,8 +66,8 @@
 }
 
 .list-group {
-    max-height: 150px; /* Limit height to prevent overflow */
-    overflow-y: auto; /* Scrollable if content exceeds height */
+    max-height: 150px;
+    overflow-y: auto;
     padding: 0;
     margin: 0;
     list-style: none;
