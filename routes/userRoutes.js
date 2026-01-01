@@ -23,7 +23,6 @@ userRoutes.get("/loadshop", userauth, userController.loadShop);
 userRoutes.get("/cat-supplies", userauth, categoryController.loadCatSupplies);
 userRoutes.get("/fillterCategoryOfCat", userauth, categoryController.fillterCategoryOfCat);
 userRoutes.get("/ProuctDetails", userauth, categoryController.ProuctDetails);
-// userRoutes.get("/cat-supplies-filter",userauth,categoryController.filterCatSupplies);
 // dog-supplies 
 userRoutes.get("/dog-supplies", userauth, categoryController.loadDogSupplies);
 userRoutes.get("/fillterCategoryOfDog", userauth, categoryController.fillterCategoryOfDog);

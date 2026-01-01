@@ -60,7 +60,6 @@ router.get("/inActive", adminauth, coupenController.inActiveCoupen);
 router.get("/Active", adminauth, coupenController.ActiveCoupen);
 // salesReport
 router.get("/sales-report", adminauth, adminController.loadSalesReport);
-// router.post("/sales-report",adminController.loadSalesReportForCustomDate);
 router.post("/filter-sales", adminauth, adminController.filterSalesReport);
 // offer management 
 router.get("/offer", adminauth, offerController.loadOffer);

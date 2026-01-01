@@ -240,7 +240,6 @@ const loadeditParentCategory = async (req, res) => {
   }
 };
 
-
 const editParentCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
@@ -269,7 +268,6 @@ const editParentCategory = async (req, res) => {
 };
 
 
-
 const loadCatSupplies = async (req, res) => {
   try {
     let page = parseInt(req.query.page) || 1;
@@ -282,7 +280,6 @@ const loadCatSupplies = async (req, res) => {
 
     if (!ParentCat) {
     }
-
 
     const categories = await Category.find({ isListed: true, parent: ParentCat?._id });
     const categoryIds = categories.map((category) => category?._id.toString());
@@ -299,8 +296,6 @@ const loadCatSupplies = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-
-
 
     res.render("catSupplies", {
       user: userData,
@@ -592,7 +587,7 @@ const loadSmallPetsSupplies = async (req, res) => {
 
     const user = req?.session?.user;
     const userData = await User.findById(user);
-    const ParentSmallPets = await ParentCategory.findOne({ name: "SmallPets " });
+    const ParentSmallPets = await ParentCategory.findOne({ name: "SmallPets" });
 
     if (!ParentSmallPets) {
     }
@@ -1041,11 +1036,11 @@ const loadAccessories = async (req, res) => {
     const userData = await User.findById(user);
 
     const accessoryCategories = [
-      "CatAccessories",
-      "DogAccessories",
+      "Cat Accessories",
+      "Dog Accessories",
       "SmallPets Accessories",
       "PetBirds Accessories",
-      "FishAccessories "
+      "Fish Accessories"
     ];
 
     const categories = await Category.find({
@@ -1213,11 +1208,11 @@ const loadTreats = async (req, res) => {
     const userData = await User.findById(user);
 
     const treatCategories = [
-      "CatTreat",
-      "DogTreat",
-      "SmallPets Treat ",
+      "Cat Treat",
+      "Dog Treat",
+      "SmallPets Treat",
       "PetBirds Treat",
-      "FishTreat"
+      "Fish Treat"
     ];
 
     const categories = await Category.find({
@@ -1383,8 +1378,8 @@ const loadToys = async (req, res) => {
     const userData = await User.findById(user);
 
     const ToysCategories = [
-      "CatToys",
-      "DogToys ",
+      "Cat Toys",
+      "Dog Toys",
       "SmallPets Toys",
       "PetBirds Toys"
     ];
@@ -1550,11 +1545,11 @@ const loadFood = async (req, res) => {
     const userData = await User.findById(user);
 
     const FoodCategories = [
-      "CatFood",
-      "DogFood",
-      "SmallPets Food ",
+      "Cat Food",
+      "Dog Food",
+      "SmallPets Food",
       "PetBirds Food",
-      "FishFood"
+      "Fish Food"
     ];
 
     const categories = await Category.find({

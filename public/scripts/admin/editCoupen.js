@@ -1,7 +1,7 @@
 
 function codeValidate() {
   const codeValue = document.getElementById("couponCode").value;
-  const codePattern = /^#[A-Z]{3}\d{3}$/;
+  const codePattern = /^#[A-Za-z0-9]+$/;
   const err1 = document.getElementById("err1");
 
   if (codeValue.trim() === "") {
@@ -102,16 +102,15 @@ function maxDiscountValidate() {
 }
 
 function descriptionValidate() {
-  const descriptionValue = document.getElementById("couponDescription").value;
-  const descriptionPattern = /^[a-zA-Z0-9 @#\-_?$%&]+$/;
+  const descriptionValue = document.getElementById("couponDescription").value.trim();
   const err7 = document.getElementById("err7");
 
-  if (descriptionValue.trim() === "") {
+  if (descriptionValue === "") {
     err7.style.display = "block";
-    err7.innerHTML = "Please Enter Description";
-  } else if (!descriptionPattern.test(descriptionValue)) {
+    err7.innerHTML = "Please enter description";
+  } else if (descriptionValue.length < 5) {
     err7.style.display = "block";
-    err7.innerHTML = "Invalid Description";
+    err7.innerHTML = "Description must be at least 5 characters";
   } else {
     err7.style.display = "none";
     err7.innerHTML = "";
