@@ -127,7 +127,6 @@ userRoutes.get("/referral", userauth, profileController.loadReferral);
 userRoutes.post("/apply-coupen", userauth, coupenController.applyCoupen);
 userRoutes.get("/getInvoice/:orderId", userauth, orderController.generateSalesInvoice);
 
-
 userRoutes.get("/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"], prompt: "select_account" })
 );
@@ -143,7 +142,7 @@ userRoutes.get(
         return res.redirect("/signup");
       }
       req.session.user = req.session.passport.user;
-      res.redirect("/"); // Redirect to user dashboard or homepage
+      res.redirect("/"); 
     });
   }
 );
