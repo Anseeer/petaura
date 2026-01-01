@@ -32,11 +32,6 @@ app.use(session({
 }));
 
 app.use(nocache());
-// app.use(express.static(path.join(__dirname, 'public')));  
-
-
-// app.set('views',path.join(__dirname,'views'));
-// app.set('view engine', 'ejs');
 app.use(express.static('public'));
 // View engine
 app.set("view engine", "ejs");
@@ -45,13 +40,11 @@ app.set("views", [path.join(__dirname, 'views/user'), path.join(__dirname, 'view
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 // Routes
 app.use("/", userRoutes);
 app.use("/admin", adminRoutes);
 
 // Global error handler
-
 app.use((err, req, res, next) => {
     console.error(err.message);
     res.status(500).render("error", {
