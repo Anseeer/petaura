@@ -12,11 +12,14 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "https://petaura.site/auth/google/callback",
+      callbackURL: process.env.GOOGLE_CALLBACK_URL,
     },
-    async (profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       try {
-        const email = profile?.emails?.[0]?.value;
+        const email =
+          profile.emails && profile.emails.length > 0
+            ? profile.emails[0].value
+            : null;
         if (!email) {
           throw new Error("Google profile does not contain an email address.");
         }
