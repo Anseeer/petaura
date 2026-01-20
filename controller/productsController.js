@@ -248,36 +248,44 @@ const deleteProduct = async (req, res) => {
         res.status(400).send("ERROR in deleteProduct");
     }
 }
-
 const blockProduct = async (req, res) => {
     try {
-        const id = req.query.id;
+        const { id } = req.query;
         if (!id) {
-            throw new Error("Product ID is missing in the request.");
+            return res.status(400).json({ success: false, message: "Product ID missing" });
         }
 
         await Product.findByIdAndUpdate(id, { $set: { isBlocked: true } });
 
-        res.redirect("/admin/loadproducts");
+        res.json({ success: true });
     } catch (error) {
-        res.render("error-page", { message: "An error occurred while blocking the product." });
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Error while blocking product"
+        });
     }
 };
 
 const unblockProduct = async (req, res) => {
     try {
-        const id = req.query.id;
+        const { id } = req.query;
         if (!id) {
-            throw new Error("Product ID is missing in the request.");
+            return res.status(400).json({ success: false, message: "Product ID missing" });
         }
 
         await Product.findByIdAndUpdate(id, { $set: { isBlocked: false } });
 
-        res.redirect("/admin/loadproducts");
+        res.json({ success: true });
     } catch (error) {
-        res.render("error-page", { message: "An error occurred while unblocking the product." });
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Error while unblocking product"
+        });
     }
 };
+
 
 module.exports = {
     loadproducts,

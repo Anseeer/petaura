@@ -1,5 +1,5 @@
 
-function blockCustomer(event, id) {
+function blockCustomer(event, btn, id) {
     event.preventDefault()
     Swal.fire({
         title: "Are you sure?",
@@ -26,7 +26,10 @@ function blockCustomer(event, id) {
                             showConfirmButton: false,
                             timer: 1500,
                         });
-                        window.location.reload()
+                        btn.classList.remove("btn-danger");
+                        btn.classList.add("btn-success");
+                        btn.innerText = "Unblocked";
+                        btn.onclick = (e) => unblockCustomer(e, btn, id);
                     } else {
                         Swal.fire({
                             icon: "error",
@@ -58,7 +61,7 @@ function blockCustomer(event, id) {
     });
 }
 
-function unblockCustomer(event, id) {
+function unblockCustomer(event, btn, id) {
     event.preventDefault()
     Swal.fire({
         title: "Are you sure?",
@@ -85,7 +88,10 @@ function unblockCustomer(event, id) {
                             showConfirmButton: false,
                             timer: 1500,
                         });
-                        window.location.reload()
+                        btn.classList.remove("btn-success");
+                        btn.classList.add("btn-danger");
+                        btn.innerText = "Block";
+                        btn.onclick = (e) => blockCustomer(e, btn, id);
                     } else {
                         Swal.fire({
                             icon: "error",

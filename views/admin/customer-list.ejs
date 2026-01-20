@@ -20,13 +20,6 @@
                     </form>
                 </div>
                 
-
-                <!-- Add new button moved further right -->
-                <!-- <div class="col-lg-2 col-md-6 ms-auto" style="text-align: right;">
-                    <button class="btn btn-sm btn-secondary">
-                        <a href="/admin/addCustomer" style="color: white; text-decoration: none;">Add new</a>
-                    </button>
-                </div> -->
             </div>
         </header> <!-- card-header end// -->
         <div class="card-body">
@@ -50,12 +43,18 @@
                             <td><%= customer[i].phone %></td>
                             <td>
                                 <% if (customer[i].isBlocked === false) { %>
-                                    <button class="btn btn-sm btn-danger">
-                                        <a onclick="blockCustomer(event,'<%= customer[i]._id %>')" style="color: white; text-decoration: none;">Block</a>
-                                    </button>
+                                    <button 
+                                    class="btn btn-sm btn-danger"
+                                    onclick="blockCustomer(event,this,'<%= customer[i]._id %>')" 
+                                    style="color: white; text-decoration: none;">
+                                    Block
+                                   </button>
                                 <% } else { %>
-                                    <button class="btn btn-sm btn-success">
-                                        <a onclick="unblockCustomer(event,'<%= customer[i]._id %>')"  style="color: white; text-decoration: none;">UnBlocked</a>
+                                    <button 
+                                    class="btn btn-sm btn-success"
+                                    onclick="unblockCustomer(event,this,'<%= customer[i]._id %>')"  
+                                    style="color: white; text-decoration: none;">
+                                    UnBlocked
                                     </button>
                                 <% } %>
                             </td>
